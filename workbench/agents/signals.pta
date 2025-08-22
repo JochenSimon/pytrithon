@@ -1,0 +1,27 @@
+gadget (0,0): PushButtonGroup(text=("ook", "koo"))
+  gives: clicked:1
+var 1 (2,0);
+signal (4,0): test
+  takes: oink:1
+  gives: oink:12
+queue 12 (6,0);
+slot (0,2): test
+  gives: oink:4
+var 4 (2,2);
+gadget (0,4): PushButton(text=("moo"))
+  gives: clicked:8
+var 8 (2,4);
+python (4,3): result = slot, trigger
+  takes: slot:4; trigger:8
+  gives: result:10
+queue 10 (6,3);
+slot (0,6): test
+  gives: oink:21
+var 21 (2,6);
+gadget (0,8): PushButton(text=("moo"))
+  gives: clicked:23
+var 23 (2,8);
+python (4,7): result = slot, trigger
+  takes: slot:21; trigger:23
+  gives: result:25
+queue 25 (6,7);

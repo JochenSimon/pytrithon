@@ -1,0 +1,15 @@
+module (0,0):
+  from samplegadget import SampleGadget
+  import string
+  from PyQt5.QtGui import QFont
+  
+  application.setFont(QFont("Segoe Script", 8))
+gadget (0,4): SampleGadget([l for l in string.ascii_letters])
+  takes: items:3
+  gives: activated:4
+flow 1 (-7,4): ()
+python (-5,4): items = [str(n) for n in range(100)]
+  takes: 1
+  gives: items:3
+var 3 (-3,4);
+pool 4 (2,4);

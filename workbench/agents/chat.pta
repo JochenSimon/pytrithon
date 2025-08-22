@@ -1,0 +1,70 @@
+flow 1 (0,0);
+task (1,0): discover
+  takes: 1
+  gives: server:3
+pool 3 (2,0);
+gadget (6,0): JoinDialog(window)
+  takes: servers:11; reappear:37
+  gives: name:5; server:12; password:23
+var 5 (8,-1);
+module (0,-4):
+  from PyQt5.QtCore import QSize
+  from chat import JoinDialog, room
+  
+  window.sizeHint = lambda: QSize(480, 480)
+flow 7 (0,-2): ()
+timer (1,-2): 2s
+  takes: 7
+  gives: 9
+flow 9 (2,-2);
+python (3,-1): 
+  takes: *servers:3; 9
+  gives: servers:11
+var 11 (4,0);
+var 12 (8,1);
+task (10,0): join
+  reads: aid:12; name:5
+  takes: password:23
+  gives: history:14; wrong:35
+var 14 (11,0);
+gadget (12,-2): Label()
+  takes: text:32
+gadget (15,0): TextEdit()
+  takes: append:17; append:22
+python (12,0):
+  reads: :window
+  enable = True
+  window.setWindowTitle(room(server))
+  reads: name:5; server:12
+  takes: history:14
+  gives: history:17; enable:18; name:32
+var 17 (13,0);
+var 18 (12,2);
+gadget (14,2): LineEdit(clear=True, history=True, enabled=False, focus=True)
+  takes: enable:18
+  gives: return:20
+var 20 (15,2);
+var 22 (17,0);
+var 23 (8,0);
+timer (-1,0): 1s
+  takes: 25
+  gives: 1
+flow 25 (-2,0): ()
+out (17,2): say
+  reads: aid:12
+  takes: message:20
+in (18,0): hear
+  gives: line:22
+var 32 (12,-1);
+flow 35 (10,-2);
+python (10,-3): 
+  clears: 5; 12
+  takes: 35
+  gives: 37
+flow 37 (8,-3);
+know window (4,-4);
+self (2,-4): domain: chat
+comment ffffff (3.7,-2.7):
+  This agent encapsulates a chat participant.
+  In order to join a chat, a "chatserver"
+  agent needs to be running before this.

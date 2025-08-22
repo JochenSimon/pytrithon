@@ -1,0 +1,72 @@
+module (0,0):
+  import random
+  from itertools import zip_longest
+gadget display (5,2): Label(center=True,fontsize=69)
+  takes: text:5
+flow 3 (0,2): ()
+python (3,2):
+  reads: rounds:16; low:17; high:18
+  if count < rounds:
+    number = random.randint(low, high)
+    sum += number
+    count += 1
+    next = ()
+  else:
+    guess = True
+  takes: 7
+  gives: number:5; next:8; guess:13
+  writes: :sum; :count
+var 5 (4,2);
+timer (1,2):
+  reads: delay:15
+  1s
+  takes: 3
+  gives: 7
+flow 7 (2,2);
+flow 8 (3,3);
+timer (3,4):
+  reads: delay:15
+  1s
+  takes: 8
+  gives: 10
+flow 10 (3,5);
+python (0,5): clear = ""
+  takes: 10
+  gives: clear:5; 3
+var sum (3,1): 0
+var count (4,1): 0
+gadget (5,5): LineEdit(enabled=False,focus=True,clear=True)
+  takes: enable:13
+  gives: return:19
+var 13 (5,4);
+know args (3,-1);
+python (4,-1):
+  vars = {}
+  for arg,var,dft in zip_longest(args,["delay","rounds","low","high"],[4000,10,0,30],fillvalue=None):
+    try:
+      vars[var]=int(arg)
+    except:
+      vars[var]=dft
+  delay = vars["delay"]//2; rounds = vars["rounds"]; low = vars["low"]; high = vars["high"]
+  takes: :args
+  gives: delay:15; rounds:16; low:17; high:18
+var 15 (4,-2);
+var 16 (5,-2);
+var 17 (5,-1);
+var 18 (5,0);
+var 19 (7,5);
+python (7,3):
+  writes: :sum; :count
+  try:
+    guess = int(guess)
+  except:
+    guess = None
+  if guess == sum:
+    result = "Correct!"
+  else:
+    result = "Wrong..."
+  sum = 0; count = 0
+  dis = False
+  takes: guess:19
+  gives: dis:13; result:5; 8
+self (0,-2): secret: True

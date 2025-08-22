@@ -1,0 +1,17 @@
+gadget (0,4): PushButtonGroup(("meow", "woof"))
+  gives: clicked:2
+var 2 (2,4);
+iterator (4,4): result = [thrice for once in letters]
+  takes: letters:2; thrice:6
+  gives: result:7; once:4
+var 4 (3,2);
+python (4,0): thrice = letter*3
+  takes: letter:4
+  gives: thrice:6
+var 6 (5,2);
+var 7 (6,4);
+python (8,4): joined = "".join(result)
+  takes: result:7
+  gives: joined:0
+self (0,0): delay: 200
+queue 0 (10,4);

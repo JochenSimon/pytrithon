@@ -1,0 +1,29 @@
+ontology (0,-2):
+  concept Test:
+    slot ook: str
+gadget (0,0): PushButtonGroup(text=("one","two","three"), col=0)
+  gives: clicked:7
+var 7 (2,0);
+python (4,0): text = [text[0], text[1], text[2]]
+  takes: text:7
+  gives: *text:2
+stack 2 (6,0);
+python (8,0): tok = tok
+  takes: tok:2
+  gives: tok:4
+pool 4 (10,0);
+gadget (12,0): PushButton(row=0, col=1)
+  takes: text:4
+  gives: clicked:6
+queue 6 (14,0);
+gadget (0,2): PushButton(text="123", row=1, col=0, cols=2)
+  gives: clicked:11
+var 11 (2,2);
+python (4,2): stuff = [text[0],text[1],text[2]]
+  takes: text:11
+  gives: *stuff:13
+stack 13 (6,2);
+python (8,2): result = trippled[1]
+  takes: *trippled:13
+  gives: result:15
+queue 15 (10,2);

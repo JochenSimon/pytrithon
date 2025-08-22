@@ -1,0 +1,35 @@
+gadget (0,-1): PushButtonGroup(("one", "two", "three"))
+  gives: clicked:1
+var 1 (2,-1);
+nethod (4,0): nethod
+  takes: param1:1; param2:31
+  gives: result1:3; result2:32
+queue 3 (6,-1);
+queue 5 (2,3): "test1", "test2", "test3"
+queue 21 (2,5): "spam1", "spam2", "spam3"
+nethod (4,4): nethod
+  takes: param1:5; param2:21
+  gives: result1,result2:7
+queue 7 (6,4);
+call (-2,8): nethod
+  gives: param1,neth:9; param2:30
+var 9 (0,7);
+var 30 (0,9);
+return (6,8): nethod
+  takes: result1,neth:0; result2:2
+var 31 (2,1);
+queue 32 (6,1);
+gadget (0,1): PushButtonGroup(("eleven", "twelve", "thirteen"))
+  gives: clicked:31
+python (2,8):
+  result1 = param1 + param2
+  result2 = param2 + param1
+  takes: param1,neth:9; param2:30
+  gives: result1,neth:0; result2:2
+var 0 (4,7);
+var 2 (4,9);
+comment (-2.6,2.9):
+  This agent exemplifies the concept of Nethods.
+  It is recommended to halt and reset the agent
+  and then to step through the execution of a
+  Nethod to see how it works.

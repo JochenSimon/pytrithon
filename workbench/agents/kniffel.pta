@@ -1,0 +1,96 @@
+module (1,10):
+  import random
+  buttons = ("Ones","Twos","Threes","Fours","Fives","Sixes",
+    "3 of a kind","4 of a kind","Full House",
+    "Sml.Straight","Lg.Straight","Kniffel","Chance")
+  def isofakind(dice, num):
+    for v in range(1,7):
+      if len([d for d in dice if d == v]) >= num:
+        return True
+  def isfullhouse(dice):
+    for v in range(1,7):
+      for u in range(1,7):
+        if len([d for d in dice if d == v]) == 3 and\
+            len([d for d in dice if d == u]) == 2:
+          return True
+  def issmlstraight(dice):
+    for v in range(1,4):
+      if v in dice and v+1 in dice and\
+          v+2 in dice and v+3 in dice:
+        return True
+var 12 (0,6);
+var 13 (6,9);
+gadget (0,0): LineEdit(clear=False)
+  gives: return:40
+var 40 (2,0);
+gadget (0,9): CheckBoxGroup(count=5, fontsize=37)
+  takes: text:12; check:13
+  writes: checked:10
+var 10 (3,8): (0,)*5
+gadget (0,2): PushButton('reroll')
+  takes: enable:61
+  gives: clicked:60
+gadget (16,0): Label()
+  takes: text:77
+flow 60 (0,4): ()
+timer (3,4): 0.5s
+  takes: 85
+  gives: 63
+flow 63 (3,2);
+var 61 (3,0);
+python (9,0):
+  old = list(dice)
+  dice = [random.randint(1,6) for _ in [0]*5]
+  for i,k in enumerate(keep):
+    if k: dice[i] = old[i]
+  open = [True if score == -1 else False for score in scores]
+  tries -= 1
+  enable = bool(tries)
+  if not len([1 for score in scores if score == -1]):
+    enable = False
+    dice = ('',)*5
+    won = "Total score: " + str(sum(scores) + (35 if sum(scores[:6]) >= 63 else 0))
+  reads: scores:71; keep:10
+  takes: 63
+  gives: open:82; won:77; enable:61; dice:12
+  writes: tries:72; dice:70
+var 70 (9,5): (0,)*5
+var 71 (13,5): [-1]*13
+var 72 (5,10): 3
+var 77 (13,0);
+gadget (16,6): PushButtonGroup(text=buttons, count=13, column=True)
+  takes: text:81; enabled:82
+  gives: clicked:80
+var 80 (12,8);
+var 81 (16,10);
+var 82 (16,3);
+python (9,10):
+  index = buttons.index(but)
+  if index <= 5:
+    scores[index] = sum(die for die in dice if die == index+1)
+  elif index in (6,7):
+    scores[index] = sum(die for die in dice) if isofakind(dice, index-3) else 0
+  elif index == 8:
+    scores[index] = 25 if isfullhouse(dice) else 0
+  elif index == 9:
+    scores[index] = 30 if issmlstraight(dice) else 0
+  elif index == 10:
+    scores[index] = 40 if sorted(dice) == [1,2,3,4,5] or sorted(dice) == [2,3,4,5,6] else 0
+  elif index == 11:
+    scores[index] = 50 if len(set(dice)) == 1 else 0
+  elif index == 12:
+    scores[index] = sum(dice)
+  sum = [b for b in buttons]
+  for i,score in enumerate(scores):
+    if score != -1:
+      sum[i] = str(score)
+  dice = [str(die) for die in dice]    
+  rollen, tries, check, enabled = True, 3, (0,)*5, (False,)*13
+  reads: dice:70; scores:71
+  takes: but:80
+  gives: 60; rollen:61; enabled:82; check:13; sum:81
+  writes: tries:72; scores:71
+python (1,4): enable = False
+  takes: 60
+  gives: enable:61; 85
+flow 85 (2,4);

@@ -1,0 +1,104 @@
+import re
+import os
+import sys
+import argparse
+import yaml
+from pathlib import Path
+from PyQt5.QtWidgets import QApplication
+from Pytrithon import *
+from Pytrithon import __version__
+import ctypes
+
+try:
+  ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("pytrithon.agent."+__version__)
+except Exception:
+  pass
+
+try:
+  with open("config.yaml") as y:
+    config = yaml.safe_load(y)
+except FileNotFoundError:
+  config = None
+
+edit = config and "edit" in config and config["edit"]
+halt = config and "halt" in config and config["halt"]
+secret = config and "secret" in config and config["secret"]
+mute = config and "mute" in config and config["mute"]
+errors = config and "errors" in config and config["errors"] or not config or "errors" not in config
+
+parser = argparse.ArgumentParser()
+parser.add_argument("agent", help="agent to start")
+parser.add_argument("arguments", nargs="*", help="arguments to the agent")
+parser.add_argument("-v", "--version", action="version", version="Pytrithon Agent " + __version__, help="print the Pytrithon version and exit")
+parser.add_argument("-P", "--PORT", type=int, help="port to run on")
+parser.add_argument("-d", "--delay", type=int, help="set core delay in milliseconds")
+parser.add_argument("-p", "--poll", type=int, help="set idle poll resolution in milliseconds")
+parser.add_argument("-t", "--timeout", type=int, help="set agent timeout in seconds")
+parser.add_argument("-e", "--edit", action="store_true", help="do not start agent in edit mode" if edit else "start agent in edit mode")
+parser.add_argument("-H", "--HALT", action="store_true", help="do not start agent halted" if halt else "start agent halted")
+parser.add_argument("-s", "--secret", action="store_true", help="do not start agent in secret mode" if secret else "start agent in secret mode")
+parser.add_argument("-M", "--MUTE", action="store_true", help="do not start agent muted" if mute else "start agent muted")
+parser.add_argument("-E", "--ERRORS", action="store_true", help="hide agent errors" if errors else "show agent errors")
+args = parser.parse_args()
+
+if args.PORT is not None:
+  port = args.PORT
+elif config and "port" in config:
+  port = config["port"]
+else:
+  port = 9001
+
+if args.delay is not None:
+  delay = args.delay
+elif config and "delay" in config:
+  delay = config["delay"]
+else:
+  delay = 0
+
+if args.poll is not None:
+  poll = args.poll
+elif config and "poll" in config:
+  poll = config["poll"]
+else:
+  poll = 10
+
+if args.timeout is not None:
+  timeout = args.timeout
+elif config and "timeout" in config:
+  timeout = config["timeout"]
+else:
+  timeout = 60
+
+edit = not args.edit if edit else args.edit
+halt = not args.HALT if halt else args.HALT
+secret = not args.secret if secret else args.secret
+mute = not args.MUTE if mute else args.MUTE
+errors = not args.ERRORS if errors else args.ERRORS
+
+name = args.agent  
+
+if re.sub(r"[\w.]", "", name) or name.startswith(".") or name.endswith(".") or ".." in name or not name:
+  print("Illegal agent name: '"+name+"'")
+  sys.exit(1)
+
+try:
+  with open("workbench/agents/" + name.replace(".", "/") + ".pta", encoding="utf-8") as f:
+    agent = Agent(name, args.arguments, f.read())
+except FileNotFoundError:
+  agent = Agent(name, args.arguments, "")   
+
+os.chdir("workbench")          
+sys.path.insert(0, str(Path(".").absolute()))
+
+app = QApplication(sys.argv)
+with open("../dark.css") as ss:
+  app.setStyleSheet(ss.read())
+app.setQuitOnLastWindowClosed(False)
+
+core = Core(agent, "localhost", port, delay, poll, timeout, edit, halt, secret, mute, errors, app)
+
+core.init()
+
+core.start()
+
+sys.exit(app.exec())

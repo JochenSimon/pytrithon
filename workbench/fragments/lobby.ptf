@@ -1,0 +1,53 @@
+invoke (0,2): $domain.discover
+  gives: task:3
+var 3 (2,2);
+python (4,2):
+  reads: :agent; running:26
+  if not running:
+    session = agent.name, [p[0] for p in players]
+  reads: players:7
+  takes: task:3
+  gives: task,session:5
+var 5 (6,2);
+result (8,2): $domain.discover
+  takes: task,session:5
+var 7 (4,3): []
+in (0,2): $domain.join
+  gives: name,sender:9
+var 9 (2,4);
+python (4,4):
+  reads: :agent
+  if running or name not in [p[0] for p in players] and len(players) < 5:
+    players.append((name, sender))
+    session = agent.name, [p[0] for p in players]
+  else:
+    taken = sender
+  reads: running:26
+  takes: name,sender:9
+  gives: session:11; taken:22
+  writes: players:7
+var 11 (6,4);
+out (8,4): $domain.lobby
+  takes: session:11
+flow 14 (2,6);
+python (4,6):
+  reads: players:7
+  agents = [p[1] for p in players]
+  running = True
+  takes: 14
+  gives: 25; agents:32; players:66
+  writes: running:26
+in (0,6): $domain.start
+  gives: 14
+var 22 (6,3);
+out (8,3): $domain.taken
+  takes: aid:22
+out (8,6): $domain.running
+  takes: 25
+flow 25 (6,6);
+var 26 (4,5): False
+var 32 (6,8);
+know agent (10,2);
+out (8,8): $domain.started
+  takes: aids:32
+phantom 66 (4,8);

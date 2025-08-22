@@ -1,0 +1,20 @@
+port: 9001
+
+monipulator: False
+open: True
+console: True
+bundle: True
+info: True
+lightmode: False
+quit: True
+font: Lucida Console:8
+zoom: 100
+
+delay: 0
+poll: 10
+timeout: 60
+edit: False
+halt: False
+secret: False
+mute: False
+errors: True

@@ -1,0 +1,183 @@
+module (0,0):
+  from PyQt5.QtCore import QSize
+  from lobby import Lobby
+  
+  window.sizeHint = lambda: QSize(480,640)
+gadget (-2,5):
+  Label("Pot:",
+    row=0, col=1, cols=1)
+  takes: text:57
+gadget (-2,6):
+  Label("Chips: ",
+    row=0, col=0, cols=1)
+  takes: text:74
+flow 22 (1,6);
+in (2,6):
+  writes: :pot; :chips
+  poker.ante
+  gives: 34; 39; 55; 22
+  writes: hand:38
+gadget (-2,7):
+  SpinBox(enabled=False,focus=True,
+    row=1, col=0, cols=2)
+  takes: value:36; enable:47; range:81
+  writes: value:48
+gadget (-2,11):
+  PushButton("Bet", enabled=False, default=True,
+    row=2, col=0, cols=1)
+  takes: enable:58
+  gives: clicked:59
+gadget (7,11):
+  CheckBoxGroup(count=5,enabled=False,
+    row=3, col=0, cols=2)
+  takes: text:41; enable:62; check:83
+  writes: checked:63
+gadget (7,12):
+  PushButton("Swap Cards",enabled=False,
+    row=4, col=0, cols=2)
+  takes: enable:72
+  gives: clicked:64
+gadget (-2,14): TextEdit(row=5, col=0, cols=2)
+  takes: append:43
+flow 34 (1,7);
+python (0,7):
+  reads: :window; :chips
+  window.setWindowTitle("Poker: "+name)
+  lastbet = 0
+  bet = 0
+  range = 0, 0, chips
+  check = [0]*5
+  reads: name:37
+  takes: 34
+  gives: bet:36; range:81; check:83
+  writes: lastbet:77
+var 36 (-1,7);
+var 37 (6,6);
+var 38 (3,7): Hand([])
+flow 39 (2,8);
+python (2,10): 
+  reads: hand:38
+  takes: 39
+  gives: hand:41
+var 41 (7,10);
+ontology (-4,0):
+  concept Suite: pass
+  concept Diamonds(Suite):
+    def __str__(self): return 'D'
+  concept Hearts(Suite):
+    def __str__(self): return 'H'
+  concept Clubs(Suite):
+    def __str__(self): return 'C'
+  concept Spades(Suite):
+    def __str__(self): return 'S'
+  concept Card:
+    slot number: int
+    slot suite: Suite
+    def __str__(self):
+      numberstr = 'A' if self.number == 1 else 'J' if \
+          self.number == 11 else 'Q' if self.number == 12 else \
+          'K' if self.number == 13 else str(self.number)
+      return numberstr + 'o' + self.suite.__str__()
+  concept Hand:
+    slot cards: [Card]
+    def __len__(self):
+      return len(self.cards)
+    def __iter__(self):
+      for card in self.cards:
+        yield card
+    def __setitem__(self, key, value):
+      self.cards[key] = value
+var 43 (0,14);
+in (2,14): poker.log
+  gives: line:43
+in (0,9):
+  gives: 55
+  writes: :pot
+  poker.canbet
+  gives: can:47; can:58; can:80; range:81
+var 47 (-2,9);
+var 48 (-3,7): 0
+out (-4,6):
+  reads: aid:76
+  poker.bet
+  takes: bet:52
+python (-4,9):
+  gives: 55; 22
+  writes: :pot; :chips
+  if action == "Bet":
+    more = bet - lastbet
+    pot += more
+    chips -= more
+    lastbet = bet
+  else:
+    bet = -1
+  can = False
+  reads: bet:48
+  takes: action:59
+  gives: bet:52; can:47; can:58; can:80
+  writes: lastbet:77
+var 52 (-4,7);
+flow 55 (2,5);
+python (0,5):
+  reads: :pot
+  text = "Pot: {}".format(pot)
+  takes: 55
+  gives: text:57
+var 57 (-1,5);
+var 58 (-1,10);
+var 59 (-4,11);
+var pot (0,2): 0
+in (10,11):
+  gives: 55
+  writes: :pot
+  poker.canswap
+  gives: can:62; can:72
+var 62 (9,11);
+var 63 (5,11): [0]*5
+flow 64 (5,12);
+out (3,11):
+  reads: aid:76
+  poker.swap
+  reads: swap:63
+  takes: 70
+python (4,8):
+  for i,s in enumerate(swap):
+    if s:
+      hand[i] = cards.pop(0)
+  takes: cards,swap:68
+  gives: 39
+  writes: hand:38
+in (8,8): poker.deal
+  gives: cards,swap:68
+var 68 (6,8);
+python (4,12):
+  gives: can:62; can:72
+  can = False
+  takes: 64
+  gives: 70
+flow 70 (3,12);
+var 72 (9,12);
+python (0,6):
+  reads: :chips
+  text = "Chips: {}".format(chips)
+  takes: 22
+  gives: text:74
+var 74 (-1,6);
+var chips (1,2): 0
+var 76 (7,5);
+var 77 (-3,6): 0
+gadget (-2,12):
+  PushButton("Fold", enabled=False,
+    row=2, col=1, cols=1)
+  takes: enable:80
+  gives: clicked:59
+var 80 (-3,10);
+var 81 (-1,8);
+self (2,0): 
+var 83 (1,10);
+know window (6,0);
+frag lobbee (6,3): domain: poker
+  gives: name:37; server:76
+comment ffffff (-1.2,3.4):
+  This Agent encapsulates a single Poker player. It requires a "pokerserver" Agent
+  to run. Each player can sign up for a game in the Lobby.

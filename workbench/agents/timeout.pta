@@ -1,0 +1,12 @@
+flow 1 (0,0): ()
+python (2,0): 
+  takes: 1
+  gives: 5
+self (0,-2):
+  timeout: 5
+  delay: 1000
+module (2,-2): from time import sleep
+flow 5 (2,2);
+python (0,2): sleep(10)
+  takes: 5
+  gives: 1

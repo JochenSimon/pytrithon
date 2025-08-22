@@ -1,0 +1,40 @@
+module (0,0): from lobby import Lobby
+flow 3 (0,4);
+timer (-1,4): 1s
+  takes: 5
+  gives: 3
+var 5 (-2,4): ()
+task (1,4): $domain.discover
+  takes: 3
+  gives: session:9
+var 9 (2,4);
+gadget (2,2): Lobby(window)
+  takes: session:9; hide:26; taken:28; running:30
+  gives: name,agent:14; start:13
+  writes: name:37; server:76
+var 13 (6,4);
+var 14 (4,2);
+out (4,1): $domain.join
+  takes: name,aid:14
+in (2,3): $domain.lobby
+  gives: session:9
+out (7,4): $domain.start
+  takes: aid:13
+in (4,6): $domain.started
+  gives: sender:26; 83
+var 26 (4,5);
+in (6,3): $domain.taken
+  gives: 28
+flow 28 (5,3);
+in (3,2): $domain.running
+  gives: sender:30
+var 30 (3,3);
+var 37 (6,5): ""
+var 76 (7,5): ""
+flow 83 (5,6);
+python (6,6): 
+  reads: server:76
+  takes: name:37; 83
+  gives: name:85; server:86
+phantom 85 (6,7);
+phantom 86 (7,6);

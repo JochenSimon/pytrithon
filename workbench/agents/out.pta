@@ -1,0 +1,22 @@
+ontology (0,-2):
+  concept Foo:
+    slot bar: str
+gadget (0,0): PushButtonGroup(text=("oink", "moo"))
+  gives: clicked:1
+var 1 (2,0);
+python (4,0): give = Foo(text)
+  takes: text:1
+  gives: give:3
+var 3 (6,0);
+out (8,0): test
+  takes: tset:3
+queue 5 (2,2): "in#1@main", "in#2@main", "in#3@main"
+var 6 (2,4);
+gadget (0,4): PushButtonGroup(("1", "2", "3"))
+  gives: clicked:6
+out (4,3): spam
+  takes: aid:5; stuff:6
+comment ffffff (4.6,2):
+  This Agent shows how Agent communication works.
+  In order for this example to work, start one
+  "out" Agent and three "in" Agents.

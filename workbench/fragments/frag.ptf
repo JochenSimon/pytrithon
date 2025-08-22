@@ -1,0 +1,6 @@
+flow 1 (0,0): ()
+python (2,0): test = "$oink" + param
+  takes: 1; param:4
+  gives: test:3
+phantom 3 (4,0);
+phantom 4 (2,-2);

@@ -1,0 +1,120 @@
+module 1 (-2,0):
+  from tmwoty2 import *
+  
+  import time
+  import pygame
+  from pygame.locals import DOUBLEBUF, OPENGL, FULLSCREEN, SCALED
+flow 2 (-2,2): ()
+python (0,2):
+  gives: :clock
+  pygame.init()
+  pygame.display.set_mode((gs.hvpw*2, gs.hvph*2), DOUBLEBUF | OPENGL | FULLSCREEN | SCALED)
+  pygame.display.set_caption("TMWOTY2")
+  pygame.display.set_icon(pygame.image.load("../../icon.png"))
+  clock = pygame.time.Clock()
+  
+  setup_opengl()
+  
+  shapes = {"screen":      Shape("screen.png", 1, 1),
+            "sphere":      Shape("sphere.png", 16, 1),
+            "spherebig":   Shape("spherebig.png", 16, 1),
+            "spheresmall": Shape("spheresmall.png", 16, 1),
+            "snake":       Shape("snake.png", 16, 1),
+            "cannon":      Shape("cannon.png", 4, 3),
+            "beam":        Shape("beam.png", 4, 1),
+            "extra":       Shape("extra.png", 16, 7),
+            "money":       Shape("money.png", 16, 4),
+            "menu":        Shape("menu.png", 1, 14),
+            "missile":     Shape("missile.png", 16, 1),
+            "font":        Shape("font.png", 96, 1)}
+  
+  last_time = time.perf_counter()
+  takes: 2
+  gives: last_time:4; :shapes
+var 4 (4,2);
+python =-1 (6,2):
+  reads: :shapes; :draw_stack
+  writes: :sprites
+  
+  gs.t = time.perf_counter()
+  gs.dt, last_time = gs.t - last_time, gs.t
+  
+  dt = gs.dt
+  
+  quit, keys = handle_events()
+  if not keys:
+    del keys
+  if not quit:
+    del quit
+  else:
+    raise Break
+  
+  prepare_draw()
+  
+  for plane in sorted({l for s,l in sprites.values()}):
+    for handle, draw in draw_stack.items():
+      sprite, layer = sprites[handle]
+      if layer == plane:
+        match draw:
+          case DrawSprite(x, y, row, color, width, height):
+            sprite.draw(x, y, row, color, width, height)
+          case DrawText(text, x, y, color):
+            sprite.drawText(text, x, y, color)
+  
+  finish_draw()
+  
+  pygame.display.flip()
+  takes: 14
+  gives: keys:7; dt:9; quit:11; 13
+  writes: last_time:4
+var 7 (10,4);
+out (12,4): keys
+  takes: keys:7
+var 9 (10,2);
+out (12,2): frame
+  takes: dt:9
+var clock (-1,0);
+flow 11 (10,0);
+terminate =2 (12,0): local
+  takes: 11
+flow 13 (5,1);
+flow 14 (7,1): ()
+queue 16 (8,-4);
+python (6,-4):
+  writes: :draw_stack
+  draw_stack.update(sprites)
+  for handle, draw in sprites.items():
+    if draw is None:
+      del draw_stack[handle]
+  takes: sprites:16
+in (10,-4): draw
+  gives: sprites:16
+var draw_stack (2,0): {}
+ontology (0,-4): 
+var shapes (0,0);
+var sprites (1,0): {}
+python =1 (6,-3):
+  reads: :shapes
+  writes: :sprites
+  for create in creations:
+    match create:
+      case CreateSprite(handle, shape, layer, speed, row):
+        sprites[handle] = Sprite(shapes[shape], speed, row), layer
+      case CreateText(handle, shape, layer):
+        sprites[handle] = shapes[shape], layer
+  takes: creations:22
+var 22 (8,-3);
+in (10,-3): create
+  gives: creations:22
+flow 24 (-2,-1): ()
+out =1 (-1,-1): init
+  takes: 24
+python =-1 (6,0):
+  reads: :clock
+  clock.tick(60)
+  takes: 13
+  gives: 14
+self (0,-2):
+  domain: tmwoty2
+  delay: 0
+  poll: 1

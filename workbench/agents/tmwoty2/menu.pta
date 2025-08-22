@@ -1,0 +1,193 @@
+var menu (2,0): 1
+in (4,-2): menu
+  gives: 21
+  writes: :menu
+in (0,-5): init
+  gives: 8
+flow 8 (2,-5);
+python =1 (4,-5):
+  creations = [CreateSprite("cursor", "missile", 10, 1),
+               CreateText("password", "font", 10),
+               CreateText("pwhint", "font", 10),
+               CreateText("taginput", "font", 10),
+               CreateText("scores", "font", 10)]
+  creations.extend([CreateSprite(f"menu_{i}", "menu", 10, 1) for i in range(5)])
+  creations.extend([CreateText(f"shop_{i}", "font", 10) for i in range(11)])
+  takes: 8
+  gives: creations:10; 21
+var 10 (6,-5);
+out =1 (8,-5): create
+  takes: creations:10
+var 12 (8,-2);
+out (10,-2): draw
+  takes: sprites:12
+in (-4,0): keys
+  gives: keys:15
+var 15 (-2,0);
+python =-1 (0,0):
+  reads: :player
+  gives: sprites:12; quit:28
+  if menu:
+    for key in keys:
+      match key:
+        case MenuKey(True):
+          match menu:
+            case 1 | 5:
+              menu, disable = 0, 0
+              sprites = {f"menu_{i}": None for i in range(5)} | {"cursor": None}
+            case 2:
+              menu, disable = 10, 10
+              password = ["~"] * 8
+              update = ()
+            case 3:
+              menu, disable = 11, 11
+              update = ()
+            case 4:
+              quit = ()
+            case 6:
+              if int(player.score) > load_high_scores()[-1][1]:
+                menu, disable = 23, 23
+              else:
+                menu, disable = 11, 11
+              update, reset, level = (), (), 1
+              sprites = {f"menu_{i}": None for i in range(3)} | {"cursor": None}
+            case 7 if "~" not in tag:
+              menu, disable = 8, 8
+              update = ()
+              store_high_score("".join(tag), int(player.score))
+              tag = ["~"] * 3
+            case 8:
+              menu, disable = 0, 0
+              reset, level = (), player.level
+              sprites = {f"menu_{i}": None for i in range(3)} | {"cursor": None}
+            case 9:
+              menu, disable = 11, 11
+              update, reset, level = (), (), 1
+            case 10 if (pw := "".join(password)) in passwords:
+              menu, disable = 0,0
+              reset, level = (), passwords.index(pw) + 2
+              sprites = {f"menu_{i}": None for i in range(5)}
+              sprites |= {"cursor": None, "password": None, "pwhint": None}
+            case 10:
+              menu, disable = 2, 2
+              sprites = {"password": None}
+              update = ()
+            case 11:
+              menu, disable = 1, 1
+              sprites = {"scores": None}
+              update = ()
+            case m if m in range(12, 22):
+              buy = menu - 12
+              update = ()
+            case 22:
+              if player.level != 21:
+                menu, disable = 0, 0
+              else:
+                if int(player.score) > load_high_scores()[-1][1]:
+                  menu, disable = 24, 24
+                else:
+                  menu, disable = 25, 25
+                update = ()
+              sprites = {"menu_0": None, "balance": None, "pwhint": None, "cursor": None}
+              sprites |= {f"shop_{i}": None for i in range(11)}
+            case 23 | 24 if "~" not in tag:
+              menu, disable = 11, 11
+              update = ()
+              store_high_score("".join(tag), int(player.score))
+              tag = ["~"] * 3
+              sprites = {"taginput": None}
+            case 25:
+              menu, disable = 1, 1
+              update = ()
+        case UpKey(True):
+          menu = (0,4,1,2,3,6,5,7,9,8,10,11,22,12,13,14,15,16,17,18,19,20,21,23,24,25)[menu]
+          update = ()
+        case DownKey(True):
+          menu = (0,2,3,4,1,6,5,7,9,8,10,11,13,14,15,16,17,18,19,20,21,22,12,23,24,25)[menu]
+          update = ()
+        case BackKey(True) if menu in {7,23,24}:
+          if cursor := (tag+["~"]).index("~"):
+            tag[cursor-1] = "~"
+            update = ()
+        case BackKey(True) if menu == 10:
+          if cursor := (password+["~"]).index("~"):
+            password[cursor-1] = "~"
+            update = ()
+        case LetterKey(True, key) if menu in {7,23,24} and "~" in tag:
+          tag[tag.index("~")] = chr(key - 32)
+          update = ()
+        case LetterKey(True, key) if menu == 10 and "~" in password:
+          password[password.index("~")] = chr(key)
+          update = ()
+  takes: keys:15
+  gives: disable:19; update:21; reset:24; level:25; buy:31
+  writes: :menu; :password; :tag
+module (-4,-4): from tmwoty2 import *
+var 19 (2,-3);
+out (4,-3): menu
+  takes: menu:19
+flow 21 (5,-1);
+python =-1 (8,0):
+  reads: :player; :password; :tag
+  match menu:
+    case 1 | 2 | 3 | 4:
+      sprites = {f"menu_{i}": DrawSprite(720, 400 + i*64, i) for i in range(5)}
+      sprites |= {"cursor": DrawSprite(656, 416 + menu * 64), "pwhint": None}
+    case 5 | 6:
+      sprites = {f"menu_{i}": DrawSprite(720, 400 + i*64, i+5) for i in range(3)} | {f"menu_{i}": None for i in (3,4)}
+      sprites |= {"cursor": DrawSprite(656, 416 + (menu-4) * 64), "pwhint": None}
+    case 7 | 23 | 24 | 25:
+      sprites = {"menu_0": DrawSprite(720, 400, 13 if menu in {24,25} else 8)}
+      if menu != 25:
+        sprites |= {"taginput": DrawText(f"Enter high score tag: {"".join(tag)}", 785, 500)}
+    case 8 | 9:
+      sprites = {f"menu_{i}": DrawSprite(720, 400 + i*64, j) for i,j in zip((0,1,2), (8,9,7))}
+      sprites |= {"cursor": DrawSprite(656, 416 + (menu-7) * 64), "taginput": None}
+    case 10:
+      sprites = {"menu_0": DrawSprite(720, 400, 10)} | {f"menu_{i}": None for i in (1,2,3,4)}
+      if (pw := "".join(password)) in passwords:
+        sprites |= {"password": DrawText(pw, 906, 500, 0x00FF00), "pwhint": DrawText(f"Level {passwords.index(pw)+2:2}", 906, 540)}
+      elif "~" not in password:
+        sprites |= {"password": DrawText(pw, 906, 500, 0xFF0000), "pwhint": DrawText(f"Wrong password", 864, 540)}
+      else:
+        sprites |= {"password": DrawText(pw, 906, 500), "pwhint": None}
+      sprites |= {"cursor": None}
+    case 11:
+      sprites = {"menu_0": DrawSprite(720, 400, 11)} | {f"menu_{i}": None for i in (1,2,3,4)}
+      sprites |= {"scores": DrawText("\n".join(f"{t} {s:13}" for t,s in load_high_scores()), 834, 500), "cursor": None}
+    case m if m in range(12, 23):
+      sprites = {"menu_0": DrawSprite(720, 200, 12)}
+      sprites |= {f"shop_{i}": DrawText(f"{l:<28}{p:7}", 720, 380+i*32) for i,(p,l) in enumerate(inventory)}
+      sprites |= {"shop_10": DrawText("Exit shop", 720, 700)}
+      if player.level != 21:
+        sprites |= {"pwhint": DrawText(f"Password for level {player.level:2} is {passwords[player.level-2]}", 720, 900)}
+      sprites |= {"cursor": DrawSprite(656, 376 + (menu-12)*32)}
+    case _:
+      sprites = {}
+  sprites |= {s.format(i): None for s,r in (("enemy_{}", 20), ("enemy_{}_beam", 3), ("extra_{}", 6)) for i in range(r)}
+  sprites |= {"player": None}
+  reads: :menu
+  takes: 21
+  gives: sprites:12
+ontology (-2,-6): 
+flow 24 (-2,-1);
+var 25 (-2,-2);
+out (-4,-1): reset
+  takes: 24
+out (-4,-2): level
+  takes: level:25
+var password (0,-3): None
+flow 28 (0,-6);
+terminate (2,-6): local
+  takes: 28
+in (8,-3): player
+  writes: :player
+var player (10,-3): Player.default()
+var tag (-1,-3): ["~"]*3
+var 31 (-2,-3);
+out =2 (-4,-3): buy
+  takes: item:31
+self (-4,-6):
+  domain: tmwoty2
+  delay: 0
+  poll: 1

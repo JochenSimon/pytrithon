@@ -1,0 +1,10 @@
+gadget (0,0): PushButton(text="print")
+  gives: clicked:1
+var 1 (2,0);
+python (4,0):
+  import test
+  import math
+  print(test.test)
+  print(math.pi)
+  print(window)
+  takes: 1

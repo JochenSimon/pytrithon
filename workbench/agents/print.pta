@@ -1,0 +1,7 @@
+know args (0,0);
+python (2,0): print("Arguments: " + ", ".join(args))
+  takes: :args
+  gives: 3
+flow 3 (4,0);
+terminate (6,0): 
+  takes: 3

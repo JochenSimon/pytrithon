@@ -1,0 +1,46 @@
+gadget (16,0): TextEdit()
+  takes: append:1
+var 1 (12,0);
+python (8,0):
+  if not environment:
+    environment.update(math.__dict__)
+    environment["phi"] = 0.6180339887498949
+    environment["Phi"] = 1.618033988749895
+  
+  buffer.append(term)
+  lines = "\n".join(buffer)
+  continuation = term.rstrip() and term.rstrip()[-1] == ":"
+  
+  if re.match("^.*[^=!<>]=[^=].*$", re.sub(r"\(.*\)", "", term)) or re.search(r"\bimport\b", term) or re.search(r"\bdel\b", term) or len(buffer) > 1 or continuation:
+    if not term or len(buffer) == 1 and not continuation:
+      buffer = []
+      exec(lines, environment)
+    result = term
+  else:
+    buffer = []
+    result = term + '\n> ' + str(eval(term, environment))
+  takes: term:3
+  gives: result:1; except:5
+  writes: environment:7; buffer:9
+var 3 (4,0);
+gadget (0,0): LineEdit(clear=False, history=True)
+  gives: return:3
+var 5 (8,4);
+python (12,4): message = 'error: ' + str(exception)
+  takes: exception:5
+  gives: message:1
+var 7 (8,-4): {}
+module (0,-4):
+  import re
+  import math
+  
+  from PyQt5.QtCore import QSize
+  
+  window.sizeHint = lambda: QSize(480,480)
+  window.setWindowTitle("Calculator")
+var 9 (4,4): []
+gadget (12,-4): window
+  gives: closed:11
+flow 11 (14,-4);
+terminate (16,-4): local
+  takes: 11

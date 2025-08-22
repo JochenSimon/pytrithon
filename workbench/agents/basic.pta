@@ -1,0 +1,26 @@
+var 0 str (0,0): test
+python (4,0):
+  print(string)
+  foo = Foo("bar")
+  takes: string:0
+  gives: string,foo:1
+var 1 str,int (8,0);
+python (8,4):
+  reads: :agent
+  print(agent.env)
+  takes: 1
+  gives: 2
+flow 2 (4,4);
+python (0,4):
+  print("koo")
+  string = "tset"
+  takes: 2
+  gives: string:0
+module (4,-2):
+  test = "test"
+  print(agent.args)
+ontology (6,-2):
+  concept Foo:
+    slot bar: str
+self (2,-2): delay: 1000
+know agent (8,-2);

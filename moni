@@ -1,0 +1,95 @@
+import re
+import sys
+import argparse
+import yaml
+from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication
+from Pytrithon.monipulator import Monipulator
+from Pytrithon.version import __version__
+import ctypes
+
+try:
+  ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("pytrithon.monipulator."+__version__)
+except Exception:
+  pass
+
+try:
+  with open("config.yaml") as y:
+    config = yaml.safe_load(y)
+except FileNotFoundError:
+  config = None
+
+console = config and "console" in config and config["console"]
+bundle = config and "bundle" in config and config["bundle"]
+info = config and "info" in config and config["info"] or not config or "info" not in config
+autoopen = config and "open" in config and config["open"]
+light = config and "lightmode" in config and config["lightmode"]
+quit = config and "quit" in config and config["quit"]
+
+parser = argparse.ArgumentParser()
+parser.add_argument("fragments", nargs="*", help="fragments to open")
+parser.add_argument("-v", "--version", action="version", version="Pytrithon Monipulator " + __version__, help="print the Pytrithon version and exit")
+parser.add_argument("-P", "--PORT", type=int, help="port to run on")
+parser.add_argument("-c", "--console", action="store_true", help="do not open console" if console else "open console")
+parser.add_argument("-b", "--bundle", action="store_true", help="do not bundle all agents into one console" if bundle else "bundle all agents into one console")
+parser.add_argument("-i", "--info", action="store_true", help="do not log monipulator information to console" if info else "log monipulator information to console")
+parser.add_argument("-o", "--open", action="store_true", help="do not open first agent" if autoopen else "open first agent")
+parser.add_argument("-L", "--LIGHT", action="store_true", help="do not run in light mode" if light else "run in light mode")
+parser.add_argument("-q", "--quit", action="store_true", help="do not terminate all processes when monipulator closed" if quit else "terminate all processes when monipulator closed")
+parser.add_argument("-z", "--zoom", type=int, help="set monipulator zoom")
+parser.add_argument("-f", "--font", help="set monipulator font:size")
+args = parser.parse_args()
+
+if args.PORT is not None:
+  port = args.PORT
+elif config and "port" in config:
+  port = config["port"]
+else:
+  port = 9001
+
+console = not args.console if console else args.console
+bundle = not args.bundle if bundle else args.bundle
+info = not args.info if info else args.info
+autoopen = not args.open if autoopen else args.open
+light = not args.LIGHT if light else args.LIGHT
+quit = not args.quit if quit else args.quit
+
+for frag in args.fragments:
+  if frag == "$" or not frag.startswith("$") or re.sub(r"[\w.]", "", frag[1:]) or frag[1:].startswith(".") or frag[1:].endswith("."):
+    print("Illegal fragment name: '"+frag[1:]+"'")
+    sys.exit(1)
+
+if args.zoom is not None:
+  zoom = args.zoom
+elif config and "zoom" in config:
+  zoom = config["zoom"]
+else:
+  zoom = 100
+
+app = QApplication(sys.argv)
+with open("dark.css") as ss:
+  app.setStyleSheet(ss.read())
+app.setQuitOnLastWindowClosed(True)
+
+if args.font:
+  if ":" in args.font:
+    font = QFont(args.font.split(":")[0], int(args.font.split(":")[1]))
+  else:
+    font = QFont(args.font, 8)
+  app.setFont(font)  
+elif config and "font" in config:
+  if ":" in config["font"]:
+    font = QFont(config["font"].split(":")[0], int(config["font"].split(":")[1]))
+  else:
+    font = QFont(config["font"], 8)
+  app.setFont(font)
+
+moni = Monipulator(app, "localhost", port, console, bundle, info, autoopen, quit, light, zoom, config)
+
+moni.showMaximized()
+
+moni.start()
+for frag in args.fragments:
+  moni.open_fragment(frag[1:])
+
+sys.exit(app.exec())

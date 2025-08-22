@@ -1,0 +1,9 @@
+gadget (0,0): PushButtonGroup(text=("ook", "koo"))
+  gives: clicked:1
+var 1 (2,0);
+python (4,0): 
+  clears: 4
+  takes: text:1
+  gives: text:3
+queue 3 (6,0): "ook"
+queue 4 (4,2): "koo"

@@ -1,0 +1,104 @@
+in (0,0): frame
+  gives: dt:2
+var 2 (2,0);
+python =-1 (4,0):
+  if menu:
+    del dt
+    extras = []
+  reads: :menu
+  takes: dt:2
+  gives: extras:17; dt:6
+var 6 (6,0);
+python =-1 (10,0):
+  gives: creations:22; sprites:8
+  writes: :ticks; :spawn; :all_extras; hans,nid:hanid
+  ticks += dt
+  extras = []
+  sprites = {}
+  
+  if ticks >= spawn:
+    if None in all_extras.values():
+      spawn = ticks + random() * 10
+      free = next(h for h,e in all_extras.items() if e is None)
+      type = choices(range(14), (4,4,4,4,4,4,4,4,2,8,27,9,3,1))[0]
+      extra = Extra(nid, type, 8 + random() * 728 if type <= 9 else 16 + random() * 712, -16 if type <= 9 else -40)
+      all_extras[free] = extra
+      if extra.type <= 9:
+        creations = [CreateSprite(free, "extra", 1, 1)]
+      else:
+        creations = [CreateSprite(free, "money", 1, 1)]
+      hans[nid] = free
+      nid += 1
+  
+  for handle,extra in all_extras.items():
+    if extra:
+      extra.y += dt * 100
+      if extra.y > (1112 if extra.type <= 9 else 1120):
+        del hans[extra.id]
+        all_extras[handle] = None
+        sprites[handle] = None
+      else:
+        extras.append(extra)
+        if extra.type <= 9:
+          sprites[handle] = DrawSprite(552 + extra.x, extra.y - 16, max(0, extra.type-3))
+        else:
+          sprites[handle] = DrawSprite(544 + extra.x, extra.y - 40, extra.type-10)
+  takes: dt:6
+  gives: extras:12
+var 8 (10,-4);
+out (12,-4): draw
+  takes: sprites:8
+var menu (4,-2): 1
+var all_extras (2,-4): {f"extra_{i}": None for i in range(6)}
+var ticks (4,-4): 0
+module (2,-6):
+  from random import random, choices
+  from tmwoty2 import *
+ontology (-1,-6): 
+var 12 (12,0);
+out (14,0): extras
+  takes: extras:12
+in (-1,-2): reset
+  gives: 15
+flow 15 (1,-2);
+python (2,-2):
+  reads: :ticks
+  gives: sprites:8
+  writes: :spawn; hans,nid:hanid
+  sprites = {f"extra_{i}": None for i in range(6)}
+  extras = {f"extra_{i}": None for i in range(6)}
+  hans = {}
+  spawn = ticks + random() * 10
+  takes: 15
+  writes: extras:all_extras
+var 17 (4,1);
+out (4,2): extras
+  takes: extras:17
+in (4,-6): init
+  gives: 20
+flow 20 (6,-6);
+python =1 (8,-6): 
+  takes: 20
+  gives: creations:22
+var 22 (10,-6);
+out =1 (12,-6): create
+  takes: creations:22
+var spawn (6,-4): random() * 15
+in (6,-2): collect
+  gives: id:25
+var 25 (8,-2);
+python =1 (10,-2):
+  gives: sprites:8
+  writes: extras:all_extras; hans,nid:hanid
+  handle = hans[id]
+  del hans[id]
+  sprites = {handle: None}
+  extras[handle] = None
+  takes: id:25
+var hanid (8,-4): {},0
+in (4,-3): menu
+  writes: :menu
+self (-1,-4):
+  domain: tmwoty2
+  delay: 0
+  poll: 1

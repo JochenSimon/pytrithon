@@ -1,0 +1,54 @@
+in (0,0): frame
+  gives: dt:2
+var 2 (2,0);
+python (4,0):
+  reads: :player; :menu
+  gives: sprites:4
+  sprites = {"level": DrawText(f"Level:   {player.level if player.level != 21 else '':13}", 1488, 220),
+             "score": DrawText(f"Score:   {int(player.score):13}", 1488, 244),
+             "lives": DrawText(f"Lives:   {player.lives:13}", 1488, 268),
+             "credits": DrawText(f"Credits: {player.credits:13}", 1488, 292)}
+  if menu in range(12,23):
+    sprites |= {"balance": DrawText(f"Credits: {player.credits:13}", 806, 320)}
+  else:
+    sprites |= {"balance": None}
+  for i in range(8):
+    remaining = player.extras[i]
+    if remaining:
+      blink = True
+      if remaining < 2:
+        blink = not int(remaining * 4) % 2
+      sprites |= {f"display_{i}": DrawSprite(1488 + 80*(i%4), 500+48*(i//4), max(0, i-3)) if blink else None}
+    else:
+      sprites |= {f"display_{i}": None}
+  takes: dt:2
+var 4 (6,-2);
+out (8,-2): draw
+  takes: sprites:4
+in (0,-4): init
+  gives: 7
+flow 7 (2,-4);
+python =1 (4,-4):
+  creations = [CreateText("level", "font", 1),
+               CreateText("score", "font", 1),
+               CreateText("lives", "font", 1),
+               CreateText("credits", "font", 1),
+               CreateText("balance", "font", 10)]
+  creations.extend([CreateSprite(f"display_{i}", "extra", 1, 1) for i in range(8)])
+  takes: 7
+  gives: creations:9
+var 9 (6,-4);
+out =1 (8,-4): create
+  takes: creations:9
+ontology (-2,-4): 
+in (-1,-2): player
+  writes: :player
+var player (2,-2): Player.default()
+module (-2,-6): from tmwoty2 import *
+in (0,-6): menu
+  writes: :menu
+var menu (2,-6): 1
+self (4,-6):
+  domain: tmwoty2
+  delay: 0
+  poll: 1

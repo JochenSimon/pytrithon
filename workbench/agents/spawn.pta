@@ -1,0 +1,12 @@
+queue 1 (0,0): ("basic", "1"), ("basic", "2"), ("basic", "3")
+spawn (2,0): 
+  reads: secret:7
+  takes: agent,args:1
+flow 3 (0,2): ()
+timer (2,2): 1s
+  takes: 3
+  gives: 5
+flow 5 (4,2);
+terminate (6,2): 
+  takes: 5
+var 7 (4,0): True

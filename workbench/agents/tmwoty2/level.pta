@@ -1,0 +1,161 @@
+in (0,0): frame
+  gives: dt:2
+var 2 (2,0);
+python =-1 (4,0):
+  gives: enemies:12
+  if menu:
+    del dt
+    enemies = []
+  reads: :menu
+  takes: dt:2
+  gives: dt:4
+var 4 (6,0);
+choice =-1 (8,0): 
+  reads: :player
+  takes: dt:4
+  gives: player.level not in {5,10,15} -> dt:6; player.level in {5,10,15} -> dt:27
+var 6 (11,0);
+python =-1 (14,0):
+  reads: :player
+  gives: creations:22; sprites:8; :dodge
+  writes: :ticks; :spawn; :all_enemies; hans,nid:hanid
+  ticks += dt
+  sprites = {}
+  num_enemies = (player.level-1) // 5 + 1 if player.level <= 15 else 12 + (player.level-16) * 2
+  
+  if ticks >= spawn and len([e for e in all_enemies.values() if e]) < num_enemies:
+    free = next(h for h,e in all_enemies.items() if e is None)
+    if player.level not in {2,7,12,16,17,18,19,20}:
+      creations = [CreateSprite(free, "sphere", 1, 0.5)]
+      enemy = EnemySphere(nid, randint(-500,500) if player.level in {4,9,14} else 0, random_color(), random() * 752, -24)
+    elif player.level in {16,17,18,19,20}:
+      creations = [CreateSprite(free, "spheresmall", 1, 0.5)]
+      enemy = EnemySmall(nid, 0, random_color(), -8 + random() * 768, -16)
+    else:
+      creations = [CreateSprite(free, "snake", 1, 1)]
+      enemy = EnemySnake(nid, 0, random_color(), 56 + random() * 640, -16, randint(32, 160), choice([True,False]))
+    all_enemies[free] = enemy
+    hans[nid] = free
+    nid += 1
+    spawn = ticks + 3 * random() / num_enemies if player.level <= 15 else ticks + 4/num_enemies * random()
+  
+  for handle,enemy in all_enemies.items():
+    if enemy:
+      enemy.y += dt * 500 * player.warp
+      if player.level in {2,7,12}:
+        if enemy.growing:
+          enemy.width += dt * 100
+          if enemy.width >= 160:
+            enemy.width = 160 - (enemy.width - 160)
+            enemy.growing = False
+        else:
+          enemy.width -= dt * 100
+          if enemy.width <= 32:
+            enemy.width = 32 + (32 - enemy.width)
+            enemy.growing = True
+      if player.level in {3,8,13}:
+        enemy.x += dt * 100 * (1,-1)[player.position<enemy.x] * player.warp
+      if player.level in {4,9,14}:
+        enemy.x += dt * enemy.stride * player.warp
+        if enemy.x > 752:
+          enemy.x -= enemy.x - 752
+          enemy.stride = -enemy.stride
+        if enemy.x < 0:
+          enemy.x = -enemy.x
+          enemy.stride = -enemy.stride
+      if enemy.y > 1104:
+        dodge = ()
+        all_enemies[handle] = None
+    if player.level not in {2,7,12}:
+      sprites |= {handle: DrawSprite((560 if player.level <= 15 else 568) + enemy.x, enemy.y - (24 if player.level <= 15 else 16), None, enemy.color) if enemy else None}
+    else:
+      width = int((enemy.width+1) // 2 * 2) if enemy else None
+      sprites |= {handle: DrawSprite(584 + enemy.x - width/2, enemy.y - 16, None, enemy.color, width) if enemy else None}
+  
+  enemies = [enemy for enemy in all_enemies.values() if enemy]
+  takes: dt:6
+  gives: enemies:12
+var 8 (10,-4);
+out (12,-4): draw
+  takes: sprites:8
+var menu (4,-2): 1
+var all_enemies (2,-4): {f"enemy_{i}": None for i in range(20)}
+var ticks (4,-4): 0
+module (2,-7):
+  from random import random, randint, choice
+  from tmwoty2 import *
+ontology (0,-6): 
+var 12 (16,0);
+out (18,0): enemies
+  takes: enemies:12
+in (-1,-2): reset
+  gives: 15
+flow 15 (1,-2);
+python (2,-2):
+  reads: :ticks
+  gives: sprites:8
+  writes: :spawn
+  enemies = {f"enemy_{i}": None for i in range(20)}
+  sprites = enemies | {f"enemy_{i}_beam": None for i in range(3)}
+  spawn = ticks + random()
+  takes: 15
+  writes: enemies:all_enemies
+in (4,-6): init
+  gives: 20
+flow 20 (6,-6);
+python =1 (8,-6): 
+  takes: 20
+  gives: creations:22
+var 22 (10,-6);
+out =1 (12,-6): create
+  takes: creations:22
+var spawn (6,-4): 0
+in (10,-2): player
+  writes: :player
+var player (8,-2): Player.default()
+flow dodge (9,-3);
+out (11,-3): dodge
+  takes: dodge
+var hanid (8,-4): {},0
+var 27 (8,7);
+python =-1 (14,7):
+  reads: :player
+  gives: creations:22; sprites:8; :dodge; enemies:12
+  writes: :ticks; :spawn; :all_enemies; hans,nid:hanid
+  ticks += dt
+  sprites = {}
+  num_enemies = (player.level-1) // 5 + 1
+  
+  if ticks >= spawn and len([e for e in all_enemies.values() if e]) < num_enemies:
+    free = next(h for h,e in all_enemies.items() if e is None)
+    creations = [CreateSprite(free, "cannon", 1, 0.5), CreateSprite(free+"_beam", "beam", 1, 0.5)]
+    enemy = EnemyCannon(nid, 0, random() * 752)
+    all_enemies[free] = enemy
+    hans[nid] = free
+    nid += 1
+    spawn = ticks + 5 * random() / num_enemies
+  
+  for handle,enemy in all_enemies.items():
+    if enemy:
+      enemy.time += dt / player.warp
+      if enemy.time < 1:
+        sprites |= {handle: DrawSprite(560 + enemy.x, -48 + enemy.time * 48)}
+      elif enemy.time < 3:
+        sprites |= {handle: DrawSprite(560 + enemy.x, 0, 1)}
+      elif enemy.time < 5:
+        sprites |= {handle: DrawSprite(560 + enemy.x, 0, 2), handle+"_beam": DrawSprite(560 + enemy.x, 48, None, None, None, 1032)}
+      elif enemy.time < 7:
+        sprites |= {handle: DrawSprite(560 + enemy.x, -(enemy.time - 5) * 48), handle+"_beam": None}
+      else:
+        sprites |= {handle: None}
+        all_enemies[handle] = None
+        dodge = ()
+  
+  enemies = [enemy for enemy in all_enemies.values() if enemy]
+  takes: dt:27
+in (4,-3): menu
+  writes: :menu
+self (2,-6):
+  domain: tmwoty2
+  delay: 0
+  poll: 1

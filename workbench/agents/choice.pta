@@ -1,0 +1,51 @@
+ontology (0,-2):
+  concept Foo:
+    slot bar: str
+  concept Foo2(Foo):
+    slot bar2: str
+  concept Side:
+    slot where: str
+gadget (-4,0): PushButtonGroup(text=("ok", "ook", "oook"))
+  gives: clicked:1
+var 1 (-2,0);
+python (0,0): ont = Foo(text)
+  takes: text:1
+  gives: ont:21
+var 21 (2,0);
+var 40 (4,-2): Side("up")
+choice (4,0): ont
+  reads: side:40
+  takes: ont:21
+  gives: Foo("ok") -> side:3; Foo.any -> ont:4; Foo("oook") -> ont:5
+queue 3 (6,-2);
+queue 4 (6,0);
+queue 5 (6,2);
+python (8,-2): onwards = before
+  takes: before:3
+  gives: onwards:31
+python (8,0): onwards = before
+  takes: before:4
+  gives: onwards:33
+python (8,2): onwards = before
+  takes: before:5
+  gives: onwards:35
+queue 31 (10,-2);
+queue 33 (10,0);
+queue 35 (10,2);
+merge (12,0): 
+  takes: here:31; here:33; here:35
+  gives: here:14
+queue 14 (14,0);
+gadget (0,6): PushButtonGroup(text=("four", "ten"))
+  gives: clicked:7
+var 7 (2,6);
+choice (4,6): 
+  takes: num:7
+  gives: len(num)==4 -> num:9; num=="four" -> num:10; num:11
+queue 9 (6,4);
+queue 10 (6,6);
+queue 11 (6,8);
+merge (8,6): 
+  takes: 9; 10; 11
+  gives: 15
+queue 15 (10,6);

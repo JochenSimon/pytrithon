@@ -1,0 +1,460 @@
+concept Initializer: pass
+concept Relayed: pass
+concept AgentToNexus: pass
+concept NexusToAgent(Relayed):
+  slot agent: str
+  def relay(self, nexus):
+    if self.agent in nexus.agents:
+      nexus.agents[self.agent].send(self)
+concept AgentToNexi(Relayed):
+  slot dest: str
+  def relay(self, nexus):
+    if not self.dest:
+      for nex in nexus.nexi:
+        self.dest = nex
+        nexus.nexi[nex].send(self)
+      self.execute(nexus)  
+    elif "," in self.dest:
+      dests = [d.strip() for d in self.dest.split(",")]
+      if nexus.name in dests:
+        self.execute(nexus)
+      for d in dests:
+        if d in nexus.nexi:
+          self.dest = d
+          nexus.nexi[self.dest].send(self)
+    elif nexus.name == self.dest or self.dest == "(local)":
+      self.execute(nexus)
+    elif self.dest in nexus.nexi:
+      nexus.nexi[self.dest].send(self)
+concept MoniToNexi(AgentToNexi): pass
+concept NexusToMoni(Relayed):
+  slot moniid: int
+  def relay(self, nexus):
+    nexus.monis[self.moniid].send(self)
+concept NexusToNexus(Relayed):
+  slot dest: str
+  def relay(self, nexus):
+    if nexus.name == self.dest:
+      self.execute(nexus)
+    else:
+      nexus.nexi[self.dest].send(self)
+concept AgentToAgents(Relayed):
+  slot sender: str
+  slot agents: tuple
+  def relay(self, nexus):
+    if self.agents:
+      for agent in self.agents:
+        if agent in nexus.agents:
+          self.agents = (agent,)
+          nexus.agents[agent].send(self)
+    else:
+      for agent in nexus.agents:
+        if agent != self.sender and agent in nexus.listeners(self.type, self.topic):
+          if agent in nexus.agents:
+            self.agents = (agent,)
+            nexus.agents[agent].send(self)
+concept AgentToAgentsTask(AgentToAgents):
+  slot add: bool
+  slot task: tuple
+  def relay(self, nexus):
+    if not self.task[0] and self.add:
+      self.add = False
+      self.task = (nexus.task, self.task[1])
+      nexus.task += 1
+      for nex in nexus.nexi:
+        nexus.nexi[nex].send(TaskPropagation(nex, nexus.task))
+    AgentToAgents.relay(self, nexus)  
+concept AgentToMoni(Relayed):
+  slot agent: str
+  slot monis: {int}
+  def relay(self, nexus):
+    for moniid in {m for m in self.monis}:
+      self.monis = {moniid}
+      nexus.monis[moniid].send(self)
+concept AgentToMonis(Relayed):
+  slot agent: str
+  slot monis: {int}
+  def relay(self, nexus):
+    if self.monis:
+      for moniid in self.monis:
+        nexus.monis[moniid].send(self)
+        break
+    else:  
+      for moniid in nexus.monis:
+        self.monis = {moniid}
+        nexus.monis[moniid].send(self)
+concept MoniToAgent(Relayed):
+  slot agent: str
+  slot moniid: int
+  def relay(self, nexus):
+    nexus.agents[self.agent].send(self)
+
+concept AgentStarted(Initializer):
+  slot agent: str
+concept AgentNamed(Initializer):
+  slot agent: str
+
+concept MonipulatorAvailable(Initializer): pass
+concept MonipulatorConnected(Initializer):
+  slot moniid: int
+
+concept ConnectNexus(Initializer):
+  slot name: str
+concept NexusConnected(Initializer):
+  slot origin: str
+  slot name: str
+  slot names: [str]
+  slot agentlist: [str]
+  slot agents: [str]
+  slot monis: {int}
+  slot task: int
+  slot tasklist: dict
+  slot involist: dict
+  slot commlist: dict
+
+concept MonipulatorPropagation(NexusToNexus):
+  slot origin: str
+  slot moniid: int
+  def execute(self, nexus):
+    nexus.monis[self.moniid] = nexus.nexi[self.origin]
+concept AgentPropagation(NexusToNexus):
+  slot origin: str
+  slot agent: str
+  def execute(self, nexus):
+    nexus.agents[self.agent] = nexus.nexi[self.origin]
+    nexus.agentlist.append(self.agent)
+concept NexusPropagation(NexusToNexus):
+  slot origin: str
+  slot target: str
+  slot names: [str]
+  def execute(self, nexus):
+    nexus.nexi[self.target] = nexus.nexi[self.origin]
+    nexus.names = self.names
+concept TaskPropagation(NexusToNexus):
+  slot task: int
+  def execute(self, nexus):
+    nexus.task = self.task
+
+concept FetchNames(Relayed):
+  slot moniid: int
+  slot names: [str]
+  def relay(self, nexus):
+    self.names = nexus.names
+    nexus.monis[self.moniid].send(self)
+concept FetchElsewhere(FetchNames):
+  def relay(self, nexus):
+    self.names = [n for n in nexus.names if n != nexus.name]
+    nexus.monis[self.moniid].send(self)
+concept TriggerOpen(FetchNames):
+  def execute(self, moni):
+    moni.show_open(self.names)
+concept OpenAgent(MoniToNexi):
+  slot agent: str
+  slot args: [str]
+  slot delay: int
+  slot poll: int
+  slot edit: bool
+  slot halt: bool
+  slot secret: bool
+  slot mute: bool
+  slot errors: bool
+  def execute(self, nexus):
+    nexus.open_agent(self.agent, self.args, self.delay, self.poll, self.edit, self.halt, self.secret, self.mute, self.errors)
+concept TriggerPush(FetchNames):
+  slot agent: str
+  def execute(self, moni):
+    moni.show_push(self.agent, self.names)
+concept PushAgent(MoniToNexi):
+  slot agent: str
+  slot structure: str
+  def execute(self, nexus):
+    nexus.push_agent(self.agent, self.structure)
+concept TriggerPushFile(FetchElsewhere):
+  def execute(self, moni):
+    if self.names:
+      moni.show_pushfile(self.names)
+concept PushFile(MoniToNexi):
+  slot file: str
+  slot data: bytes
+  def execute(self, nexus):
+    nexus.push_file(self.file, self.data)
+
+concept TriggerTerminate(MoniToAgent):
+  def execute(self, core):
+    core.terminate()
+concept TerminateAgent(NexusToAgent):
+  def execute(self, core):
+    exit()
+concept TerminateMoni(NexusToMoni):
+  def execute(self, moni):
+    exit()
+concept TerminatedAgent(AgentToNexi):
+  slot agent: str
+  def execute(self, nexus):
+    if self.agent in nexus.agentlist:
+      nexus.agentlist.remove(self.agent)
+      nexus.agentschanged = True
+    if self.agent in nexus.pings:
+      del nexus.pings[self.agent]
+concept TerminatedTotal(AgentToNexi):
+  def execute(self, nexus):
+    for agent in nexus.agents:
+      nexus.agents[agent].send(TerminateAgent(agent))
+    for moni in nexus.monis:
+      nexus.monis[moni].send(TerminateMoni(moni))
+    exit()
+concept TerminatedProcess(Relayed):
+  def relay(self, nexus):
+    pass
+  def execute(self, process):
+    exit()
+concept TerminationCleanup(AgentToNexi):
+  slot name: str
+  slot agents: {str}
+  def execute(self, nexus):
+    del nexus.nexi[self.name]
+    for agent in self.agents:
+      del nexus.agents[agent]
+      nexus.agentlist.remove(agent)
+    if self.agents:
+      nexus.agentschanged = True
+concept TerminatedLocal(Relayed):
+  def relay(self, nexus):
+    for moni in nexus.monis:
+      nexus.monis[moni].send(TerminatedProcess())
+    for agent in nexus.agents:
+      nexus.agents[agent].send(TerminatedProcess())
+    for nex in nexus.nexi:
+      nexus.nexi[nex].send(TerminationCleanup(nex, nexus.name, {a for a in nexus.agents if a.endswith("@"+nexus.name)}))
+    sleep(0.1)  
+    exit()
+
+concept GiveAgentList(NexusToMoni):
+  slot agents: [str]
+  def execute(self, moni):
+    moni.give_agent_list(self.agents)
+concept RequestStructure(MoniToAgent):
+  def execute(self, core):
+    core.watchers.add(self.moniid)
+    core.give_structure(self.moniid)
+concept Content:
+  slot place: str
+  slot content: str
+concept GiveStructure(AgentToMoni):
+  slot structure: str
+  slot contents: {Content}
+  slot delay: int
+  slot halted: bool
+  slot editmode: bool
+  slot secret: bool
+  def execute(self, moni):
+    moni.give_structure(self.agent, self.structure, self.contents, self.delay, self.halted, self.editmode, self.secret)
+concept PlacesChanged(AgentToMoni):
+  slot changes: {Content}
+  def execute(self, moni):
+    for change in self.changes:
+      moni.agents[self.agent].figures[change.place].change(change.content)
+concept TransitionFiring(AgentToMoni):
+  slot trans: str
+  slot firing: bool
+  def execute(self, moni):
+    if self.firing:
+      moni.agents[self.agent].firing = self.trans
+    else:
+      moni.agents[self.agent].firing = None
+    toupdate = moni.agents[self.agent].figures[self.trans]
+    toupdate.update(toupdate.rect)
+concept TransitionErrored(AgentToMoni):
+  slot trans: str
+  slot errored: bool
+  def execute(self, moni):
+    moni.agents[self.agent].figures[self.trans].errored = self.errored
+    toupdate = moni.agents[self.agent].figures[self.trans]
+    toupdate.update(toupdate.rect)
+concept Print(AgentToMonis):
+  slot message: str
+  def execute(self, moni):
+    moni.console.print(self.agent, self.message)
+
+concept Ping(AgentToNexi):
+  slot agent: str
+  slot timeout: int
+  def execute(self, nexus):
+    nexus.ping(self.agent, self.timeout)
+
+concept Listener:
+  slot agent: str
+  slot type: str
+  slot topic: str
+concept RegisterListeners(AgentToNexi):
+  slot listeners: {Listener}
+  def execute(self, nexus):
+    for listener in self.listeners:
+      nexus.register_listener(listener.agent, listener.type, listener.topic)
+
+concept TaskResult(AgentToAgentsTask):
+  type = "task"
+  slot topic: str
+  slot bindings: dict
+  def execute(self, core):
+    core.results[self.topic, self.task[1]].append((self.task[0], self.bindings))
+    core.taskpending(self.topic)
+concept TaskInvocation(AgentToAgentsTask):
+  type = "invocation"
+  slot topic: str
+  slot bindings: dict
+  def execute(self, core):
+    core.invocations[self.topic].append((self.task, self.bindings))
+    core.invocationpending(self.topic)
+concept Communication(AgentToAgents):
+  type = "communication"
+  slot topic: str
+  slot bindings: dict
+  def execute(self, core):
+    core.communications[self.topic].append(self.bindings)
+    core.inpending(self.topic)
+
+concept SetDelay(MoniToAgent):
+  slot delay: int
+  def execute(self, core):
+    core.delay = self.delay
+concept MoveManipulation(MoniToAgent):
+  slot name: str
+  slot x: float
+  slot y: float
+  def execute(self, core):
+    core.agent.elements[self.name].pos = self.x, self.y
+    core.give_structure(but=self.moniid)
+concept NameManipulation(MoniToAgent):
+  slot oldname: str
+  slot newname: str
+  def execute(self, core):
+    element = core.agent.elements[self.oldname]
+    element.name = self.newname
+    renamekey(core.agent.elements, self.oldname, self.newname)
+    for link in core.agent.globallinks:
+      if link.place == self.oldname:
+        link.place = self.newname
+      if link.trans == self.oldname:
+        link.trans = self.newname
+    flood(core.agent.elements, core.agent.globallinks)    
+    if element.isfrag:
+      element.load()
+      element.init()
+    core.give_structure(but=self.moniid)
+concept InscriptionManipulation(MoniToAgent):
+  slot name: str
+  slot inscr: str
+  def execute(self, core):
+    if core.agent.elements[self.name].isplace:
+      core.agent.elements[self.name].seed = self.inscr
+    else:  
+      core.agent.elements[self.name].create_links(self.inscr)
+    core.give_structure(but=self.moniid)
+concept TypeManipulation(MoniToAgent):
+  slot name: str
+  slot type: str
+  def execute(self, core):
+    core.agent.elements[self.name].typing = self.type
+    core.give_structure(but=self.moniid)
+concept PriorityManipulation(MoniToAgent):
+  slot name: str
+  slot priority: str
+  def execute(self, core):
+    if self.priority:
+      core.agent.elements[self.name].priority = float(self.priority)
+    elif "priority" in core.agent.elements[self.name].__dict__:
+      del core.agent.elements[self.name].priority
+    core.give_structure(but=self.moniid)
+concept AliasManipulation(MoniToAgent):
+  slot serial: int
+  slot alias: str
+  def execute(self, core):
+    core.agent.globallinks[self.serial].alias = self.alias
+    core.give_structure(but=self.moniid)
+concept DeleteLinkManipulation(MoniToAgent):
+  slot serial: int
+  def execute(self, core):
+    link = core.agent.globallinks[self.serial]
+    if link in core.agent.elements[link.place].links:
+      core.agent.elements[link.place].links.remove(link)
+    trans = core.agent.elements[link.trans]
+    trans.delete_link(link)
+    core.give_structure(but=self.moniid)
+concept CreateManipulation(MoniToAgent):
+  slot type: str
+  slot name: str
+  slot typing: str
+  slot pos: tuple
+  def execute(self, core):
+    core.agent.create_element(self.type, self.name, self.typing, self.pos)
+    core.give_structure(but=self.moniid)
+concept DeleteElementManipulation(MoniToAgent):
+  slot name: str
+  def execute(self, core):
+    core.agent.delete_element(self.name)
+    core.give_structure(but=self.moniid)
+concept ChangeManipulation(MoniToAgent):
+  slot place: str
+  slot type: str
+  def execute(self, core):
+    core.agent.change_to(self.place, self.type)
+    core.give_structure(but=self.moniid)
+concept CommentManipulation(MoniToAgent):
+  slot name: str
+  slot color: str
+  slot size: str
+  slot type: str
+  def execute(self, core):
+    core.agent.elements[self.name].font_color = self.color
+    core.agent.elements[self.name].font_size = self.size
+    core.agent.elements[self.name].font_type = self.type
+    core.give_structure(but=self.moniid)
+
+concept CoreEdit(MoniToAgent):    
+  def execute(self, core):
+    core.edit = True
+    core.window.hide()
+    if core.halted:
+      core.state = 0
+    else:
+      core.state = 1
+    core.phase = 0
+    core.init()
+    core.give_structure()
+concept CoreInit(MoniToAgent):
+  def execute(self, core):
+    core.edit = False
+    if core.halted:
+      core.state = 0
+    else:
+      core.state = 1
+    core.phase = 0
+    core.init()
+    core.give_structure()
+concept CoreReset(MoniToAgent):
+  def execute(self, core):
+    core.phase = 0
+    core.init()
+    core.give_structure()
+
+concept StateChanged(AgentToMoni):    
+  slot halted: bool
+  def execute(self, moni):
+    moni.agents[self.agent].halted = self.halted
+    if moni.central_widget.canvas == moni.agents[self.agent]:
+      moni.agents[self.agent].enable_buttons()
+
+concept CoreRun(MoniToAgent):
+  def execute(self, core):
+    core.state = 1
+    core.halted = False
+    core.state_changed(self.moniid)
+concept CoreStep(MoniToAgent):
+  def execute(self, core):
+    core.state -= 3
+concept CoreHalt(MoniToAgent):
+  def execute(self, core):
+    core.state = -[0,2,1][core.phase]
+    core.halted = True
+    core.state_changed(self.moniid)

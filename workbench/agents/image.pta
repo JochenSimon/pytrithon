@@ -1,0 +1,30 @@
+queue 1 (0,0): 0
+python (2,1):
+  label = "Shift: {}".format(shift)
+  x = np.arange(0, 10, 0.1)
+  y = np.sin(x+shift)
+  fig,ax = plt.subplots()
+  ax.plot(x, y)
+  with io.BytesIO() as buf:
+    fig.savefig(buf, format="raw", dpi=100)
+    buf.seek(0)
+    image = np.frombuffer(buf.getvalue(), np.uint8).reshape(
+      int(fig.bbox.bounds[3]), int(fig.bbox.bounds[2]), -1)
+  plt.close(fig)
+  takes: shift:1
+  gives: image:3; label:8
+var 3 (4,0);
+gadget (-2,0):
+  Slider(max=pi*2,step=0.2,
+    row=0,col=0,cols=2)
+  gives: value:1
+gadget (4,-2): Label(row=1,col=0,cols=2)
+  takes: text:8
+gadget (6,0): Image(640,480,row=2,col=0,cols=2)
+  takes: image:3
+module (0,-2):
+  import io
+  import numpy as np
+  import matplotlib.pyplot as plt
+  from math import pi
+var 8 (2,-2);

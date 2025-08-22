@@ -1,0 +1,11 @@
+heap 1 (0,0);
+python (-2,0): stuff = Foo(randint(0,9))
+  takes: 3
+  gives: stuff:1
+pool 3 (-4,0): [()]*10
+ontology (0,-2):
+  concept Foo:
+    slot bar: int
+    def __lt__(self, other):
+      return self.bar > other.bar
+module (-4,-2): from random import randint

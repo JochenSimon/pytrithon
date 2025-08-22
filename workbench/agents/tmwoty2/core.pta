@@ -1,0 +1,179 @@
+in (0,-2): keys
+  gives: keys:3
+var 3 (2,-2);
+python (4,-2):
+  for key in keys:
+    match key:
+      case LeftKey():
+        go_left = key.pressed
+      case RightKey():
+        go_right = key.pressed
+      case MenuKey(True) if not menu:
+        menu, enable = 5, 5
+  takes: keys:3
+  gives: enable:33
+  writes: :go_left; :go_right; :menu
+var 6 (6,2);
+out (8,2): draw
+  takes: sprites:6
+var go_left (2,0): False
+var go_right (6,0): False
+python =-1 (4,2):
+  gives: collect:26; player:28; creations:14
+  writes: :frames; :player; colen,colex:collected
+  
+  dying = False
+  creations = []
+  time += dt
+  frames[0].append(dt)
+  if len(frames[0]) >= 60:
+    frames = [], round(1/mean(frames[0]))
+  
+  player.score += dt
+  expired = adjust_extras(player, dt)
+  
+  if shape := player.handle_expired(expired):
+    creations.append(CreateSprite("player", shape, 0, 2))
+  
+  color = 0xFFFFFF if not player.invul else random_color()
+  
+  if go_left ^ go_right:
+    if player.inverted:
+      go_left, go_right = go_right, go_left
+    if go_left:
+      player.position = max(player.min_x, player.position - dt * player.speed)
+    if go_right:
+      player.position = min(player.max_x, player.position + dt * player.speed)
+  
+  filter_collected(colen, enemies)
+  filter_collected(colex, extras)
+  
+  for enemy in enemies:
+    if not player.invul and enemy.collides(player.position, player.size):
+      dying = True
+      colen.add(enemy.id)
+  for extra in extras:
+    col = extra.collides(player.position, player.size)
+    if col is False and not player.invul:
+        dying = True
+        colex.add(extra.id)
+    elif col:
+      collect = extra.id
+      colex.add(extra.id)
+      if extra.type <= 7:
+        player.extras[extra.type] += 30
+      if extra.type <= 8:
+        player.score += 100
+      if shape := player.handle_extra(extra.type):
+        creations.append(CreateSprite("player", shape, 0, 2))
+  
+  if dying:
+    death = ()
+    player.reset_extras()
+    player.lives -= 1
+    if player.lives <= 0:
+      if int(player.score) > load_high_scores()[-1][1]:
+        menu, gameover = 7, 7
+      else:
+        menu, gameover = 8, 8
+    creations.append(CreateSprite("player", "sphere", 0, 2))
+  
+  if time >= 600:
+    time = 0
+    player.reset_extras()
+    player.level += 1
+    creations.append(CreateSprite("player", "sphere", 0, 2))
+    menu, gameover = 12, 12  
+    death = ()
+  
+  sprites = {"player": DrawSprite(584 + player.position - player.size/2, 1048 - player.size/2, None, color),
+             "delta": DrawText(str(frames[1]), 0, 0, 0xFF0000) if frames[1] else None}
+  reads: :go_left; :go_right
+  takes: dt,enemies,extras:38
+  gives: sprites:6; death:22; gameover:33
+  writes: :time; :menu
+in (-4,2): frame
+  gives: dt:10
+var 10 (-3,2);
+ontology (-4,-3): 
+flow 12 (2,-4);
+python =1 (4,-4):
+  creations = [CreateSprite("screen", "screen", -100, 1),
+               CreateSprite("player", "sphere", 0, 2),
+               CreateText("delta", "font", 1)]
+  sprites = {"screen": DrawSprite(0, 0)}
+  takes: 12
+  gives: creations:14; sprites:18
+var 14 (6,-4);
+out =2 (8,-4): create
+  takes: creations:14
+in (0,-4): init
+  gives: 12
+module (-2,-4):
+  from tmwoty2 import *
+  from collections import deque
+  from statistics import mean
+var 18 (6,-5);
+out =1 (8,-5): draw
+  takes: sprites:18
+in (-4,1): enemies
+  gives: enemies:21
+var 21 (-3,1);
+flow 22 (6,1);
+out =1 (8,1): reset
+  takes: 22
+in (-4,3): extras
+  gives: extras:25
+var 25 (-3,3);
+var 26 (6,-2);
+out (8,-2): collect
+  takes: id:26
+var player (-2,-3): Player.default()
+var 28 (6,-1);
+out =2 (8,-1): player
+  takes: player:28
+var collected (0,0): set(),set()
+in (0,-3): dodge
+  gives: 31
+flow 31 (2,-3);
+python (4,-3):
+  gives: player:28
+  writes: :player
+  player.score += 10
+  takes: 31
+var 33 (6,-3);
+out (8,-3): menu
+  takes: menu:33
+python =-1 (-2,2):
+  if menu:
+    del dt
+  reads: :menu
+  takes: dt:10; enemies:21; extras:25
+  gives: dt,enemies,extras:38
+var menu (-2,0): 1
+var 38 (0,2);
+in (-2,-1): menu
+  writes: :menu
+in (-4,4): level
+  gives: level:41
+var 41 (-3,4);
+python (-2,4):
+  writes: :time; :player
+  time = 0
+  player = Player.default(level)
+  takes: level:41
+var time (4,0): 0
+var 43 (8,3);
+in (6,3): buy
+  gives: item:43
+python =2 (10,3):
+  gives: player:28; creations:14
+  writes: :player
+  if shape := player.buy(item):
+    creations = [CreateSprite("player", shape, 0, 2)]
+  takes: item:43
+self (-2,-5):
+  domain: tmwoty2
+  delay: 0
+  poll: 1
+var frames (-2,-2): [], 0

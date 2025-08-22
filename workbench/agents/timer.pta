@@ -1,0 +1,10 @@
+ontology (0,-2):
+  concept Test:
+    slot test: int
+var 0 (0,0): Test(1)
+queue 1 (0,2): 1000,100,10,1,10,100,1000
+timer (2,1): 2s
+  reads: test:0
+  takes: delay:1
+  gives: test:3
+queue 3 (4,1);

@@ -1,0 +1,84 @@
+invoke (0,0): discover
+  gives: task:2
+var 2 (2,0);
+python (4,0): server = agent.name
+  reads: :agent
+  takes: task:2
+  gives: task,server:4
+var 4 (6,0);
+result (8,0): discover
+  takes: task,server:4
+invoke (0,2): join
+  gives: task,name,password,sender:7
+var 7 (2,2);
+python (4,2):
+  passwords = load_passwords()
+  if name.lower() in passwords and not bcrypt.checkpw(password.encode("utf-8"), passwords[name.lower()]):
+    wrong = ()
+  else:
+    if name.lower() not in passwords:
+      with open("passwords.txt", "a", encoding="utf-8") as p:
+        p.write(name.lower()+": "+bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")+"\n")
+      join = name + " registered and joined the chat"
+    else:
+      join = name + " joined the chat"
+    history = ""
+    if os.path.isfile(historyfile):
+      with open(historyfile, encoding="utf-8") as h:
+        history = h.read()
+  
+    append(join + "\n")
+    others = [s for s in senders if s != sender]
+    if sender not in senders and others:
+      line = join
+      origin = others
+    history += join
+    senders.append(sender)
+    names[sender] = name
+  takes: task,name,password,sender:7
+  gives: task,history:9; origin,line:20; task,wrong:23
+  writes: senders:19; names:22
+var 9 (6,2);
+result (8,2): join
+  takes: task,history:9
+var 12 (2,6);
+python (4,6):
+  line = names[sender] + "> " + message
+  append(line + "\n")
+  reads: names:22
+  takes: sender,message:12
+  gives: line:14
+var 14 (6,6);
+module (0,-2):
+  import os
+  import bcrypt
+  from chat import room
+  historyfile = "history."+room(agent.name)+".txt"
+  def append(line):
+    with open(historyfile, "a", encoding="utf-8") as h:
+      h.write(line)
+  def load_passwords():
+    if os.path.isfile("passwords.txt"):
+      with open("passwords.txt", encoding="utf-8") as p:
+        return {line.split(": ")[0]: line.split(": ")[1].encode("utf-8") for line in p.read().strip().split("\n")}
+    else:
+      return {}
+in (0,6): say
+  gives: sender,message:12
+out (8,6): hear
+  reads: aids:19
+  takes: line:14
+var 19 (6,4): []
+var 20 (2,4);
+out (2,5): hear
+  takes: aids,line:20
+var 22 (4,4): {}
+var 23 (6,1);
+fail (8,1): join
+  takes: task,wrong:23
+know agent (4,-2);
+self (2,-2): domain: chat
+comment ffffff (-3.6,0.6):
+  This Agent is the server running which connects
+  multiple "chat" Agents, which have to be started
+  after this Agent.

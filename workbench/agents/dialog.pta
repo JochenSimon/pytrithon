@@ -1,0 +1,10 @@
+gadget 2 (0,0): PushButton("open dialog")
+  gives: clicked:1
+var 1 (2,0);
+task (4,0): open
+  takes: request:1
+  gives: result:4
+queue 4 (6,0);
+comment ffffff (2,-1.4):
+  This Agent shows how to use a Task to make possible
+  opening a dialog without pausing the whole Agent.
