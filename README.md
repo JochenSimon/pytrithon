@@ -15,6 +15,9 @@ You can also explore the Agents buy running the `pytrithon` script to open a Nex
 
 Recommended Agents to try are "basic", "calculator", "kniffel", "guess", one "pokerserver" with multiple "poker", and one "chatserver" with multiple "chat".
 You also should try running TMWOTY2 with the script of the same name.
+
+Here is an image of the "basic" Agent:
+![basic](workbench/snapshots/basic.png)
 ### Nexus
 This process is the main entry-point of the whole system of Agents. This script allows starting a nexus, optionally a Monipulator, and a set of Agents, all in one call. It offers all the combined command line parameters of all Agents and the Monipulator started, so that their startup configuration can be specified concisely.
 
