@@ -10,6 +10,8 @@ It is recommended to have Python 3.13 installed. To install all required Python 
 In order to explore the language it is recommended to open several of the example Agents in the Monipulator. Using `"python nexus -l"` you can request a list of all available Agents, and using `"python nexus -m <agentname>"` you can open an Agent in the Monipulator and have it running in order to examine the language.
 
 You can also explore the Agents buy running the `pytrithon` script to open a Nexus with a Monipulator and opening Agents through the menu or `ctrl-o`.
+
+Recommended Agents to try are "basic", "calculator", "kniffel", "guess", one "pokerserver" with multiple "poker", and one "chatserver" with multiple "chat".
 ### Nexus
 This process is the main entry-point of the whole system of Agents. This script allows starting a nexus, optionally a Monipulator, and a set of Agents, all in one call. It offers all the combined command line parameters of all Agents and the Monipulator started, so that their startup configuration can be specified concisely.
 
