@@ -12,6 +12,7 @@ class OpenDialog(QDialog):
 
     self.setWindowTitle("Open Agent")
 
+    self.pick_button = QPushButton("Pick")
     self.agent_lineedit = QLineEdit()
     self.arguments_lineedit = QLineEdit()
     self.dest_combobox = QComboBox()
@@ -31,7 +32,7 @@ class OpenDialog(QDialog):
     self.dest_combobox.setMinimumWidth(237)
 
     self.layout = QGridLayout(self)
-    for col, (label, widget) in enumerate(zip(["agent", "arguments", "delay (ms)", "poll (ms)", "edit", "halt", "secret", "mute", "errors", "destination", ""], [self.agent_lineedit, self.arguments_lineedit, self.delay_spinbox, self.poll_spinbox, self.edit_checkbox, self.halt_checkbox, self.secret_checkbox, self.mute_checkbox, self.errors_checkbox, self.dest_combobox, self.open_button])):
+    for col, (label, widget) in enumerate(zip(["", "agent", "arguments", "delay (ms)", "poll (ms)", "edit", "halt", "secret", "mute", "errors", "destination", ""], [self.pick_button, self.agent_lineedit, self.arguments_lineedit, self.delay_spinbox, self.poll_spinbox, self.edit_checkbox, self.halt_checkbox, self.secret_checkbox, self.mute_checkbox, self.errors_checkbox, self.dest_combobox, self.open_button])):
       if label:
         self.layout.addWidget(QLabel(label), 0, col)
       self.layout.addWidget(widget, 1, col)
@@ -69,6 +70,17 @@ class OpenDialog(QDialog):
     self.agent_lineedit.textEdited.connect(self.edited)
     self.open_button.clicked.connect(self.do_open)
 
+    self.pick_button.clicked.connect(self.do_pick)
+    
+    self.pick_button.setShortcut(QKeySequence("Ctrl+O"))
+
+    self.pick_dialog = QFileDialog(self, "Pick agent")
+    self.pick_dialog.setFileMode(QFileDialog.ExistingFiles)
+    self.pick_dialog.setAcceptMode(QFileDialog.AcceptOpen)
+    self.pick_dialog.setNameFilter("Pytrithon Agent file (*.pta)")
+    self.pick_dialog.directoryEntered.connect(self.keep_origin)
+
+    self.agent_lineedit.setFocus()
     self.open_button.setEnabled(False)
 
   def edited(self, text):
@@ -78,6 +90,19 @@ class OpenDialog(QDialog):
     else:  
       self.agent_lineedit.setStyleSheet("")
       self.open_button.setEnabled(True)
+
+  def keep_origin(self, directory):
+    if not directory.replace("\\", "/").startswith(os.path.abspath("workbench/agents").replace("\\", "/")):
+      self.pick_dialog.setDirectory(os.path.abspath("workbench/agents"))
+
+  def do_pick(self, checked):
+    self.pick_dialog.setDirectory(os.path.abspath("workbench/agents"))
+    if self.pick_dialog.exec():
+      self.agent_lineedit.setText(os.path.relpath(self.pick_dialog.selectedFiles()[0], start="workbench/agents").replace("\\", "/").replace("/", ".").rstrip("\\.pta"))
+      self.agent_lineedit.setStyleSheet("")
+      self.open_button.setEnabled(True)
+    self.activateWindow()
+    self.agent_lineedit.setFocus()
 
   def do_open(self, checked):
     agent = self.agent_lineedit.text()
