@@ -7,6 +7,8 @@ The default workflow for editing is running a Nexus and the Agents you are inter
 ### Installation
 It is recommended to have Python 3.13 installed. To install all required Python packages you can use `"pip install -r requirements.txt"`.
 ### Exploration
+Your main area of interest when using Pytrithon should be the workbench folder, where all Agents and their Python files are situated. The Pytrithon folder is the backstage which makes the magic happen.
+
 In order to explore the language it is recommended to open several of the example Agents in the Monipulator. Using `"python nexus -l"` you can request a list of all available Agents, and using `"python nexus -m <agentname>"` you can open an Agent in the Monipulator and have it running in order to examine the language.
 
 You can also explore the Agents buy running the `pytrithon` script to open a Nexus with a Monipulator and opening Agents through the menu or `ctrl-o`.
