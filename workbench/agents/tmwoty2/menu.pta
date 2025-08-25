@@ -139,7 +139,7 @@ python =-1 (8,0):
     case 7 | 23 | 24 | 25:
       sprites = {"menu_0": DrawSprite(720, 400, 13 if menu in {24,25} else 8)}
       if menu != 25:
-        sprites |= {"taginput": DrawText(f"Enter high score tag: {"".join(tag)}", 785, 500)}
+        sprites |= {"taginput": DrawText(f"Enter high score tag: {''.join(tag)}", 785, 500)}
     case 8 | 9:
       sprites = {f"menu_{i}": DrawSprite(720, 400 + i*64, j) for i,j in zip((0,1,2), (8,9,7))}
       sprites |= {"cursor": DrawSprite(656, 416 + (menu-7) * 64), "taginput": None}
