@@ -1,17 +1,18 @@
 # Pytrithon
 Graphical Petri-Net Inspired Agent Oriented Programming Language Based On Python
+
 ## Prototype
 The prototype of Pytrithon consists of three different process types. First the Nexi, which connect all Agents running on a system, and can be connected to other Nexi. Second the actual Agents running, which are Python processes relying on an Agent core, which execute the Agent net structure by firing Transitions and managing Tokens in-between Transitions and Places. Third the Monipulators, which allow viewing, editing, interacting with Agent nets.
 
 The default workflow for editing is running a Nexus and the Agents you are interested in through the `nexus` script, with '`-me`' for opening the Agents in `edit` mode and starting a Monipulator, whenever you want to program the Agent nets. To just run the Agents without a Monipulator, no dash arguments are needed.
 ### Installation
-It is recommended to have Python 3.13 installed. To install all required Python packages you can use `"pip install -r requirements.txt"`.
+To run all Agents including TMWOTY2, you need at least Python 3.10 installed. To install all required Python packages you can use `"pip install -r requirements.txt"` or run the `install.bat` script.
 ### Exploration
 Your main area of interest when using Pytrithon should be the workbench folder, where all Agents and their Python files are situated. The Pytrithon folder is the backstage which makes the magic happen.
 
-In order to explore the language it is recommended to open several of the example Agents in the Monipulator. Using `"python nexus -l"` you can request a list of all available Agents, and using `"python nexus -m <agentname>"` you can open an Agent in the Monipulator and have it running in order to examine the language.
+You can explore the Agents buy running the `pytrithon.bat` script to open a Nexus with a Monipulator and opening Agents through the menu or `ctrl-o`. By following with another `ctrl-o` you can directly select an Agent to run.
 
-You can also explore the Agents buy running the `pytrithon` script to open a Nexus with a Monipulator and opening Agents through the menu or `ctrl-o`.
+If you prefer to explore the language in the command line it is recommended to open several of the example Agents in the Monipulator. Using `"python nexus -l"` you can request a list of all available Agents, and using `"python nexus -m <agentname>"` you can open an Agent in the Monipulator and have it running in order to examine the language.
 
 Recommended Agents to try are "basic", "calculator", "kniffel", "guess", one "pokerserver" with multiple "poker", and one "chatserver" with multiple "chat".
 You also should try running TMWOTY2 with the script of the same name.

@@ -336,4 +336,4 @@ def store_high_score(tag, score):
     with open("highscores", "w") as f:
       f.write("\n".join(f"{t}, {s}" for t,s in sorted(scores+[(tag, score)], key=lambda e: -e[1])[:10]) + "\n")
 
-inventory = list(zip([30, 100, 200, 30, 100, 200, 10, 10, 10, 20], ["1 extra life", "4 extra lives", "10 extra lives", "2000 points", "8000 points", "20000 points", "1 minute of slow", "1 minute of tiny", "1 minute of fast", "1 minute of invulnerabity"]))
+inventory = list(zip([15, 50, 100, 15, 50, 100, 5, 5, 5, 10], ["1 extra life", "4 extra lives", "10 extra lives", "2000 points", "8000 points", "20000 points", "1 minute of slow", "1 minute of tiny", "1 minute of fast", "1 minute of invulnerabity"]))

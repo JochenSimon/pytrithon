@@ -78,7 +78,7 @@ python =-1 (4,2):
         menu, gameover = 8, 8
     creations.append(CreateSprite("player", "sphere", 0, 2))
   
-  if time >= 600:
+  if time >= 300:
     time = 0
     player.reset_extras()
     player.level += 1
