@@ -1,6 +1,13 @@
 # Pytrithon
 Graphical Petri-Net Inspired Agent Oriented Programming Language Based On Python
+## About
+The language is only inspired by Petri nets, it does not follow their formal syntax and semantics, which is taught at some universities, and can be very complex and mathematical. It shares the main concept of Places and Transitions, laid out across a two dimensional Pytri net, connected through Arcs. Instead of needing to learn abstract rules of execution, you just have simple and intuitive Arc connections between Places and Transitions, where Tokens, which can be arbitrary Python objects, wander, are read, or written.
 
+Pytrithon enables a totally new way of thinking about Python code. Instead of knowing by heart where the control flow flows from method to nested method and back, and being limited to one dimensional sequences of lines of code, you can directly model the chain of events inside or across Agents. Especially once the Agents reach a certain size, you can maintain them as a two dimensional map, where certain quadrants do certain things. Inter Agent communication is a first class citizen as a primitive of the language and works the same, whether it's a single computer or spread across multiple systems. It can express control flow that simply can not be expressed in plain Python, in a way that is more expressive and intuitive than co-routines. Take the TMWOTY2 game for example, it has the equivalent of a main loop but distributed across 6 Agents which all perform their personal duties in parallel as separate processes and only capture those events that matter to them through percolation, like Agents listening for each of the 60 frames per seconds or only caring about keyboard input. It also supports rapid prototyping, by embedding GUI widgets straight into a Pytri net.
+
+And all this already works in the prototype. The potential of a professional product includes an Agent marketplace, mobility of Agents from system to system, hibernation of Agents due to all integral data being encapsulated in Places, optimization of the execution through precompilation of Transitions and knowledge of all types flowing through them, automatically distributing the execution to multiple threads since all the actions on data are separated into independent Transitions, and improving the whole understanding of Pytri nets through coarsening and expanding net substructures.
+
+Pytrithon is not your simple Python tool. It is a big framework with many moving parts. Your main area of interest when using Pytrithon should be the `workbench` folder, where all Agents, arbitrary Python modules, and other files are situated. The `Pytrithon` folder is the backstage which makes the magic happen. Agents are stored in a textual format reminiscent of Python syntax, which is suitable for git and direct manipulation.
 ## Prototype
 The prototype of Pytrithon consists of three different process types. First the Nexi, which connect all Agents running on a system, and can be connected to other Nexi. Second the actual Agents running, which are Python processes relying on an Agent core, which execute the Agent net structure by firing Transitions and managing Tokens in-between Transitions and Places. Third the Monipulators, which allow viewing, editing, interacting with Agent nets.
 
@@ -8,14 +15,12 @@ The default workflow for editing is running a Nexus and the Agents you are inter
 ### Installation
 To run all Agents including TMWOTY2, you need at least Python 3.10 installed. To install all required Python packages you can use `"pip install -r requirements.txt"` or run the `install.bat` script.
 ### Exploration
-Your main area of interest when using Pytrithon should be the workbench folder, where all Agents and their Python files are situated. The Pytrithon folder is the backstage which makes the magic happen.
-
-You can explore the Agents buy running the `pytrithon.bat` script to open a Nexus with a Monipulator and opening Agents through the menu or `ctrl-o`. By following with another `ctrl-o` you can directly select an Agent to run.
+You can explore the Agents buy running the `pytrithon.bat` script to open a Nexus with a Monipulator and opening Agents through the menu or `ctrl-o`. By following with another `ctrl-o` or clicking the `pick` button, you can directly select an Agent to run.
 
 If you prefer to explore the language in the command line it is recommended to open several of the example Agents in the Monipulator. Using `"python nexus -l"` you can request a list of all available Agents, and using `"python nexus -m <agentname>"` you can open an Agent in the Monipulator and have it running in order to examine the language.
 
 Recommended Agents to try are "basic", "calculator", "kniffel", "guess", one "pokerserver" with multiple "poker", and one "chatserver" with multiple "chat".
-You also should try running TMWOTY2 with the script of the same name.
+You also should try running TMWOTY2 with the script of the same name. If you feel adventurous you can figure out the level passwords by looking at the `__init__.py` file in the `tmwoty2` folder of the `workbench` folder.
 
 Here is a snapshot of the "basic" Agent:
 ![basic](workbench/snapshots/basic.png)
