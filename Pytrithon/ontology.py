@@ -83,7 +83,7 @@ class Concept:
         slots += [str(getattr(self, slot))]
     return "{}({})".format(self.__class__.__name__, ", ".join(slots))
   def __setattr__(self, name, value):
-    assert name in {sl[0] for sl in self._allslots}, name + " not in slots"
+    assert name in {name for name,type in self._allslots}, name + " not in slots"
     slotdict = dict(self._allslots)
     if isinstance(slotdict[name], list):
       assert isinstance(value, list), \
@@ -107,7 +107,7 @@ class Concept:
     self.__dict__[name] = value
   @classproperty  
   def __match_args__(cls):
-    return tuple(slot[0] for slot in cls._allslots)
+    return tuple(name for name,type in cls._allslots)
   def __getstate__(self):
     if "_slots" in self.__class__.__dict__:
       return self.__dict__, self.__class__._slots, self.__class__._allslots
