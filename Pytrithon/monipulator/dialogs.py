@@ -98,7 +98,7 @@ class OpenDialog(QDialog):
   def do_pick(self, checked):
     self.pick_dialog.setDirectory(os.path.abspath("workbench/agents"))
     if self.pick_dialog.exec():
-      self.agent_lineedit.setText(os.path.relpath(self.pick_dialog.selectedFiles()[0], start="workbench/agents").replace("\\", "/").replace("/", ".").rstrip("\\.pta"))
+      self.agent_lineedit.setText(os.path.relpath(self.pick_dialog.selectedFiles()[0], start="workbench/agents").replace("\\", "/").replace("/", ".").removesuffix(".pta"))
       self.agent_lineedit.setStyleSheet("")
       self.open_button.setEnabled(True)
     self.activateWindow()
