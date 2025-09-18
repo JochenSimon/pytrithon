@@ -1,26 +1,34 @@
-var 0 str (0,0): test
+var 0 Params (0,0);
 python (4,0):
-  print(string)
-  foo = Foo("bar")
-  takes: string:0
-  gives: string,foo:1
-var 1 str,int (8,0);
+  print(f"Forwarding parameters with index {params.index}")
+  flip = choice([True, False])
+  if flip:
+    params.string = params.string[::-1]
+  one = One(params.string[params.index])
+  takes: params:0
+  gives: flip,one:1
+var 1 bool,One (8,0);
 python (8,4):
   reads: :agent
-  print(agent.env)
-  takes: 1
+  rev = " reversed" if flip else ""
+  print(f"Agent '{agent.name}' picked selection = '{one.selection}'{rev}.")
+  takes: flip,one:1
   gives: 2
-flow 2 (4,4);
+flow 2 (4,4): ()
 python (0,4):
-  print("koo")
-  string = "tset"
+  print("Creating parameters")
+  params = Params(randint(0, 25), ascii_uppercase)
   takes: 2
-  gives: string:0
+  gives: params:0
 module (4,-2):
-  test = "test"
+  from random import randint, choice
+  from string import ascii_uppercase
   print(agent.args)
-ontology (6,-2):
-  concept Foo:
-    slot bar: str
-self (2,-2): delay: 1000
+ontology (7,-2):
+  concept Params:
+    slot index: int
+    slot string: str
+  concept One:
+    slot selection: str
+self (1,-2): delay: 1000
 know agent (8,-2);
