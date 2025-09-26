@@ -17,7 +17,7 @@ To run all Agents including TMWOTY2, you need at least Python 3.10 installed. To
 ### Exploration
 You can explore the Agents buy running the `pytrithon.bat` script to open a Nexus with a Monipulator and opening Agents through the menu or `ctrl-o`. By following with another `ctrl-o` or clicking the `pick` button, you can directly select an Agent to run.
 
-If you prefer to explore the language in the command line it is recommended to open several of the example Agents in the Monipulator. Using `"python nexus -l"` you can request a list of all available Agents, and using `"python nexus -m <agentname>"` you can open an Agent in the Monipulator and have it running in order to examine the language.
+If you prefer to explore the language in the command line it is recommended to open several of the example Agents in the Monipulator. Using `"python nexus -l"` you can request a list of all available Agents, and using `"python nexus -m <agentname>"` you can open an Agent in the Monipulator and have it running in order to examine the language. To terminate all processes running in the console, hit `ctrl-pause`.
 
 Recommended Agents to try are "basic", "calculator", "kniffel", "guess", one "pokerserver" with multiple "poker", and one "chatserver" with multiple "chat".
 You also should try running TMWOTY2 with the script of the same name. If you feel adventurous you can figure out the level passwords by looking at the `__init__.py` file in the `tmwoty2` folder of the `workbench` folder.
