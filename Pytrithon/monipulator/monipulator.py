@@ -5,6 +5,7 @@ import html
 import builtins
 from colorama import Fore, init, AnsiToWin32
 from time import sleep
+from datetime import datetime
 from collections import OrderedDict
 from threading import Thread
 from PyQt5.QtCore import *
@@ -42,6 +43,14 @@ class PrintStream():
   def flush(self):
     sys.__stdout__.flush()
 
+def today():
+  now = datetime.now()
+  return datetime(now.year, now.month, now.day)
+
+def lastrun():
+  with open("lastrun") as f:
+    return datetime.strptime(f.read(), "%Y-%m-%d\n")
+
 class CentralWidget(QWidget):
   def __init__(self, moni):
     super().__init__(moni)
@@ -71,7 +80,7 @@ class CentralWidget(QWidget):
         canvas.hide()
 
 class Monipulator(QMainWindow):
-  def __init__(self, app, host, port, console, bundle, info, open, quit, lightmode, zoom, config):
+  def __init__(self, app, host, port, console, bundle, info, open_, quit, lightmode, zoom, config):
     QMainWindow.__init__(self, None)
     self.agents = OrderedDict()
     self.connected = False
@@ -79,7 +88,7 @@ class Monipulator(QMainWindow):
 
     self.app = app
 
-    self.open = open
+    self.open = open_
     self.quit = quit
     self.zoom = zoom
     self.colors = LightMode if lightmode else NightMode
@@ -117,6 +126,10 @@ class Monipulator(QMainWindow):
     self.file_menu.addAction(self.quit_action)
     self.menu_bar = QMenuBar()
     self.menu_bar.addMenu(self.file_menu)
+    self.about_action = QAction("About")
+    self.about_action.setShortcut(QKeySequence("Ctrl+B"))
+    self.about_action.triggered.connect(self.do_about)
+    self.menu_bar.addAction(self.about_action)
     self.setMenuBar(self.menu_bar)
 
     self.push_action.setEnabled(False)
@@ -145,6 +158,15 @@ class Monipulator(QMainWindow):
     self.addDockWidget(Qt.RightDockWidgetArea, self.controls)
     self.setWindowTitle("Pytrithon Monipulator v" + __version__)
     self.setWindowIcon(QIcon("moni.png"))
+
+    if not os.path.isfile("lastrun") or today() > lastrun():
+      with open("lastrun", "w") as f:
+        f.write(today().strftime("%Y-%m-%d\n"))
+      self.do_about()
+
+  def do_about(self):
+    about_dialog = AboutDialog(self)
+    about_dialog.show()
 
   def do_open(self):
     self.nexus.send(TriggerOpen(self.id, []))

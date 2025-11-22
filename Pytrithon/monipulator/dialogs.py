@@ -1,9 +1,75 @@
 import re
 import os
+import webbrowser
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from ..pytriontology import *
+from .. import __version__
+
+BLURB = """
+<h1>Pytrithon v{}</h1>
+Graphical Petri-Net Inspired Agent Oriented Programming Language Based On Python<br>
+<br>
+Created by Jochen Simon<br>
+<br>
+GitHub Repository:<br>
+<br>
+<a href="https://github.com/JochenSimon/pytrithon" style="color: white">https://github.com/JochenSimon/pytrithon</a><br>
+<br>
+Please consider sending feedback or questions to:<br>
+<br>
+<a href="mailto:jochen.simon7@gmail.com" style="color: white">jochen.simon7@gmail.com</a>
+"""
+
+class Blurb(QTextEdit):
+  def mouseMoveEvent(self, event):
+    if self.anchorAt(event.pos()):
+      if not self.anchored:
+        self.viewport().setCursor(Qt.PointingHandCursor)
+        self.anchored = True
+    elif self.anchored:
+      self.viewport().setCursor(Qt.IBeamCursor)
+      self.anchored = False
+    super().mouseMoveEvent(event)  
+
+  def mousePressEvent(self, event):
+    self.link = self.anchorAt(event.pos())
+    super().mousePressEvent(event)
+
+  def mouseReleaseEvent(self, event):
+    if self.link and self.anchorAt(event.pos()) == self.link:
+      webbrowser.open(self.link)
+    super().mouseReleaseEvent(event)
+
+class AboutDialog(QDialog):
+  def __init__(self, moni):
+    super().__init__(moni)
+    self.setWindowTitle("About Pytrithon")
+    self.setWindowModality(Qt.ApplicationModal)
+    self.setFocusPolicy(Qt.StrongFocus)
+
+    self.logo = QLabel(self)
+    self.logo.setPixmap(QPixmap("icon.png"))
+
+    self.blurb = Blurb(BLURB.format(__version__))
+    self.blurb.setStyleSheet("border: 0")
+    self.blurb.setReadOnly(True)
+    self.blurb.anchored = False
+
+    self.close_button = QPushButton("close")
+    self.close_button.clicked.connect(self.do_close)
+
+    self.layout = QHBoxLayout(self)
+    self.layout.addWidget(self.logo)
+    self.blurb_layout = QVBoxLayout()
+    self.blurb_layout.addWidget(self.blurb)
+    self.blurb_layout.addWidget(self.close_button)
+    self.layout.addLayout(self.blurb_layout)
+    self.setLayout(self.layout)
+
+  def do_close(self, checked):
+    self.hide()
 
 class OpenDialog(QDialog):
   def __init__(self, moni, names):
