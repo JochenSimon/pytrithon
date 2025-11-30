@@ -13,6 +13,10 @@ Graphical Petri-Net Inspired Agent Oriented Programming Language Based On Python
 <br>
 Created by Jochen Simon<br>
 <br>
+This application is the Monipulator, with which you can monitor and manipulate Agents<br>
+<br>
+Start exploring by hitting Ctrl+O twice to open some of the example Agents<br>
+<br>
 GitHub Repository:<br>
 <br>
 <a href="https://github.com/JochenSimon/pytrithon" style="color: white">https://github.com/JochenSimon/pytrithon</a><br>
