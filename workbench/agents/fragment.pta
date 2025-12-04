@@ -1,4 +1,6 @@
-frag frag (0,0): oink: blah
+frag (0,0):
+  fragment
+  oink: blah
   takes: param:2
   gives: test:1
 var 1 (2,0);

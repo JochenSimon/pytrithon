@@ -38,8 +38,7 @@ class Self(Meta):
         self.parent.core.timeout = config["timeout"]
       if config and "domain" in config:
         self.parent.core.domain = config["domain"]
-    except Exception as exc:
-      print(format_error(self, self.inscr, "<string>", type(exc), exc, exc.__traceback__), end="", file=sys.stderr, hide=True)
+    except Exception:
       print("Corrupt self inscription in '{}'".format(self.name), file=sys.stderr, hide=True)
 
 class Module(Meta):

@@ -10,8 +10,8 @@ linked_els = set("python if choice merge timer iterator signal slot nethod call 
 slotted_els = set("concept".split())
 noname_els = set("comment".split())
 optional_els = set("python if choice merge timer iterator signal slot nethod call return raise out in task invoke result fail spawn terminate gadget".split())
-meta_els = set("self module ontology".split())
-named_els = set("flow var know phantom pool queue stack heap set frag".split())
+noarg_els = set("self module ontology frag".split())
+named_els = set("flow var know phantom pool queue stack heap set".split())
 
 def to_pos(coords):
   return tuple(float(c) for c in coords.split(","))
@@ -81,7 +81,7 @@ def parse(suite, node=None):
     elif keyword in named_els:
       name, args = args.split(" ", 1) if " " in args else (args, "")
       subel = Node(keyword, name, args, to_pos(pos), suite)
-    elif keyword in meta_els:
+    elif keyword in noarg_els:
       if args:
         subel = Node(keyword, args, "", to_pos(pos), suite)
       else:  

@@ -1,9 +1,11 @@
+import re
 from collections import OrderedDict
 from collections.abc import Mapping
 import yaml
 from string import Template
+from itertools import dropwhile
 from . import *
-from ..utils import sanitize
+from ..utils import linker, sanitize
 from ..pml import parse, parselinks
 
 class Fragment(Transition):
@@ -39,10 +41,19 @@ class Fragment(Transition):
   def load(self):
     self.elements = OrderedDict()
     self.globallinks = []
-    subs = yaml.safe_load(sanitize(self.inscr))
+    inscr = sanitize(self.inscr)
+    if "\n" in inscr:
+      name, inscr = inscr.split("\n", 1)
+    else:
+      name, inscr = inscr, ""
+    try:
+      subs = yaml.safe_load(inscr)
+    except Exception:
+      print("Corrupt fragment mapping in '{}'".format(self.name), file=sys.stderr, hide=True)
+      subs = ""
     subs = {k: str(v) for k,v in subs.items()} if isinstance(subs, Mapping) else {}
     try:
-      with open("fragments/"+self.name+".ptf", encoding="utf-8") as f:
+      with open("fragments/"+name.replace(".", "/")+".ptf", encoding="utf-8") as f:
         root = parse(Template(f.read()).safe_substitute(subs))
         for node in root.children:
           self[self.name+"."+node.name] = assoc[node.keyword](node.suite, node.args, node.pos)

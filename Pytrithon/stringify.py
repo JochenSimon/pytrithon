@@ -5,11 +5,12 @@ linker = r"^(clears|reads|takes|gives|writes): *(.*)$"
 def stringify_meta(element):    
   x = int(element.pos[0]) if str(element.pos[0]).endswith(".0") else element.pos[0]
   y = int(element.pos[1]) if str(element.pos[1]).endswith(".0") else element.pos[1]
-  string = "{} {}({},{}):".format(element.type, "" if "#" in element.name else element.name + " ", x, y)
-  if "\n" in element.inscr:
-    string += "\n  " + "\n  ".join(line for line in element.inscr.split("\n"))
-  else:
-    string += " " + element.inscr
+  string = "{} {}({},{}){}".format(element.type, "" if "#" in element.name else element.name + " ", x, y, ":" if element.inscr.strip() else ";")
+  if element.inscr.strip():
+    if "\n" in element.inscr:
+      string += "\n  " + "\n  ".join(line for line in element.inscr.split("\n"))
+    else:
+      string += " " + element.inscr
   return string  
 
 def stringify_comment(element):
@@ -27,7 +28,7 @@ def stringify_place(element):
   x = int(element.pos[0]) if str(element.pos[0]).endswith(".0") else element.pos[0]
   y = int(element.pos[1]) if str(element.pos[1]).endswith(".0") else element.pos[1]
   seed = ":" + ("\n  " + "\n  ".join(element.seed.split("\n")) if "\n" in element.seed else " " + element.seed)
-  return "{} {} {}({},{}){}".format(element.type, element.name, (element.typing + " ") if element.typing and element.type != "flow" else "", x, y, seed if element.seed else ";")
+  return "{} {} {}({},{}){}".format(element.type, element.name, (element.typing + " ") if element.typing and element.type != "flow" else "", x, y, seed if element.seed.strip() else ";")
 
 def stringify_transition(element):
   x = int(element.pos[0]) if str(element.pos[0]).endswith(".0") else element.pos[0]

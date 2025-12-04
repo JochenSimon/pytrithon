@@ -242,9 +242,11 @@ python (-2,8):
 var 58 (0,9);
 out =1 (1,9): poker.log
   takes: aids,line:58
-self (7,0): 
+self (7,0);
 know args (2,0);
-frag lobby (-2,3): domain: poker
+frag (-3,3):
+  lobby
+  domain: poker
   gives: players:65
 var 65 (0,3);
 comment ffffff (5.4,1.3):

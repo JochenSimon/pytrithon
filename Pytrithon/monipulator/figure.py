@@ -1,5 +1,6 @@
 import re
 import math
+from itertools import takewhile, dropwhile
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -10,7 +11,6 @@ from .arc import *
 from ..pytriontology import *
 
 arcmap = {"clears": Arc.Clear, "reads": Arc.Read, "takes": Arc.Take, "gives": Arc.Give, "writes": Arc.Write}
-linker = r"^(clears|reads|takes|gives|writes): *(.*)$"
 
 class Inscription(QGraphicsTextItem):
   def __init__(self, parent, text, positor, color):
@@ -82,16 +82,39 @@ class NameInscription(Inscription):
       super().keyPressEvent(event)
 
 class InscrInscription(Inscription):
+  def __init__(self, parent, text, positor, color, frag):
+    super().__init__(parent, text, positor, color)
+    self.frag = frag
+    
   def change(self, text):
     super().change(text)
     self.parent.inscr = text
 
   def focusOutEvent(self, event):
-    if self.parent.inscr != self.toPlainText():
+    new_text = self.toPlainText()
+    if self.parent.inscr != new_text:
+      if self.frag:
+        arcs = list(takewhile(lambda l: re.match(linker, l), new_text.split("\n")))
+        inscr = list(dropwhile(lambda l: re.match(linker, l), new_text.split("\n")))
+        if not "".join(inscr).strip():
+          inscr = ["frag"]
+        elif not re.sub(r"[^\w.]", "", inscr[0]):
+          inscr[0] = "frag"
+        else:  
+          inscr[0] = re.sub(r"[^\w.]", "", inscr[0])
+        while ".." in inscr[0]:
+          inscr[0] = inscr[0].replace("..", ".")
+        if inscr[0] == ".":
+          inscr[0] = "frag"
+        if inscr[0].startswith("."):
+          inscr[0] = inscr[0][1:]
+        if inscr[0].endswith("."):
+          inscr[0] = inscr[0][:-1]
+        new_text = "\n".join(arcs + inscr)
       if not self.parent.canvas.frag:
-        self.parent.canvas.moni.nexus.send(InscriptionManipulation(self.parent.canvas.agent, self.parent.canvas.moni.id, self.parent.name, self.toPlainText()))
+        self.parent.canvas.moni.nexus.send(InscriptionManipulation(self.parent.canvas.agent, self.parent.canvas.moni.id, self.parent.name, new_text))
       if self.parent.istrans or self.parent.isgadget or self.parent.isfrag:
-        arcs, inscr, _ = parselinks(self.toPlainText())
+        arcs, inscr, _ = parselinks(new_text)
         for hidden in [arc for arc in self.parent.arcs if arc.hidden == True]:
           self.parent.arcs.remove(hidden)
         for kind,alias,place,hidden in arcs:
@@ -103,7 +126,7 @@ class InscrInscription(Inscription):
         self.parent.inscr = inscr
         self.parent.update_hidden()    
       else:
-        self.change(self.toPlainText())
+        self.change(new_text)
     self.setTextInteractionFlags(Qt.NoTextInteraction)
 
   def keyPressEvent(self, event):
@@ -354,8 +377,9 @@ class Figure(QGraphicsItem):
     self.canvas.scene.clearSelection()
     self.canvas.scene.addItem(self)
 
+    self.header = NameInscription(self, name, lambda x,y: (-x / 2, -y - self.height / 2), self.canvas.colors.inscription, not self.isplace)
     self.inside = Inscription(self, inside, lambda x,y: (-x / 2, -y / 2), self.canvas.colors.element[self.type]) if inside else None
-    self.footer = InscrInscription(self, inscr, lambda x,y: (-x / 2, self.height / 2), self.canvas.colors.inscription)
+    self.footer = InscrInscription(self, inscr, lambda x,y: (-x / 2, self.height / 2), self.canvas.colors.inscription, self.isfrag)
 
   @property
   def context(self):
@@ -420,10 +444,6 @@ class Figure(QGraphicsItem):
 
 class MetaFigure(Figure):
   ismeta = True
-  def __init__(self, canvas, name, inside, inscr, args, pos):
-    super().__init__(canvas, name, inside, inscr, args, pos)
-    self.header = NameInscription(self, name, lambda x,y: (-x / 2, -y - self.height / 2), self.canvas.colors.inscription, True)
-
   @property
   def context(self):
     return ([("edit name", self.edit_name)] if self.canvas.edit else []) + super().context + ([("edit inscription", self.edit_inscription)] if self.canvas.edit else [])
@@ -472,7 +492,6 @@ class PlaceFigure(Figure):
     self.typing = args
     self.typeinscr = TypeInscription(self, self.typing, lambda x,y: (-x / 2, -y / 2), self.canvas.colors.typing)
     self.tokens = Inscription(self, "", lambda x,y: (-x / 2, -y / 2), self.canvas.colors.inscription)
-    self.header = NameInscription(self, name, lambda x,y: (-x / 2, -y - self.height / 2), self.canvas.colors.inscription, False)
   
   @property
   def context(self):
@@ -667,93 +686,83 @@ class TransFigure(Figure):
   def __str__(self):
     return stringify_transition(self)
 
-class CodeFigure(TransFigure):
-  type = "code"
-  def __init__(self, canvas, name, inside, inscr, args, pos):
-    super().__init__(canvas, name, inside, inscr, args, pos)
-    self.header = NameInscription(self, name, lambda x,y: (-x / 2, -y - self.height / 2), self.canvas.colors.inscription, True)
-
-  @property
-  def context(self):
-    return ([("edit name", self.edit_name)] if self.canvas.edit else []) + super().context
-
-class PythonFigure(CodeFigure):
+class PythonFigure(TransFigure):
   type = "python"
   size = 17,17
 
-class IfFigure(CodeFigure):
+class IfFigure(TransFigure):
   type = "if"
   size = 17,17
 
-class ChoiceFigure(CodeFigure):
+class ChoiceFigure(TransFigure):
   type = "choice"
   size = 23,17
 
-class MergeFigure(CodeFigure):
+class MergeFigure(TransFigure):
   type = "merge"
   size = 23,17
 
-class TimerFigure(CodeFigure):
+class TimerFigure(TransFigure):
   type = "timer"
   size = 23,17
 
-class IteratorFigure(CodeFigure):
+class IteratorFigure(TransFigure):
   type = "iterator"
   size = 23,17
 
-class SignalFigure(CodeFigure):
+class SignalFigure(TransFigure):
   type = "signal"
   size = 23,17
 
-class SlotFigure(CodeFigure):
+class SlotFigure(TransFigure):
   type = "slot"
   size = 23,17
 
-class NethodFigure(CodeFigure):
+class NethodFigure(TransFigure):
   type = "nethod"
   size = 23,17
   
-class CallFigure(CodeFigure):
+class CallFigure(TransFigure):
   type = "call"
   size = 23,17
   
-class ReturnFigure(CodeFigure):
+class ReturnFigure(TransFigure):
   type = "return"
   size = 23,17
   
-class RaiseFigure(CodeFigure):
+class RaiseFigure(TransFigure):
   type = "raise"
   size = 23,17
   
-class OutFigure(CodeFigure):
+class OutFigure(TransFigure):
   type = "out"
   size = 23,17
   
-class InFigure(CodeFigure):
+class InFigure(TransFigure):
   type = "in"
   size = 23,17
   
-class TaskFigure(CodeFigure):
+class TaskFigure(TransFigure):
   type = "task"
   size = 23,17
   
-class InvocationFigure(CodeFigure):
+class InvocationFigure(TransFigure):
   type = "invoke"
   size = 23,17
   
-class ResultFigure(CodeFigure):
+class ResultFigure(TransFigure):
   type = "result"
   size = 23,17
   
-class FailFigure(CodeFigure):
+class FailFigure(TransFigure):
   type = "fail"
   size = 23,17
   
-class SpawnFigure(CodeFigure):
+class SpawnFigure(TransFigure):
   type = "spawn"
   size = 23,23
 
-class TerminateFigure(CodeFigure):
+class TerminateFigure(TransFigure):
   type = "terminate"
   size = 23,23
 
@@ -787,10 +796,6 @@ class SocketFigure(RoundRectFigure):
   istrans = False
   isgadget = True
   size = 42,42
-  def __init__(self, canvas, name, inside, inscr, args, pos):
-    super().__init__(canvas, name, inside, inscr, args, pos)
-    self.header = NameInscription(self, name, lambda x,y: (-x / 2, -y - self.height / 2), self.canvas.colors.inscription, True)
-
   @property
   def context(self):
     return ([("edit name", self.edit_name)] if self.canvas.edit else []) + super().context
@@ -800,10 +805,6 @@ class FragmentFigure(RoundRectFigure):
   isgadget = False
   isfrag = True
   size = 42,42
-  def __init__(self, canvas, name, inside, inscr, args, pos):
-    super().__init__(canvas, name, inside, inscr, args, pos)
-    self.header = NameInscription(self, name, lambda x,y: (-x / 2, -y - self.height / 2), self.canvas.colors.inscription, False)
-
   @property
   def context(self):
-    return ([("edit name", self.edit_name)] + super().context if self.canvas.edit else []) + [("edit fragment", lambda f=self.name: self.canvas.moni.open_fragment(f))]
+    return ([("edit name", self.edit_name)] + super().context if self.canvas.edit else []) + [("edit fragment", lambda f=sanitize(self.inscr).split("\n")[0]: self.canvas.moni.open_fragment(f))]

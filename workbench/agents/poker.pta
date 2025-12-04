@@ -173,10 +173,12 @@ gadget (-2,12):
   gives: clicked:59
 var 80 (-3,10);
 var 81 (-1,8);
-self (2,0): 
+self (2,0);
 var 83 (1,10);
 know window (6,0);
-frag lobbee (6,3): domain: poker
+frag (6,3):
+  lobbee
+  domain: poker
   gives: name:37; server:76
 comment ffffff (-1.2,3.4):
   This Agent encapsulates a single Poker player. It requires a "pokerserver" Agent
