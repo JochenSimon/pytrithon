@@ -53,7 +53,7 @@ class Fragment(Transition):
       subs = ""
     subs = {k: str(v) for k,v in subs.items()} if isinstance(subs, Mapping) else {}
     try:
-      with open("fragments/"+name.replace(".", "/")+".ptf", encoding="utf-8") as f:
+      with open(self.core.workbench + "/fragments/"+name.replace(".", "/")+".ptf", encoding="utf-8") as f:
         root = parse(Template(f.read()).safe_substitute(subs))
         for node in root.children:
           self[self.name+"."+node.name] = assoc[node.keyword](node.suite, node.args, node.pos)

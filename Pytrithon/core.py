@@ -58,7 +58,7 @@ def except_hook(cls, exception, traceback):
   sys.__excepthook__(cls, exception, traceback)
 
 class Core:
-  def __init__(self, agent, host, port, delay, poll, timeout, edit, halt, secret, mute, errors, app):
+  def __init__(self, agent, host, port, delay, poll, timeout, edit, halt, secret, mute, errors, app, workbench):
     self.agent = agent
     self.delay = delay
     self.poll = poll
@@ -77,6 +77,7 @@ class Core:
     self.errors = errors
     self.domain = None
     self.app = app
+    self.workbench = workbench
     self.agent.core = self
     self.watchers = set()
     self.nexus = NexusMediator(host, port, core=self)

@@ -88,14 +88,15 @@ except FileNotFoundError:
   agent = Agent(name, args.arguments, "")   
 
 os.chdir("workbench")          
-sys.path.insert(0, str(Path(".").absolute()))
+workbench = str(Path(".").absolute()).replace("\\", "/")
+sys.path.insert(0, workbench)
 
 app = QApplication(sys.argv)
 with open("../dark.css") as ss:
   app.setStyleSheet(ss.read())
 app.setQuitOnLastWindowClosed(False)
 
-core = Core(agent, "localhost", port, delay, poll, timeout, edit, halt, secret, mute, errors, app)
+core = Core(agent, "localhost", port, delay, poll, timeout, edit, halt, secret, mute, errors, app, workbench)
 
 core.init()
 
