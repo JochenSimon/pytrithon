@@ -1,0 +1,24 @@
+phantom 0 (0,0);
+python (0,2): result = repos["$entity".lower()].find(**query)
+  reads: repos:0
+  takes: query:1
+  gives: result:2
+phantom 1 (-2,2);
+phantom 2 (2,2);
+comment (-2.1,-2.1):
+  This fragment executes a find query on all objects of a certain
+  entity in the database, which has been initialized through the
+  'init" fragment.
+  
+  In order to configure this to query a certain entity, the 'entity'
+  substitution has to be configured to a certain 'SQLModelEntity'.
+  
+  A Read Arc with the alias 'repos' is required in the embedding fragment
+  to supply this fragment with the repositories.
+  
+  The 'query' Target Arc in the embedding fragment triggers the query as a
+  dictionary of criteria to filter by. An empty dictionary, for example,
+  causes it to return all entity objects.
+  
+  The 'result' Donation Arc in the embedding fragment receives all entities
+  that match the query.

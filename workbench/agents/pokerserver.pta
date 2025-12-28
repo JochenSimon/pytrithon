@@ -249,7 +249,7 @@ frag (-3,3):
   domain: poker
   gives: players:65
 var 65 (0,3);
-comment ffffff (5.4,1.3):
+comment (5.4,1.3):
   This agent is not finished. It is missing the handling of
   players who cannot afford the ante and thus should be skipped.
   

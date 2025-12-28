@@ -9,6 +9,6 @@ python (2,0):
   takes: param1,param2,task:1
   gives: result1,result2,task:0
 var 0 (4,0);
-comment ffffff (0,-1.7):
+comment (0,-1.7):
   This Agent makes a Task available to "invoker" Agents.
   It receives parameters and returns results to the calling Agent.

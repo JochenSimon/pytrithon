@@ -54,7 +54,7 @@ class Agent:
         self[node.name].links.append(Link(self, linkmap[kind], alias, place, hidden))
     
   def create_element(self, type, name, typing, pos):
-    self[name] = assoc[type]("" if type != "comment" else "<comment>", typing, pos)
+    self[name] = assoc[type]("<comment>" if type == "comment" else "frag" if type == "frag" else "", typing, pos)
     self[name].load()
     self[name].init()
 

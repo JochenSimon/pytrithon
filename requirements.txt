@@ -3,11 +3,13 @@ colorama
 contourpy
 cycler
 fonttools
+greenlet
 kiwisolver
 matplotlib
 more-itertools
 numpy
 pillow
+pydantic
 pygame
 PyOpenGL
 pyparsing
@@ -19,3 +21,8 @@ PyYAML
 ruamel.appconfig
 ruamel.std.argparse
 six
+SQLAlchemy
+sqlalchemy2-stubs
+sqlmodel
+sqlmodel-repository
+typing_extensions

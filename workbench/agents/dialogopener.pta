@@ -11,6 +11,6 @@ var 4 (6,0);
 result (8,0): open
   takes: result,task:4
 know window (4,-2);
-comment ffffff (0,-2):
+comment (0,-2):
   This Agent shows how to open a modal dialog
   without pausing the calling agent while it is open

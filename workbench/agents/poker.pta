@@ -180,6 +180,6 @@ frag (6,3):
   lobbee
   domain: poker
   gives: name:37; server:76
-comment ffffff (-1.2,3.4):
+comment (-1.2,3.4):
   This Agent encapsulates a single Poker player. It requires a "pokerserver" Agent
   to run. Each player can sign up for a game in the Lobby.

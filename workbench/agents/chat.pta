@@ -64,7 +64,7 @@ python (10,-3):
 flow 37 (8,-3);
 know window (4,-4);
 self (2,-4): domain: chat
-comment ffffff (3.7,-2.7):
+comment (3.7,-2.7):
   This agent encapsulates a chat participant.
   In order to join a chat, a "chatserver"
   agent needs to be running before this.

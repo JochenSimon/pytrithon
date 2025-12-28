@@ -1,0 +1,33 @@
+python (0,0):
+  from typing import TypeVar
+  from sqlmodel import Session, SQLModel, create_engine
+  from sqlmodel_repository import SQLModelEntity, Repository
+  
+  engine = create_engine(f"$engine")
+  SQLModel.metadata.create_all(engine)
+  
+  Entity = TypeVar("Entity", bound=SQLModelEntity)
+  
+  class AbstractRepository(Repository[Entity]): pass
+  
+  AbstractRepository.get_session = lambda self,sess=Session(engine): sess
+  
+  entities = [e.strip() for e in "$entities".split(",")]
+  
+  exec("\n".join(f"class {entity}Repository(AbstractRepository[{entity}]): pass" for entity in entities) +
+       "\nrepos = {" + ", ".join(f"'{entity}'.lower(): {entity}Repository()" for entity in entities) + "}")
+  takes: 1
+  gives: repos:0
+phantom 0 (2,0);
+flow 1 (0,-1): ()
+comment (-3.6,-2.8):
+  This fragment initializes a generic SQLAlchemy database automatically and creates a CRUD repository
+  for each 'SQLModelEntity' for use in the 'act' and 'find' fragments.
+  
+  The 'repos' Donation Arc is required to supply the repositories to the embedding fragment.
+  
+  The 'engine' substitution is required to configure the engine to use. If you want to create an
+  sqlite database, for example, you can define it to be 'sqlite:///database.db'.
+  
+  The 'entities' substitution is required to specify for each of which preexisting 'SQLModelEntity's
+  a repository should be created, by specifying a comma separated list of entities.

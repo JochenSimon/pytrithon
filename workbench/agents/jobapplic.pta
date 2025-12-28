@@ -1,16 +1,16 @@
-gadget 1 (0,0): Selector()
+gadget (0,0): Selector()
   takes: update:5
   gives: select:3; save:9
   writes: apps:6
-module 2 (0,-2):
+module (0,-2):
   import yaml
   from PyQt5.QtCore import QSize
-  from applic import Selector, Details, Applications, Application, __version__
+  from jobapplic import Selector, Details, Applications, Application, __version__
   
   window.sizeHint = lambda: QSize(1024, 640)
   window.setWindowTitle("Application Manager v" + __version__)
 queue 3 (2,-1);
-gadget 4 (4,0): Details(window)
+gadget (4,0): Details(window)
   takes: app:3
   gives: save:5
 queue 5 (2,1);
@@ -29,7 +29,7 @@ python 7 (-4,0):
   gives: apps:6
 flow 8 (-6,0): ()
 flow 9 (0,2);
-python 10 (-2,2):
+python (-2,2):
   with open("applications.txt", "w") as appfile:
     appfile.write(yaml.dump(apps.toyaml(), sort_keys=False, default_flow_style=False))
   reads: apps:6

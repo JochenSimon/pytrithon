@@ -1,0 +1,42 @@
+frag (0,2):
+  db.init
+  engine: sqlite:///address.db
+  entities: Record
+  gives: :repos
+var repos (2,2);
+module (0,0):
+  from PyQt5.QtCore import QSize
+  from address import Selector, Details, Record, __version__
+  
+  window.sizeHint = lambda: QSize(1024, 640)
+  window.setWindowTitle("Address Manager v" + __version__)
+var 1 (6,4);
+frag (6,2): db.act
+  reads: :repos
+  takes: create:1; delete:0; update:5
+  gives: updated:6
+var 2 (0,6): {}
+frag (2,6):
+  db.find
+  entity: Record
+  reads: :repos
+  takes: query:2
+  gives: result:3
+var 3 (4,6);
+gadget (6,6): Selector()
+  takes: change:6; move:8; records:3
+  gives: create:1; delete:0; select:4; hide:7
+var 0 (5,4);
+var 4 (8,6);
+var 5 (8,4);
+gadget (10,6): Details(window)
+  takes: record:4; hide:7
+  gives: save:5; move:8
+var 6 (7,4);
+var 7 (8,5);
+var 8 (8,7);
+gadget (0,8): window
+  gives: closed:9
+flow 9 (2,8);
+terminate (4,8): local
+  takes: 9

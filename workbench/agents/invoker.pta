@@ -20,6 +20,6 @@ task (8,2): task
   takes: param1,param2:9
   gives: result1,result2:11
 queue 11 (10,2);
-comment ffffff (2,-1.7):
+comment (2,-1.7):
   This Agent utilizes a "task" Agent and calls its Task when
   a user clicks on a Button.

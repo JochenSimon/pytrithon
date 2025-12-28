@@ -233,23 +233,19 @@ class CommentText(QGraphicsTextItem):
         self.parent.font_type = None
       self.parent.canvas.moni.nexus.send(CommentManipulation(self.parent.canvas.agent, self.parent.canvas.moni.id, self.parent.name, self.parent.font_color, self.parent.font_size, self.parent.font_type))
 
-  def change(self, text):
-    self.parent.inscr = text
-    self.setPlainText(text)
-
   def focusOutEvent(self, event):
     if re.sub(r"[\s]", "", self.toPlainText()):
       if self.parent.inscr != self.toPlainText():
         if not self.parent.canvas.frag:
           self.parent.canvas.moni.nexus.send(InscriptionManipulation(self.parent.canvas.agent, self.parent.canvas.moni.id, self.parent.name, self.toPlainText()))
-          self.change(self.toPlainText())
+        self.parent.inscr = self.toPlainText()
     else:
       self.setPlainText(self.parent.inscr)
     self.setTextInteractionFlags(Qt.NoTextInteraction)
 
   def keyPressEvent(self, event):
     if event.key() == Qt.Key_Escape:
-      self.change(self.parent.inscr)
+      self.setPlainText(self.parent.inscr)
       self.setTextInteractionFlags(Qt.NoTextInteraction)
     else:
       super().keyPressEvent(event)

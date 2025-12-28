@@ -78,7 +78,7 @@ fail (8,1): join
   takes: task,wrong:23
 know agent (4,-2);
 self (2,-2): domain: chat
-comment ffffff (-3.6,0.6):
+comment (-3.6,0.6):
   This Agent is the server running which connects
   multiple "chat" Agents, which have to be started
   after this Agent.

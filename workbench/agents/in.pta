@@ -14,7 +14,7 @@ queue 5 (6,1);
 in (0,4): spam
   gives: stuff:7
 queue 7 (2,4);
-comment ffffff (2.1,-1.7):
+comment (2.1,-1.7):
   This Agent shows how Agent communication works.
   In order for this example to work, start one
   "out" Agent and three "in" Agents.

@@ -1,0 +1,33 @@
+phantom 0 (4,2);
+python (2,0): repos[create.__table__.name].create(create)
+  reads: repos:0
+  takes: create:1
+phantom 1 (0,0);
+phantom 2 (0,2);
+python (2,2): repos[delete.__table__.name].delete(delete)
+  reads: repos:0
+  takes: delete:2
+phantom 3 (0,4);
+python (2,4): updated = repos[update[0].__table__.name].update(update[0], **update[1])
+  reads: repos:0
+  takes: update:3
+  gives: updated:4
+phantom 4 (4,4);
+comment (-0.1,-2.5):
+  This fragment implements three of the CRUD operations on the repositories
+  created by the 'init' fragment. All operations can be used for each of the
+  'SQLModelEntity's simultaneously.
+  
+  The embedding fragment needs to connect to a Read Arc with the Alias 'repos',
+  containing the repositories created through the 'init' fragment.
+  
+  To create an entity in the database, supply an 'SQLModelEntity' object
+  through a 'create' Target Arc in the embedding fragment.
+  
+  To delete an entity in the database, supply an 'SQLModelEntity' object
+  through a 'delete' Target Arc in the embedding fragment.
+  
+  To modify an entity in the database, supply a tuple of first an 'SQLModelEntity'
+  object and second a dictionary mapping of the attributes to change and their
+  new values through an 'update' Target Arc. To receive the newly modified entity,
+  connect an 'updated' Donation Arc to the embedding fragment.

@@ -183,15 +183,13 @@ class Canvas(QGraphicsView):
       nextname = next(str(i) for i in count() if i not in {int(name) for name in self.figures if name.isdigit()})
       figure = assoc[type](self, nextname, insides[type], "", "", (x/zoom, y/zoom))
       self.figures[nextname] = figure
-      default_args = ""
     else:
-      default_args = self.colors.comment.name()[1:] if type == "comment" else ""
       serialnames = {int(name.split("#")[1]) for name in self.figures if name.startswith("#")}
       nextserial = "#{}".format((max(serialnames) if serialnames else 0) + 1)
-      figure = assoc[type](self, nextserial, insides[type], "<comment>" if type == "comment" else "frag" if type == "frag" else "", default_args, (x/zoom, y/zoom))
+      figure = assoc[type](self, nextserial, insides[type], "<comment>" if type == "comment" else "frag" if type == "frag" else "", "", (x/zoom, y/zoom))
       self.figures[nextserial] = figure
     if not self.frag:
-      self.moni.nexus.send(CreateManipulation(self.agent, self.moni.id, type, figure.name, default_args, (x/zoom, y/zoom)))
+      self.moni.nexus.send(CreateManipulation(self.agent, self.moni.id, type, figure.name, "", (x/zoom, y/zoom)))
 
   def change_to(self, place, type):
     self.scene.removeItem(place)

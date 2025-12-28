@@ -10,3 +10,6 @@ class Phantom(Variable):
     Variable.tokens.__set__(self, tokens)
     if self.parent.isfrag and tokens:
       print("Phantom '{}' in fragment '{}' must not have seed".format(self.name.split(".")[1], self.parent.name), file=sys.stderr, hide=True)
+
+  def give(self, token):
+    pass

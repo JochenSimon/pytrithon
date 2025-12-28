@@ -51,7 +51,7 @@ class Fragment(Transition):
     except Exception:
       print("Corrupt fragment mapping in '{}'".format(self.name), file=sys.stderr, hide=True)
       subs = ""
-    subs = {k: str(v) for k,v in subs.items()} if isinstance(subs, Mapping) else {}
+    subs = {k: str(v).strip() for k,v in subs.items()} if isinstance(subs, Mapping) else {}
     try:
       with open(self.core.workbench + "/fragments/"+name.replace(".", "/")+".ptf", encoding="utf-8") as f:
         root = parse(Template(f.read()).safe_substitute(subs))

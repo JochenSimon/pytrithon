@@ -16,7 +16,7 @@ gadget (0,4): PushButtonGroup(("1", "2", "3"))
   gives: clicked:6
 out (4,3): spam
   takes: aid:5; stuff:6
-comment ffffff (4.6,2):
+comment (4.6,2):
   This Agent shows how Agent communication works.
   In order for this example to work, start one
   "out" Agent and three "in" Agents.
