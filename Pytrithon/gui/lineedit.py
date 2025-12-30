@@ -18,6 +18,10 @@ class LineEdit(Gadget, QLineEdit):
     self.setToolTip(self.tooltip)
     self.returnPressed.connect(self.returnPressed_)
 
+  def init(self):  
+    if self.socket.outputs("text"):
+      self.textEdited.connect(self.edited)
+
   def update(self, alias, token):
     if alias == "enable":
       self.enabled = bool(token)
@@ -61,3 +65,6 @@ class LineEdit(Gadget, QLineEdit):
     self.socket.put("return", self.text())
     if self.clear:
       self.setText("")
+
+  def edited(self):
+    self.socket.put("text", self.text())

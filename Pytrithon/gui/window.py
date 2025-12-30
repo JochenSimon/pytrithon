@@ -19,6 +19,9 @@ class Window(QDialog):
 
     self.row = 0
 
+  def init(self):
+    pass
+
   def sizeHint(self):
     return QSize(480, 64)
   

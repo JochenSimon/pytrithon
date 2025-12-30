@@ -25,6 +25,7 @@ class Socket(Transition):
       self._gadget = eval(gadget, globals(), environment)
       self._gadget.socket = self
       self._gadget.window = self.parent.core.window
+      self._gadget.init()
       self.parent.core.hasgui = True
     except Exception as exc:
       print(format_error(self, gadget, "<string>", type(exc), exc, exc.__traceback__), end="", file=sys.stderr, hide=True)
@@ -67,6 +68,9 @@ class Socket(Transition):
       self.observed.discard(link)
       if not self.observed:
         self.parent.core.doze(self)
+
+  def outputs(self, alias):
+    return alias in {link.alias for link in self.gives + self.writes}
 
   def put(self, alias, token):
     links = [link for link in self.gives + self.writes if link.alias == alias]

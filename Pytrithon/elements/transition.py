@@ -77,7 +77,7 @@ class Transition(Element):
             self.bindings[alias.strip()] = token[i]
         else:
           self.bindings[link.alias] = token
-    for link in self.takes + self.writes:
+    for link in self.writes + self.takes:
       if link.alias:
         if "*" in link.alias:
           if link.alias[1:]:

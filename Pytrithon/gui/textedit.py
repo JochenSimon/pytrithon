@@ -15,6 +15,8 @@ class TextEdit(Gadget, QTextEdit):
     self.document().setDefaultStyleSheet("p { white-space: pre-wrap; }")
 
   def update(self, alias, token):
+    if alias == "replace":
+      self.setPlainText(str(token))
     if alias == "append":
       text = str(token)
       if self.autoscroll:

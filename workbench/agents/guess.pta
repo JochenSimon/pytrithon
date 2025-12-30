@@ -1,7 +1,7 @@
 module (0,0):
   import random
   from itertools import zip_longest
-gadget display (5,2): Label(center=True,fontsize=69)
+gadget display (7,2): Label(align="center", fontsize=69)
   takes: text:5
 flow 3 (0,2): ()
 python (3,2):
@@ -70,3 +70,8 @@ python (7,3):
   takes: guess:19
   gives: dis:13; result:5; 8
 self (0,-2): secret: True
+gadget (0,6): window
+  gives: closed:0
+flow 0 (2,6);
+terminate (4,6): total
+  takes: 0

@@ -5,3 +5,12 @@ class Gadget:
     self.col = kwargs["col"] if "col" in kwargs else 0
     self.rows = kwargs["rows"] if "rows" in kwargs else 1
     self.cols = kwargs["cols"] if "cols" in kwargs else 1
+
+  def init(self):
+    pass
+
+  def update(self, alias, token):
+    pass
+
+  def inhibition(self, inhibited, alias):
+    pass
