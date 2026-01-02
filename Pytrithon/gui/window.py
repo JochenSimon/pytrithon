@@ -49,23 +49,20 @@ class Window(QDialog):
       QDialog.keyPressEvent(self, event)
 
   def closeEvent(self, event):
+    if hasattr(self, "socket"):
+      self.socket.put("closed", ())
     if self.quit_on_close:
       if self.quit_on_close == "agent" or self.quit_on_close is True:
         self.core.nexus.send(TerminatedAgent("", self.parent.name))
-        sleep(0.1)
-        sys.exit(0)  
       elif self.quit_on_close == "total":
         self.core.nexus.send(TerminatedTotal(""))
-        sleep(0.1)
-        sys.exit(0)  
       elif self.quit_on_close == "local":
         self.core.nexus.send(TerminatedLocal())
-        sleep(0.1)
-        sys.exit(0)  
       else:
         print("Illegal value for window.quit_on_close", file=sys.stderr, hide=True)
-    if hasattr(self, "socket"):
-      self.socket.put("closed", ())
+        return
+      sleep(0.1)
+      sys.exit(0)  
   
   def __str__(self):
     return 'Window("{}")'.format(self.windowTitle())
