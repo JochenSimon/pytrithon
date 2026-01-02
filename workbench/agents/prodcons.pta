@@ -5,11 +5,11 @@ python (0,0):
   gives: product:0
 queue 0 (2,-2);
 pool 1 (2,2): (),(),()
-python (4,0): 
+python (4,0): print(f"Product '{product}' sent.")
   takes: product:0
   gives: 1; product:2
 queue 2 (7,0);
-python (10,0): 
+python (10,0): print(f"Product '{product}' received.")
   takes: product:2; 4
   gives: product:3
 queue 3 (12,-2);
