@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 from .transition import Transition
 from ..pytriontology import *
 from ..utils import sanitize
@@ -16,4 +17,5 @@ class Terminate(Transition):
     else:
       print("Illegal inscription in terminate '{}'".format(self.name), file=sys.stderr, hide=True)
       return
+    sleep(0.1)  
     sys.exit(0)

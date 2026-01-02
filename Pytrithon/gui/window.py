@@ -1,4 +1,5 @@
 import sys
+from time import sleep
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -51,12 +52,15 @@ class Window(QDialog):
     if self.quit_on_close:
       if self.quit_on_close == "agent" or self.quit_on_close is True:
         self.core.nexus.send(TerminatedAgent("", self.parent.name))
+        sleep(0.1)
         sys.exit(0)  
       elif self.quit_on_close == "total":
         self.core.nexus.send(TerminatedTotal(""))
+        sleep(0.1)
         sys.exit(0)  
       elif self.quit_on_close == "local":
         self.core.nexus.send(TerminatedLocal())
+        sleep(0.1)
         sys.exit(0)  
       else:
         print("Illegal value for window.quit_on_close", file=sys.stderr, hide=True)
