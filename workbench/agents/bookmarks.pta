@@ -1,6 +1,6 @@
 gadget (0,0):
-  FileSelect("Pick Bookmark Backup",
-             filetype="Bookmark Backup (*.json)",
+  FileSelect("Pick Firefox Bookmark Backup",
+             filetype="Firefox Bookmark Backup (*.json)",
              cols=6)
   gives: read:0; file:6
 var 0 (2,0);
@@ -23,11 +23,15 @@ module (0,-5):
   
   from PyQt5.QtCore import QSize
   
+  window.quit_on_close = "local"
   window.sizeHint = lambda: QSize(800,800)
   window.setWindowTitle("Bookmark Chunker")
   
   def random_guid():
     return "".join(choice(string.ascii_letters + string.digits + "_-") for _ in range(12))
+  
+  def timestamp():
+    return int(datetime.now().timestamp()*1000)*1000
   
   def find_next_id(node):
     def find(node):
@@ -37,55 +41,56 @@ module (0,-5):
           yield from find(child)
     return max(find(node)) + 1
   
-  def timestamp():
-    return int(datetime.now().timestamp()*1000)*1000
+  def find_folder(node, title):
+    if node["title"] == title:
+      yield node
+    if "children" in node:
+      for child in node["children"]:
+        yield from find_folder(child, title)
 gadget (0,1): LineEdit(row=2, col=1, cols=5)
   writes: text:2
 var 2 (2,1): ""
 gadget (0,3): PushButton("Chunkify", enabled=False, cols=6)
-  takes: enable:3; enable:8
+  takes: enable:3
   gives: clicked:7
-var 3 (1,2);
+var 3 (2,2);
 var 4 (4,2): ""
 var 5 (6,2): ""
 var 6 (2,-1);
 flow 7 (2,3);
 python (4,3):
   enable = False
-  for category in bookmarks["children"]:
-    if "children" in category:
-      for folder in category["children"]:
-        if (found := folder)["title"] == target:
-          next_id = find_next_id(bookmarks)
-          marks = folder["children"]
-          folder["children"] = []
-          for i,batch in enumerate(batched(marks, 50)):
-            batch = list(batch)
-            for j,mark in enumerate(batch):
-              mark["index"] = j
-            folder["children"].append({
-    "guid": random_guid(),
-    "title": f"(Part {i})",
-    "index": i,
-    "dateAdded": timestamp(),
-    "lastModified": timestamp(),
-    "id": next_id + i,
-    "typeCode": 2,
-    "type": "text/x-moz-place-container",
-    "children": batch
-  })
-          stem, ext = file.rsplit(".", 1)
-          outfile = stem + "-chunked." + ext
-          with open(outfile, "w", encoding="utf-8") as f:
-            f.write(json.dumps(bookmarks))
-          result = json.dumps(bookmarks, indent=4)
+  next_id = find_next_id(bookmarks)
+  for found in find_folder(bookmarks, target):
+    marks = found["children"]
+    found["children"] = []
+    for i,batch in enumerate(batched(marks, 50)):
+      batch = list(batch)
+      for j,mark in enumerate(batch):
+        mark["index"] = j
+      found["children"].append({
+        "guid": random_guid(),
+        "title": f"(Part {i})",
+        "index": i,
+        "dateAdded": timestamp(),
+        "lastModified": timestamp(),
+        "id": next_id,
+        "typeCode": 2,
+        "type": "text/x-moz-place-container",
+        "children": batch
+      })
+      next_id += 1
+    stem, ext = file.rsplit(".", 1)
+    outfile = stem + "-chunked." + ext
+    with open(outfile, "w", encoding="utf-8") as f:
+      f.write(json.dumps(bookmarks))
+    result = json.dumps(bookmarks, indent=4)
   reads: file:4; bookmarks:5; target:2
   takes: 7
-  gives: enable:8; result:1
-var 8 (2,2);
-gadget (4,-2): window
-  gives: closed:9
-flow 9 (6,-2);
-terminate (8,-2): local
-  takes: 9
+  gives: result:1; enable:3
 gadget (-1,2): Label("Folder to chunkify:", align="right", row=2)
+comment (3.9,-5):
+  This Agent can be used to split up a bookmark folder inside a Firefox
+  bookmarks backup file into chunks of 50 bookmarks. I created this Agent
+  for the usecase of enabling me to open all bookmarks as tabs in steps
+  without requiring too much system memory all at once.

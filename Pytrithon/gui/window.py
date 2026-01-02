@@ -1,13 +1,16 @@
+import sys
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from .. import __version__
+from ..pytriontology import *
 
 class Window(QDialog):
   def __init__(self, core):
     super().__init__()
     self.core = core
     self.embed = False
+    self.quit_on_close = None
 
     self.widgets = []
 
@@ -45,6 +48,18 @@ class Window(QDialog):
       QDialog.keyPressEvent(self, event)
 
   def closeEvent(self, event):
+    if self.quit_on_close:
+      if self.quit_on_close == "agent":
+        self.core.nexus.send(TerminatedAgent("", self.parent.name))
+        sys.exit(0)  
+      elif self.quit_on_close == "total":
+        self.core.nexus.send(TerminatedTotal(""))
+        sys.exit(0)  
+      elif self.quit_on_close == "local":
+        self.core.nexus.send(TerminatedLocal())
+        sys.exit(0)  
+      else:
+        print("Illegal value for window.quit_on_close", file=sys.stderr, hide=True)
     if hasattr(self, "socket"):
       self.socket.put("closed", ())
   
