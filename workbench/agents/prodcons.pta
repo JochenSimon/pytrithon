@@ -1,0 +1,26 @@
+python (0,0):
+  product = Product(choice(string.ascii_uppercase))
+  print(f"Product '{product}' produced.")
+  takes: 1
+  gives: product:0
+queue 0 (2,-2);
+pool 1 (2,2): (),(),()
+python (4,0): 
+  takes: product:0
+  gives: 1; product:2
+queue 2 (7,0);
+python (10,0): 
+  takes: product:2; 4
+  gives: product:3
+queue 3 (12,-2);
+pool 4 (12,2): (),(),()
+python (14,0): print(f"Product '{product}' consumed.")
+  takes: product:3
+  gives: 4
+self (4,-4): delay: 1000
+module (7,-4):
+  import string
+  from random import choice
+ontology (10,-4):
+  concept Product:
+    slot type: str
