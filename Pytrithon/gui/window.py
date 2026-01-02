@@ -10,7 +10,7 @@ class Window(QDialog):
     super().__init__()
     self.core = core
     self.embed = False
-    self.quit_on_close = None
+    self.quit_on_close = False
 
     self.widgets = []
 
@@ -49,7 +49,7 @@ class Window(QDialog):
 
   def closeEvent(self, event):
     if self.quit_on_close:
-      if self.quit_on_close == "agent":
+      if self.quit_on_close == "agent" or self.quit_on_close is True:
         self.core.nexus.send(TerminatedAgent("", self.parent.name))
         sys.exit(0)  
       elif self.quit_on_close == "total":
