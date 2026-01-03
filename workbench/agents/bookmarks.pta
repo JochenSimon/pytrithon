@@ -59,7 +59,7 @@ gadget (0,3): PushButton("Chunkify", enabled=False, cols=6)
   gives: clicked:7
 var 3 (2,2);
 var 4 (4,2): ""
-var 5 (6,2): ""
+var 5 (6,2): {}
 var 6 (2,-1);
 flow 7 (2,3);
 python (4,3):
