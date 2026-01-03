@@ -75,6 +75,7 @@ python (4,3):
         mark["index"] = j
       while (guid := random_guid()) in existing_guids:
         pass
+      existing_guids.add(guid)
       found["children"].append({
         "guid": guid,
         "title": f"(Part {i})",
