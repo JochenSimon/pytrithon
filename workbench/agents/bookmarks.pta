@@ -33,13 +33,17 @@ module (0,-5):
   def timestamp():
     return int(datetime.now().timestamp()*1000)*1000
   
+  def aggregate(node, key):
+    yield node[key]
+    if "children" in node:
+      for child in node["children"]:
+        yield from aggregate(child, key)
+  
   def find_next_id(node):
-    def find(node):
-      yield node["id"]
-      if "children" in node:
-        for child in node["children"]:
-          yield from find(child)
-    return max(find(node)) + 1
+    return max(aggregate(node, "id")) + 1
+  
+  def find_guids(node):
+    return set(aggregate(node, "guid"))
   
   def find_folder(node, title):
     if node["title"] == title:
@@ -61,6 +65,7 @@ flow 7 (2,3);
 python (4,3):
   enable = False
   next_id = find_next_id(bookmarks)
+  existing_guids = find_guids(bookmarks)
   for found in find_folder(bookmarks, target):
     marks = found["children"]
     found["children"] = []
@@ -68,8 +73,10 @@ python (4,3):
       batch = list(batch)
       for j,mark in enumerate(batch):
         mark["index"] = j
+      while (guid := random_guid()) in existing_guids:
+        pass
       found["children"].append({
-        "guid": random_guid(),
+        "guid": guid,
         "title": f"(Part {i})",
         "index": i,
         "dateAdded": timestamp(),
