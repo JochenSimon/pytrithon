@@ -2,6 +2,7 @@ import sys
 import builtins
 import re
 import html
+import logging
 from random import choice
 from colorama import Fore, init, AnsiToWin32
 from collections import defaultdict
@@ -11,6 +12,8 @@ from .nexusmediator import *
 from .pytriontology import *
 from .gui import *
 from .utils import WithEnum
+
+logging.getLogger("SQLModelRepositoryLogger").setLevel(logging.WARNING)
 
 def print(*objects, sep=" ", end="\n", file=None, flush=False, hide=False):
   file = file if file is not None else sys.stdout

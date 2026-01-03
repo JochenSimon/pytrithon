@@ -1,6 +1,5 @@
 __version__ = "1.0.0"
 
-import logging
 from datetime import datetime
 from sqlmodel import Field
 from sqlmodel_repository import SQLModelEntity
@@ -8,8 +7,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from Pytrithon import Gadget
-
-logging.getLogger("SQLModelRepositoryLogger").setLevel(logging.WARNING)
 
 TIMESTAMP_FORMAT = "%b %e %Y %H:%M:%S"        
 
