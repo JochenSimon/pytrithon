@@ -8,7 +8,7 @@ module (0,0):
   from PyQt5.QtCore import QSize
   from address import Selector, Details, Record, __version__
   
-  window.quit_on_close = "local"
+  window.quit_on_close = "unseen"
   window.sizeHint = lambda: QSize(1024, 640)
   window.setWindowTitle("Address Manager v" + __version__)
 var 1 (6,4);

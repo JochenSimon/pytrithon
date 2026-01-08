@@ -23,7 +23,7 @@ module (0,-5):
   
   from PyQt5.QtCore import QSize
   
-  window.quit_on_close = "local"
+  window.quit_on_close = "unseen"
   window.sizeHint = lambda: QSize(800,800)
   window.setWindowTitle("Bookmark Chunker")
   

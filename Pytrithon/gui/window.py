@@ -52,12 +52,14 @@ class Window(QDialog):
     if hasattr(self, "socket"):
       self.socket.put("closed", ())
     if self.quit_on_close:
+      if self.quit_on_close == "unseen" and self.core.watchers:
+        return
       if self.quit_on_close == "agent" or self.quit_on_close is True:
         self.core.nexus.send(TerminatedAgent("", self.parent.name))
+      elif self.quit_on_close in {"local", "unseen"}:
+        self.core.nexus.send(TerminatedLocal())
       elif self.quit_on_close == "total":
         self.core.nexus.send(TerminatedTotal(""))
-      elif self.quit_on_close == "local":
-        self.core.nexus.send(TerminatedLocal())
       else:
         print("Illegal value for window.quit_on_close", file=sys.stderr, hide=True)
         return

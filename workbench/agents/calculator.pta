@@ -36,7 +36,7 @@ module (0,-4):
   
   from PyQt5.QtCore import QSize
   
-  window.quit_on_close = "local"
+  window.quit_on_close = "unseen"
   window.sizeHint = lambda: QSize(480,480)
   window.setWindowTitle("Calculator")
 var 9 (4,4): []

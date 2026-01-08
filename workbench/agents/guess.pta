@@ -2,7 +2,7 @@ module (0,0):
   import random
   from itertools import zip_longest
   
-  window.quit_on_close = "local"
+  window.quit_on_close = "unseen"
 gadget display (7,2): Label(align="center", fontsize=69)
   takes: text:5
 flow 3 (0,2): ()

@@ -1,0 +1,80 @@
+module (1,-1):
+  from random import choice, shuffle
+  from datetime import datetime
+  
+  from PyQt5.QtCore import QSize
+  
+  window.quit_on_close = "unseen"
+  window.sizeHint = lambda: QSize(1024,0)
+  window.setWindowTitle("Hiragana and Katakana Learning Tool")
+  
+  hiragana = "あいうえおかきくけこがぎぐげごさしすせそざじずぜぞたちつてとだぢづでどなにぬねのはひふへほばびぶべぼぱぴぷぺぽまみむめもやゆよらりるれろわをん"
+  katakana = "アイウエオカキクケコガギグゲゴサシスセソザジズゼゾタチツテトダヂヅデドナニヌネノハヒフヘホバビブベボパピプペポマミムメモヤユヨラリルレロワヲン"
+  romaji = ("a,i,u,e,o,ka,ki,ku,ke,ko,ga,gi,gu,ge,go,sa,shi,su,se,so,za,ji,zu,ze,zo,ta,chi,tsu,te,to,da,ji,zu,de,do,na,ni,nu,ne,no,"
+            "ha,hi,fu,he,ho,ba,b,bu,be,bo,pa,pi,pu,pe,po,ma,mi,mu,me,mo,ya,yu,yo,ra,ri,ru,re,ro,wa,o,n".split(","))
+gadget (-1,2): PushButtonGroup(text=("Hiragana", "Katakana", "Mixed"))
+  takes: enabled:2
+  gives: clicked:0
+var 0 (2,2);
+python (4,2):
+  hira = {h: r for h, r in zip(hiragana, romaji)}
+  kata = {k: r for k, r in zip(katakana, romaji)}
+  match category:
+    case "Hiragana":
+      mapping = hira
+    case "Katakana":
+      mapping = kata
+    case "Mixed":
+      mapping = hira | kata
+  challenge = list(mapping.items())
+  shuffle(challenge)
+  challenge = dict(challenge)
+  start = datetime.now()
+  enabled = False
+  enable = True
+  takes: category:0
+  gives: enabled:2; challenge:1; enable:5; 9
+  writes: start:10
+var 1 (4,4);
+var 2 (0,4);
+python (4,6):
+  if challenge:
+    letter = choice(list(challenge))
+    answer = challenge[letter]
+    del challenge[letter]
+  else:
+    del challenge
+    seconds = (datetime.now() - start).total_seconds()
+    letter = f"{correct/(correct+wrong):.1%} correct in {seconds:.3f}s"
+    correct = 0
+    wrong = 0
+    enabled = True
+    enable = False
+  takes: 9
+  gives: letter:3; answer:6; enabled:2; enable:5
+  writes: challenge:1; correct:8; wrong:7; start:10
+gadget (0,6): Label(align="center", fontsize=77)
+  takes: text:3
+var 3 (2,6);
+gadget (-1,10): LineEdit(enabled=False,focus=True,clear=True)
+  takes: enable:5
+  gives: return:4
+var 4 (2,10);
+var 5 (-1,4);
+var 6 (4,9);
+python (4,10):
+  if answer == answered:
+    correct += 1
+  else:
+    wrong += 1
+  takes: answer:6; answered:4
+  gives: 9
+  writes: correct:8; wrong:7
+var 7 (6,10): 0
+var 8 (6,9): 0
+flow 9 (2,9);
+var 10 (6,6): ()
+comment (-4.5,4.3):
+  This Agent is a hiragana and katakana learning
+  tool, where you have to type in the correct
+  romaji for each character shown
