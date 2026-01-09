@@ -16,6 +16,8 @@ class Lobby(Gadget, QDialog):
     self.servers = OrderedDict()
     self.running = defaultdict(bool)
 
+    parent.sub_windows.append(self)
+
     self.setWindowTitle("Poker Lobby")
 
     self.server_combobox = QComboBox()

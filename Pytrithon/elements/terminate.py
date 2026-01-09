@@ -8,9 +8,9 @@ class Terminate(Transition):
   type = "terminate"
 
   def fire(self):
-    if santitize(self.inscr) == "unseen" and self.parent.core.watchers:
+    if sanitize(self.inscr) == "unseen" and self.parent.core.watchers:
       return
-    if not sanitize(self.inscr) or santitize(self.inscr) == "agent":
+    if sanitize(self.inscr) == "agent" or not sanitize(self.inscr):
       self.parent.core.nexus.send(TerminatedAgent("", self.parent.name))
     elif sanitize(self.inscr) in {"local", "unseen"}:
       self.parent.core.nexus.send(TerminatedLocal())

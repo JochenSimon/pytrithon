@@ -125,6 +125,7 @@ class Transition(Element):
           suppress = True
         if not suppress:
           self.parent[link.place].give(tuple(self.bindings[alias.strip()] for alias in link.alias.split(',')))
+    self.bindings = {}      
     return {self.parent[p] for p in {l.place for l in self.gives + self.writes}}
 
   def topic(self, inscr=None):

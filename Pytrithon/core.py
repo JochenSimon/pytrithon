@@ -108,6 +108,9 @@ class Core:
       self.reinit = False
 
     if self.reinit:
+      for sub_window in self.window.sub_windows:
+        sub_window.close()
+      self.window.sub_windows = []  
       self.window.widgets = []
       for i in reversed(range(self.window.layout.count())):
         self.window.layout.itemAt(i).widget().setParent(None)

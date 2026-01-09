@@ -82,6 +82,8 @@ class Details(Gadget, QDialog):
     Gadget.__init__(self, **kwargs)
     QDialog.__init__(self, parent)
 
+    parent.sub_windows.append(self)
+
     self.setWindowTitle("Application Details")
     self.setWindowFlag(Qt.WindowMinimizeButtonHint, True)
     self.setWindowFlag(Qt.WindowMaximizeButtonHint, True)

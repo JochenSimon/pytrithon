@@ -14,6 +14,7 @@ class Window(QDialog):
     self.quit_on_close = False
 
     self.widgets = []
+    self.sub_windows = []
 
     self.setWindowTitle("Pytrithon v" + __version__)
     self.setWindowIcon(QIcon("../icon.png"))
