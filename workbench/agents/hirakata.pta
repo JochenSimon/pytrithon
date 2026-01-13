@@ -21,14 +21,11 @@ python (4,2):
   kata = {k: r for k, r in zip(katakana, romaji)}
   match category:
     case "Hiragana":
-      mapping = hira
+      challenge = hira
     case "Katakana":
-      mapping = kata
+      challenge = kata
     case "Mixed":
-      mapping = hira | kata
-  challenge = list(mapping.items())
-  shuffle(challenge)
-  challenge = dict(challenge)
+      challenge = hira | kata
   start = datetime.now()
   enabled = False
   enable = True
