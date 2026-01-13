@@ -7,8 +7,8 @@ class Label(Gadget, QLabel):
   def __init__(self, text="", align="left", fontsize=None, **kwargs):
     Gadget.__init__(self, **kwargs)
     QLabel.__init__(self, text)
-    if fontsize is not None:
-      self.setStyleSheet("font-size: {}px".format(fontsize))
+    self.fontsize = "font-size: {}px; ".format(fontsize) if fontsize else ""
+    self.setStyleSheet(self.fontsize)
     if align == "center":
       self.setAlignment(Qt.AlignCenter)
     elif align == "right":
@@ -18,3 +18,5 @@ class Label(Gadget, QLabel):
   def update(self, alias, token):
     if alias == "text":
       self.setText(str(token))
+    elif alias == "color":
+      self.setStyleSheet(self.fontsize + "color: {}".format(str(token))) 
