@@ -30,7 +30,7 @@ python (4,2):
   enabled = False
   enable = True
   takes: category:0
-  gives: enabled:2; challenge:1; enable:5; 9
+  gives: enabled:2; challenge:1; enable:5; 11
   writes: start:10
 var 1 (4,4);
 var 2 (0,4);
