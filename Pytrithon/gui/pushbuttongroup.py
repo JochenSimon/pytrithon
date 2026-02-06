@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import *
 from .gadget import Gadget
 
 class PushButtonGroup(Gadget, QWidget):
-  def __init__(self, text=None, enabled=None, count=None, column=False, **kwargs):
+  def __init__(self, text=None, enabled=None, count=None, column=False, columns=None, fontsize=None, **kwargs):
     Gadget.__init__(self, **kwargs)
     QWidget.__init__(self)
     self.count = count if count is not None else len(text)
@@ -14,19 +14,27 @@ class PushButtonGroup(Gadget, QWidget):
     else:  
       self.enabled = [bool(en) for en in enabled] if enabled is not None else [True]*self.count
     self.widgets = []
+    if fontsize:
+      self.setStyleSheet("font-size: {}px".format(fontsize))
     self.inhibited = False
-    self.layout = QVBoxLayout() if self.column else QHBoxLayout()
+    if columns:
+      self.layout = QGridLayout()
+    else:  
+      self.layout = QVBoxLayout() if self.column else QHBoxLayout()
     self.setLayout(self.layout)
     for i in range(self.count):
       self.widgets.append(QPushButton(self.text[i]))
     for i,widget in enumerate(self.widgets):
-      self.layout.addWidget(widget)
+      if columns:
+        self.layout.addWidget(widget, i // columns, i % columns)
+      else:  
+        self.layout.addWidget(widget)
       widget.clicked.connect(lambda c,i=i: self.clicked_(i,c))
     for enabled,widget in zip(self.enabled, self.widgets):  
       widget.setEnabled(enabled)
 
   def update(self, alias, token):
-    if isinstance(token, Iterable):
+    if isinstance(token, Iterable) and not isinstance(token, str):
       assert len(token) == len(self.text), "wrong input to " + self.socket.name
     else:
       token = [token]*self.count
