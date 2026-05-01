@@ -2,11 +2,12 @@ gadget (0,0): Selector()
   takes: update:5
   gives: select:3; save:9
   writes: apps:6
-module (0,-2):
+module (0,-3):
   import yaml
   from PyQt5.QtCore import QSize
   from jobapplic import Selector, Details, Applications, Application, __version__
   
+  window.quit_on_close = "unseen"
   window.sizeHint = lambda: QSize(1024, 640)
   window.setWindowTitle("Application Manager v" + __version__)
 queue 3 (2,-1);
@@ -17,7 +18,7 @@ queue 5 (2,1);
 var 6 (-2,0);
 python 7 (-4,0):
   try:
-    with open("applications.txt") as appfile:
+    with open("applications.yaml") as appfile:
       rawapps = yaml.safe_load(appfile)
       apps = Applications([Application(ra["id"], ra["company"], ra["title"],
                                        ra["website"], ra["maps"], ra["advertisement"],
@@ -30,7 +31,7 @@ python 7 (-4,0):
 flow 8 (-6,0): ()
 flow 9 (0,2);
 python (-2,2):
-  with open("applications.txt", "w") as appfile:
+  with open("applications.yaml", "w") as appfile:
     appfile.write(yaml.dump(apps.toyaml(), sort_keys=False, default_flow_style=False))
   reads: apps:6
   takes: 9

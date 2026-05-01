@@ -44,13 +44,16 @@ class Selector(Gadget, QWidget):
 
     self.selector = QListWidget()
     self.new = QPushButton("New")
+    self.synopsis = QPushButton("Synopsize")
 
     self.layout = QVBoxLayout(self)
     self.layout.addWidget(self.selector)
     self.layout.addWidget(self.new)
+    self.layout.addWidget(self.synopsis)
 
     self.selector.itemClicked.connect(self.select)
     self.new.clicked.connect(self.clicked_)
+    self.synopsis.clicked.connect(self.synopsize)
 
   def select(self, item):
     self.socket.put("select", self.applications[self.selector.currentRow()])
@@ -60,6 +63,10 @@ class Selector(Gadget, QWidget):
     self.applications.append(application)
     self.selector.insertItem(self.selector.count(), application.company + " : " + application.title)
     self.selector.setCurrentRow(self.selector.count()-1)
+
+  def synopsize(self, checked):
+    with open("synopsis.txt", "w", encoding="utf8") as f:
+      f.write("\n".join(app.company + " : " + app.title for app in self.applications) + "\n")
 
   def update(self, alias, token):
     if alias == "update":
