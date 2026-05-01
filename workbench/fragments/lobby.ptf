@@ -12,7 +12,7 @@ var 5 (6,2);
 result (8,2): $domain.discover
   takes: task,session:5
 var 7 (4,3): []
-in (0,2): $domain.join
+in (0,4): $domain.join
   gives: name,sender:9
 var 9 (2,4);
 python (4,4):

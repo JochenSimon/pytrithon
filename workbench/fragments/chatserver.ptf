@@ -1,0 +1,17 @@
+in (0,0): $domain.say
+  gives: name,line:0
+var 0 (2,0);
+python (4,0): line = f"{name}> {line}"
+  takes: name,line:0
+  gives: line:1
+var 1 (6,0);
+out (8,0): $domain.hear
+  reads: aids:2
+  takes: line:1
+comment (0,-1.8):
+  This fragment is a minimal chat server which receives a name
+  and a line from the 'chat' fragment and sends them to all
+  connected agents. It works well with the 'lobby' fragment.
+  
+  It needs to be supplied with the aids of the players.
+phantom 2 (8,-2);

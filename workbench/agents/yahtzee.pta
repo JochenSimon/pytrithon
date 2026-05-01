@@ -1,0 +1,54 @@
+frag (0,0):
+  lobbee
+  min_players: 1
+  domain: yahtzee
+  gives: :server; :name
+var server (0,-2);
+var name (0,2);
+gadget (0,4): Yahtzee()
+  reads: :name
+  takes: prime:1; update:3; winner:7
+  gives: checked:4; reroll:5; choice:6; newgame:0
+module (0,-4): from yahtzee import *
+var 1 (-2,4);
+in (-8,4): yahtzee.prime
+  gives: players:2
+var 3 (-2,2);
+in (-4,2): yahtzee.update
+  gives: players:3
+var 4 (2,2);
+out (4,2):
+  reads: aid:server
+  yahtzee.select
+  takes: keep:4
+flow 5 (2,4);
+out (4,4):
+  reads: aid:server
+  yahtzee.reroll
+  takes: 5
+var 6 (2,6);
+out (4,6):
+  reads: aid:server
+  yahtzee.choose
+  takes: choice:6
+var 7 (-2,6);
+in (-4,6): yahtzee.winner
+  gives: winner:7
+timer (-4,4): 0.5s
+  takes: players:2
+  gives: players:1
+var 2 (-6,4);
+frag (-2,0):
+  chat
+  domain: yahtzee
+  reads: aid:server; :name
+flow 0 (0,6);
+out (0,8):
+  reads: aid:server
+  yahtzee.newgame
+  takes: 0
+comment (-7.5,-0.3):
+  This is a client which connects to a 'yahtzeeserver' Agent,
+  which needs to be running before this Agent is started.
+  Upon start, you are greeted with the lobby where you can
+  register your name and start a session of Yahtzee together.

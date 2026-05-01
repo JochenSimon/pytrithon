@@ -8,15 +8,15 @@ task (1,4): $domain.discover
   takes: 3
   gives: session:9
 var 9 (2,4);
-gadget (2,2): Lobby(window)
+gadget (2,2): Lobby(window, $min_players)
   takes: session:9; hide:26; taken:28; running:30
   gives: name,agent:14; start:13
   writes: name:37; server:76
 var 13 (6,4);
-var 14 (4,2);
-out (4,1): $domain.join
+var 14 (6,2);
+out (6,1): $domain.join
   takes: name,aid:14
-in (2,3): $domain.lobby
+in (1,3): $domain.lobby
   gives: session:9
 out (7,4): $domain.start
   takes: aid:13
@@ -26,15 +26,16 @@ var 26 (4,5);
 in (6,3): $domain.taken
   gives: 28
 flow 28 (5,3);
-in (3,2): $domain.running
+in (4,1): $domain.running
   gives: sender:30
-var 30 (3,3);
+var 30 (2,1);
 var 37 (6,5): ""
 var 76 (7,5): ""
 flow 83 (5,6);
-python (6,6): 
+python (6,6): joined = ()
   reads: server:76
   takes: name:37; 83
-  gives: name:85; server:86
+  gives: name:85; server:86; joined:0
 phantom 85 (6,7);
 phantom 86 (7,6);
+phantom 0 (7,7);

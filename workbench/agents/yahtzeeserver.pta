@@ -1,0 +1,102 @@
+frag (0,0):
+  lobby
+  domain: yahtzee
+  gives: players:0
+var 0 (2,0);
+python (4,0):
+  aids = [aid for _,aid in players]
+  players = [Player.new(aid, name) for name,aid in players]
+  takes: players:0
+  gives: :players; players:3; 4; :aids
+var players (6,0);
+flow round (4,4);
+module (0,-2):
+  import random
+  from yahtzee import *
+var 3 (4,-2);
+out =1 (6,-2):
+  reads: :aids
+  yahtzee.prime
+  takes: players:3
+var turn (8,-2): -1
+python (6,4):
+  writes: :turn
+  turn = (turn + 1) % len(players)
+  for i,player in enumerate(players):
+    player.turn = turn == i
+  players[turn].rerolls = 2
+  players[turn].dice = random_dice()
+  players[turn].keep = [False]*5
+  takes: round
+  gives: update
+  writes: :players
+flow update (8,2);
+out (8,0):
+  reads: :aids
+  yahtzee.update
+  reads: :players
+  takes: update
+flow 4 (4,1);
+timer (4,2): 1s
+  takes: 4
+  gives: round
+in (8,5): yahtzee.reroll
+  gives: 5
+flow 5 (10,5);
+python (12,5):
+  reads: :turn
+  gives: update
+  writes: :players
+  reroll_dice(players[turn].dice, players[turn].keep)
+  players[turn].rerolls -= 1
+  takes: 5
+in (8,4): yahtzee.select
+  gives: keep:6
+var 6 (10,4);
+python (12,4):
+  reads: :turn
+  gives: update
+  writes: :players
+  players[turn].keep = keep
+  takes: keep:6
+in (8,6): yahtzee.choose
+  gives: choice:1
+var 1 (10,6);
+python (12,6):
+  reads: :turn
+  gives: :update; :round
+  writes: :players
+  choose(players[turn], choice)
+  players[turn].keep = [False]*5
+  if -1 in players[(turn + 1) % len(players)].scores:
+    round = ()
+  else:
+    players[turn].turn = False
+    totals = [total(p) for p in players]
+    winner = players[totals.index(max(totals))].name
+    update = ()
+  takes: choice:1
+  gives: winner:2
+var 2 (14,6);
+out (16,6):
+  reads: :aids
+  yahtzee.winner
+  takes: winner:2
+var aids (2,-2);
+frag (12,0):
+  reads: aids
+  chatserver
+  domain: yahtzee
+in (0,6): yahtzee.newgame
+  gives: 7
+flow 7 (2,6);
+python (4,6):
+  writes: :players; :turn
+  players = [Player.new(p.aid, p.name) for p in players]
+  turn = -1
+  takes: 7
+  gives: round
+comment (9.8,1.9):
+  This Agent is a server to manage a session of multiple users
+  playing a game of Yahtzee together. This needs to be running
+  before 'yahtzee' Agents are started.

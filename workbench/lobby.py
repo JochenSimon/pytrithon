@@ -1,6 +1,7 @@
 import re
 from collections import OrderedDict, defaultdict
 from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from Pytrithon import Gadget
 
@@ -9,16 +10,19 @@ def room(agent):
 
 class Lobby(Gadget, QDialog):
   embed = False
-  def __init__(self, parent, **kwargs):
+  def __init__(self, parent, min_players, **kwargs):
     Gadget.__init__(self, **kwargs)
     QDialog.__init__(self, parent)
+
+    self.min_players = min_players
 
     self.servers = OrderedDict()
     self.running = defaultdict(bool)
 
     parent.sub_windows.append(self)
 
-    self.setWindowTitle("Poker Lobby")
+    self.setWindowTitle("Lobby")
+    self.setWindowModality(Qt.ApplicationModal)
 
     self.server_combobox = QComboBox()
     self.player_labels = [QLabel("") for _ in range(5)]
@@ -37,6 +41,10 @@ class Lobby(Gadget, QDialog):
     self.setLayout(self.layout)
 
     self.name_lineedit.setFocus(True)
+    self.name_lineedit.setPlaceholderText("Your Name")
+    palette = self.name_lineedit.palette()
+    palette.setColor(QPalette.PlaceholderText, QColor(237, 237, 237))
+    self.name_lineedit.setPalette(palette)
     self.start_button.setAutoDefault(False)
 
     self.server_combobox.activated.connect(self.select_server)
@@ -73,7 +81,7 @@ class Lobby(Gadget, QDialog):
       self.start_button.setEnabled(False)
       self.name_lineedit.setEnabled(False)
     else:
-      if len(self.servers[name][1]) >= 2:
+      if len(self.servers[name][1]) >= self.min_players:
         self.start_button.setEnabled(True)
       else:
         self.start_button.setEnabled(False)

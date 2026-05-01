@@ -1,0 +1,21 @@
+in (0,0): $domain.hear
+  gives: line:0
+var 0 (2,0);
+gadget (4,0): TextEdit()
+  takes: append:0
+gadget (4,2): LineEdit(clear=True)
+  gives: return:1
+var 1 (6,2);
+out (8,2): $domain.say
+  reads: aid:2; name:3
+  takes: line:1
+phantom 2 (8,0);
+phantom 3 (8,4);
+comment (-0.2,3):
+  This fragment is a minimal chat client which
+  connects to a 'chatserver' fragment and
+  adds a textedit and lineedit to the main window
+  and works well with the 'lobbee' fragment.
+  
+  The aid of the server and the name of the
+  player need to be supplied through read arcs.
