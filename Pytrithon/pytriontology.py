@@ -51,7 +51,7 @@ class AgentToAgents(Relayed):
   def relay(self, nexus):
     if self.agents:
       for agent in self.agents:
-        if agent in nexus.agents:
+        if agent in nexus.agents and agent in nexus.listeners(self.type, self.topic):
           self.agents = (agent,)
           nexus.agents[agent].send(self)
     else:

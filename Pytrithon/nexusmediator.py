@@ -52,7 +52,7 @@ class NexusMediator(Thread):
           self.nexus.communicationlisteners.update(primal.commlist)
         break  
       except EOFError:
-        sleep(0.01)
+        return
       
     if self.nexus:
       self.start()
@@ -84,8 +84,6 @@ class NexusMediator(Thread):
     while 1:
       try:
         self.nexus.server.queue.put(pickle.load(self.rfile))
-      except ConnectionResetError:
+      except (EOFError, ConnectionResetError, ConnectionAbortedError):
         self.send = lambda o: None
         return
-      except EOFError:
-        sleep(0.001)

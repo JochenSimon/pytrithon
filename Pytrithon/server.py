@@ -120,34 +120,28 @@ class Handler(Thread):
           pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.names, nexus.agentlist, [a for a in nexus.agents], {m for m in nexus.monis}, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners)), self.wfile, protocol=2)
         break  
       except EOFError:
-        sleep(0.001)
+        return
 
   def run(self):
     if self.agent:
       while self.running:
         try:
           self.server.queue.put(pickle.load(self.rfile))
-        except EOFError:
-          sleep(0.001)    
-        except ConnectionResetError:
+        except (EOFError, ConnectionResetError, ConnectionAbortedError):
           self.server.nexus.agents[self.agent].send = lambda o: None
           return
     elif self.moni:
       while self.running:
         try:
           self.server.queue.put(pickle.load(self.rfile))
-        except EOFError:
-          sleep(0.001)  
-        except ConnectionResetError:
+        except (EOFError, ConnectionResetError, ConnectionAbortedError):
           self.server.nexus.monis[self.moniid].send = lambda o: None
           return
     elif self.nexus:
       while self.running:
         try:
           self.server.queue.put(pickle.load(self.rfile))
-        except EOFError:
-          sleep(0.001)
-        except ConnectionResetError:
+        except (EOFError, ConnectionResetError, ConnectionAbortedError):
           try:
             self.server.nexus.nexi[self.nexus].send = lambda o: None
           except KeyError:

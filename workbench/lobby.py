@@ -43,7 +43,7 @@ class Lobby(Gadget, QDialog):
     self.name_lineedit.setFocus(True)
     self.name_lineedit.setPlaceholderText("Your Name")
     palette = self.name_lineedit.palette()
-    palette.setColor(QPalette.PlaceholderText, QColor(237, 237, 237))
+    palette.setColor(QPalette.PlaceholderText, QColor(200, 200, 200))
     self.name_lineedit.setPalette(palette)
     self.start_button.setAutoDefault(False)
 
