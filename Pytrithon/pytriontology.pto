@@ -286,11 +286,12 @@ concept Listener:
   slot agent: str
   slot type: str
   slot topic: str
+  slot oldtopic: str
 concept RegisterListeners(AgentToNexi):
   slot listeners: {Listener}
   def execute(self, nexus):
     for listener in self.listeners:
-      nexus.register_listener(listener.agent, listener.type, listener.topic)
+      nexus.register_listener(listener.agent, listener.type, listener.topic, listener.oldtopic)
 
 concept TaskResult(AgentToAgentsTask):
   type = "task"

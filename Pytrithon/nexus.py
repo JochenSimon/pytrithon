@@ -88,12 +88,18 @@ class Nexus:
       self.agentlist.append(agent)
       self.agentschanged = True
 
-  def register_listener(self, agent, type, topic):
+  def register_listener(self, agent, type, topic, oldtopic):
     if type == "task":
+      if oldtopic:
+        self.tasklisteners[oldtopic].remove(agent)
       self.tasklisteners[topic].add(agent)
     elif type == "invocation":
+      if oldtopic:
+        self.invocationlisteners[oldtopic].remove(agent)
       self.invocationlisteners[topic].add(agent)
     elif type == "communication":
+      if oldtopic:
+        self.communicationlisteners[oldtopic].remove(agent)
       self.communicationlisteners[topic].add(agent)
 
   def listeners(self, type, topic):

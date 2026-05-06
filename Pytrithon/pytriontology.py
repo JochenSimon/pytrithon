@@ -244,12 +244,12 @@ class Ping(AgentToNexi):
   def execute(self, nexus):
     nexus.ping(self.agent, self.timeout)
 class Listener(Concept):
-  _slots = [("agent", str), ("type", str), ("topic", str)]
+  _slots = [("agent", str), ("type", str), ("topic", str), ("oldtopic", str)]
 class RegisterListeners(AgentToNexi):
   _slots = [("listeners", {Listener})]
   def execute(self, nexus):
     for listener in self.listeners:
-      nexus.register_listener(listener.agent, listener.type, listener.topic)
+      nexus.register_listener(listener.agent, listener.type, listener.topic, listener.oldtopic)
 class TaskResult(AgentToAgentsTask):
   _slots = [("topic", str), ("bindings", dict)]
   type = "task"
