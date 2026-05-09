@@ -103,7 +103,8 @@ class Handler(Thread):
             nexus.nexi[nex].send(AgentPropagation(nex, nexus.name, self.agent))
           pickle.dump(AgentNamed(self.agent), self.wfile, protocol=2)
         if isinstance(primal, MonipulatorAvailable):
-          self.moniid = (max(m for m in nexus.monis) + 1) if nexus.monis else 0
+          nexus.nextmoni += 1
+          self.moniid = str(nexus.nextmoni) + "@" + nexus.name
           for nex in nexus.nexi:
             nexus.nexi[nex].send(MonipulatorPropagation(nex, nexus.name, self.moniid))
           pickle.dump(MonipulatorConnected(self.moniid), self.wfile, protocol=2)

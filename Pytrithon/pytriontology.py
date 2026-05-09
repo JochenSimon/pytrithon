@@ -36,7 +36,7 @@ class AgentToNexi(Relayed):
 class MoniToNexi(AgentToNexi):
   pass
 class NexusToMoni(Relayed):
-  _slots = [("moniid", int)]
+  _slots = [("moniid", str)]
   def relay(self, nexus):
     nexus.monis[self.moniid].send(self)
 class NexusToNexus(Relayed):
@@ -57,9 +57,8 @@ class AgentToAgents(Relayed):
     else:
       for agent in nexus.agents:
         if agent != self.sender and agent in nexus.listeners(self.type, self.topic):
-          if agent in nexus.agents:
-            self.agents = (agent,)
-            nexus.agents[agent].send(self)
+          self.agents = (agent,)
+          nexus.agents[agent].send(self)
 class AgentToAgentsTask(AgentToAgents):
   _slots = [("add", bool), ("task", tuple)]
   def relay(self, nexus):
@@ -71,13 +70,13 @@ class AgentToAgentsTask(AgentToAgents):
         nexus.nexi[nex].send(TaskPropagation(nex, nexus.task))
     AgentToAgents.relay(self, nexus)  
 class AgentToMoni(Relayed):
-  _slots = [("agent", str), ("monis", {int})]
+  _slots = [("agent", str), ("monis", {str})]
   def relay(self, nexus):
     for moniid in {m for m in self.monis}:
       self.monis = {moniid}
       nexus.monis[moniid].send(self)
 class AgentToMonis(Relayed):
-  _slots = [("agent", str), ("monis", {int})]
+  _slots = [("agent", str), ("monis", {str})]
   def relay(self, nexus):
     if self.monis:
       for moniid in self.monis:
@@ -88,7 +87,7 @@ class AgentToMonis(Relayed):
         self.monis = {moniid}
         nexus.monis[moniid].send(self)
 class MoniToAgent(Relayed):
-  _slots = [("agent", str), ("moniid", int)]
+  _slots = [("agent", str), ("moniid", str)]
   def relay(self, nexus):
     nexus.agents[self.agent].send(self)
 class AgentStarted(Initializer):
@@ -98,13 +97,13 @@ class AgentNamed(Initializer):
 class MonipulatorAvailable(Initializer):
   pass
 class MonipulatorConnected(Initializer):
-  _slots = [("moniid", int)]
+  _slots = [("moniid", str)]
 class ConnectNexus(Initializer):
   _slots = [("name", str)]
 class NexusConnected(Initializer):
-  _slots = [("origin", str), ("name", str), ("names", [str]), ("agentlist", [str]), ("agents", [str]), ("monis", {int}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict)]
+  _slots = [("origin", str), ("name", str), ("names", [str]), ("agentlist", [str]), ("agents", [str]), ("monis", {str}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict)]
 class MonipulatorPropagation(NexusToNexus):
-  _slots = [("origin", str), ("moniid", int)]
+  _slots = [("origin", str), ("moniid", str)]
   def execute(self, nexus):
     nexus.monis[self.moniid] = nexus.nexi[self.origin]
 class AgentPropagation(NexusToNexus):
@@ -122,7 +121,7 @@ class TaskPropagation(NexusToNexus):
   def execute(self, nexus):
     nexus.task = self.task
 class FetchNames(Relayed):
-  _slots = [("moniid", int), ("names", [str])]
+  _slots = [("moniid", str), ("names", [str])]
   def relay(self, nexus):
     self.names = nexus.names
     nexus.monis[self.moniid].send(self)

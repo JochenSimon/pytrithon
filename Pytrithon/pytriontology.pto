@@ -28,7 +28,7 @@ concept AgentToNexi(Relayed):
       nexus.nexi[self.dest].send(self)
 concept MoniToNexi(AgentToNexi): pass
 concept NexusToMoni(Relayed):
-  slot moniid: int
+  slot moniid: str
   def relay(self, nexus):
     nexus.monis[self.moniid].send(self)
 concept NexusToNexus(Relayed):
@@ -50,9 +50,8 @@ concept AgentToAgents(Relayed):
     else:
       for agent in nexus.agents:
         if agent != self.sender and agent in nexus.listeners(self.type, self.topic):
-          if agent in nexus.agents:
-            self.agents = (agent,)
-            nexus.agents[agent].send(self)
+          self.agents = (agent,)
+          nexus.agents[agent].send(self)
 concept AgentToAgentsTask(AgentToAgents):
   slot add: bool
   slot task: tuple
@@ -66,14 +65,14 @@ concept AgentToAgentsTask(AgentToAgents):
     AgentToAgents.relay(self, nexus)  
 concept AgentToMoni(Relayed):
   slot agent: str
-  slot monis: {int}
+  slot monis: {str}
   def relay(self, nexus):
     for moniid in {m for m in self.monis}:
       self.monis = {moniid}
       nexus.monis[moniid].send(self)
 concept AgentToMonis(Relayed):
   slot agent: str
-  slot monis: {int}
+  slot monis: {str}
   def relay(self, nexus):
     if self.monis:
       for moniid in self.monis:
@@ -85,7 +84,7 @@ concept AgentToMonis(Relayed):
         nexus.monis[moniid].send(self)
 concept MoniToAgent(Relayed):
   slot agent: str
-  slot moniid: int
+  slot moniid: str
   def relay(self, nexus):
     nexus.agents[self.agent].send(self)
 
@@ -96,7 +95,7 @@ concept AgentNamed(Initializer):
 
 concept MonipulatorAvailable(Initializer): pass
 concept MonipulatorConnected(Initializer):
-  slot moniid: int
+  slot moniid: str
 
 concept ConnectNexus(Initializer):
   slot name: str
@@ -106,7 +105,7 @@ concept NexusConnected(Initializer):
   slot names: [str]
   slot agentlist: [str]
   slot agents: [str]
-  slot monis: {int}
+  slot monis: {str}
   slot task: int
   slot tasklist: dict
   slot involist: dict
@@ -114,7 +113,7 @@ concept NexusConnected(Initializer):
 
 concept MonipulatorPropagation(NexusToNexus):
   slot origin: str
-  slot moniid: int
+  slot moniid: str
   def execute(self, nexus):
     nexus.monis[self.moniid] = nexus.nexi[self.origin]
 concept AgentPropagation(NexusToNexus):
@@ -136,7 +135,7 @@ concept TaskPropagation(NexusToNexus):
     nexus.task = self.task
 
 concept FetchNames(Relayed):
-  slot moniid: int
+  slot moniid: str
   slot names: [str]
   def relay(self, nexus):
     self.names = nexus.names

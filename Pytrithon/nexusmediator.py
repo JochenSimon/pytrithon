@@ -31,10 +31,10 @@ class NexusMediator(Thread):
         primal = pickle.load(self.rfile)
         if isinstance(primal, AgentNamed):
           self.core.agent.name = primal.agent
-        if isinstance(primal, MonipulatorConnected):
+        elif isinstance(primal, MonipulatorConnected):
           self.moni.id = primal.moniid
           self.moni.connected = True
-        if isinstance(primal, NexusConnected):
+        elif isinstance(primal, NexusConnected):
           self.nexus.name = primal.name
           self.nexus.names = primal.names
           for name in primal.names:
