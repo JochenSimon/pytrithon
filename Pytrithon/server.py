@@ -134,11 +134,7 @@ class Handler(Thread):
           self.server.queue.put(pickle.load(self.rfile))
         except (EOFError, ConnectionResetError, ConnectionAbortedError):
           nexus = self.server.nexus
-          if self.agent in nexus.agentlist:
-            nexus.agentlist.remove(self.agent)
-            nexus.agentschanged = True
-          if self.agent in nexus.agents:  
-            del nexus.agents[self.agent]
+          nexus.remove_agents({self.agent})
           nexus.unregister_agents({self.agent})
           for nex in nexus.nexi:
             nexus.nexi[nex].send(TerminatedAgent(nex, self.agent))
