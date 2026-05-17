@@ -156,7 +156,7 @@ class Monipulator(QMainWindow):
     if not console:
       self.console.hide()
     self.addDockWidget(Qt.RightDockWidgetArea, self.controls)
-    self.setWindowTitle("Pytrithon Monipulator v" + __version__)
+    self.setWindowTitle("Pytrithon Monipulator v" + __version__ + " running on Nexus '" + self.nexus.nexusname + "'")
     self.setWindowIcon(QIcon("moni.png"))
 
     if not os.path.isfile("lastrun") or today() > lastrun():

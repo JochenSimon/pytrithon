@@ -111,7 +111,7 @@ class Handler(Thread):
           self.moniid = str(nexus.nextmoni) + "@" + nexus.name
           for nex in nexus.nexi:
             nexus.nexi[nex].send(MonipulatorPropagation(nex, nexus.name, self.moniid))
-          pickle.dump(MonipulatorConnected(self.moniid), self.wfile, protocol=2)
+          pickle.dump(MonipulatorConnected(nexus.name, self.moniid), self.wfile, protocol=2)
           self.moni = True
         if isinstance(primal, ConnectNexus):
           if primal.name != "#" and primal.name not in nexus.nametree.nodes:

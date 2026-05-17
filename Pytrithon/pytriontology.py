@@ -98,7 +98,7 @@ class AgentNamed(Initializer):
 class MonipulatorAvailable(Initializer):
   pass
 class MonipulatorConnected(Initializer):
-  _slots = [("moniid", str)]
+  _slots = [("nexus", str), ("moniid", str)]
 class ConnectNexus(Initializer):
   _slots = [("name", str)]
 class NexusConnected(Initializer):

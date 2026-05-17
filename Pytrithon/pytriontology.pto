@@ -96,6 +96,7 @@ concept AgentNamed(Initializer):
 
 concept MonipulatorAvailable(Initializer): pass
 concept MonipulatorConnected(Initializer):
+  slot nexus: str
   slot moniid: str
 
 concept ConnectNexus(Initializer):

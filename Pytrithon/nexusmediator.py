@@ -33,6 +33,7 @@ class NexusMediator(Thread):
         if isinstance(primal, AgentNamed):
           self.core.agent.name = primal.agent
         elif isinstance(primal, MonipulatorConnected):
+          self.nexusname = primal.nexus
           self.moni.id = primal.moniid
           self.moni.connected = True
         elif isinstance(primal, NexusConnected):
