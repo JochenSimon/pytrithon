@@ -100,6 +100,14 @@ class Nexus:
     elif type == "communication":
       return self.communicationlisteners[topic]
 
+  def remove_agents(self, agents):
+    for agent in agents:
+      if agent in self.agentlist:
+        self.agentlist.remove(agent)
+        self.agentschanged = True
+      if agent in self.agents:  
+        del self.agents[agent]
+
   def open_agent(self, agent, args, delay, poll, edit, halt, secret, mute, errors):
     edit = not edit if self.config and "edit" in self.config and self.config["edit"] else edit
     halt = not halt if self.config and "halt" in self.config and self.config["halt"] else halt

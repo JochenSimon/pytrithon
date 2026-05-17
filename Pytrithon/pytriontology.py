@@ -192,13 +192,7 @@ class TerminationCleanup(AgentToNexi):
     nexus.nametree.tree = self.nametree
     for name in self.names:
       del nexus.nexi[name]
-    for agent in self.agents:
-      if agent in nexus.agents:
-        del nexus.agents[agent]
-      if agent in nexus.agentlist:  
-        nexus.agentlist.remove(agent)
-    if self.agents:
-      nexus.agentschanged = True
+    nexus.remove_agents(self.agents)  
     nexus.unregister_agents(self.agents)
     for moni in self.monis:
       nexus.monis[moni].send = lambda o: None

@@ -90,11 +90,7 @@ class NexusMediator(Thread):
         nexus = self.nexus
         kept, pruned = nexus.nametree.prune(nexus.nametree.parent(nexus.name), nexus.name)
         agents = {a for a in nexus.agents if any(a.endswith("@"+p) for p in pruned)}
-        for agent in agents:
-          if agent in nexus.agentlist:
-            nexus.agentlist.remove(agent)
-            nexus.agentschanged = True
-          del nexus.agents[agent]
+        nexus.remove_agents(agents)
         nexus.unregister_agents(agents)
         monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
         for moni in monis:
