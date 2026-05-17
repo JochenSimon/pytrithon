@@ -1,6 +1,7 @@
 from .version import __version__
 
 from .utils import wait_cursor, format_error, sanitize, renamekey, flood, WithEnum
+from .tree import Tree
 from .stringify import stringify_meta, stringify_place, stringify_transition
 from .pml import parselinks, parse
 from .ontology import Concept, ontologize

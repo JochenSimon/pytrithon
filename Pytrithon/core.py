@@ -61,11 +61,10 @@ def except_hook(cls, exception, traceback):
   sys.__excepthook__(cls, exception, traceback)
 
 class Core:
-  def __init__(self, agent, host, port, delay, poll, timeout, edit, halt, secret, mute, errors, app, workbench):
+  def __init__(self, agent, host, port, delay, poll, edit, halt, secret, mute, errors, app, workbench):
     self.agent = agent
     self.delay = delay
     self.poll = poll
-    self.timeout = timeout
     self.edit = edit  
     if halt:
       self.state = 0
@@ -174,7 +173,6 @@ class Core:
 
   def start(self):
     QTimer().singleShot(0, self.dispatch)  
-    QTimer().singleShot(0, self.ping)  
     QTimer().singleShot(0, self.run)  
 
   def run(self):
@@ -224,10 +222,6 @@ class Core:
       else:
         return QTimer().singleShot(self.poll, self.dispatch)
 
-  def ping(self):
-    self.nexus.send(Ping("", self.agent.name, int(self.timeout)))
-    QTimer().singleShot(int(self.timeout * 500), self.ping)
-
   def give_structure(self, moniid=None, but=None):
     if moniid is None:
       monis = self.watchers
@@ -271,7 +265,3 @@ class Core:
   def inpending(self, topic):
     for sensor in In.sensors[topic]:
       sensor.pending()
-  
-  def terminate(self):
-    self.nexus.send(TerminatedAgent("", self.agent.name))
-    sys.exit(0)

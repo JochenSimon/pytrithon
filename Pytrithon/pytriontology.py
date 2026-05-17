@@ -72,7 +72,7 @@ class AgentToAgentsTask(AgentToAgents):
 class AgentToMoni(Relayed):
   _slots = [("agent", str), ("monis", {str})]
   def relay(self, nexus):
-    for moniid in {m for m in self.monis}:
+    for moniid in tuple(self.monis):
       self.monis = {moniid}
       nexus.monis[moniid].send(self)
 class AgentToMonis(Relayed):
@@ -82,14 +82,15 @@ class AgentToMonis(Relayed):
       for moniid in self.monis:
         nexus.monis[moniid].send(self)
         break
-    else:  
+    else:
       for moniid in nexus.monis:
         self.monis = {moniid}
         nexus.monis[moniid].send(self)
 class MoniToAgent(Relayed):
   _slots = [("agent", str), ("moniid", str)]
   def relay(self, nexus):
-    nexus.agents[self.agent].send(self)
+    if self.agent in nexus.agents:
+      nexus.agents[self.agent].send(self)
 class AgentStarted(Initializer):
   _slots = [("agent", str)]
 class AgentNamed(Initializer):
@@ -101,7 +102,7 @@ class MonipulatorConnected(Initializer):
 class ConnectNexus(Initializer):
   _slots = [("name", str)]
 class NexusConnected(Initializer):
-  _slots = [("origin", str), ("name", str), ("names", [str]), ("agentlist", [str]), ("agents", [str]), ("monis", {str}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict)]
+  _slots = [("origin", str), ("name", str), ("nametree", list), ("agentlist", [str]), ("agents", [str]), ("monis", {str}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict)]
 class MonipulatorPropagation(NexusToNexus):
   _slots = [("origin", str), ("moniid", str)]
   def execute(self, nexus):
@@ -112,10 +113,10 @@ class AgentPropagation(NexusToNexus):
     nexus.agents[self.agent] = nexus.nexi[self.origin]
     nexus.agentlist.append(self.agent)
 class NexusPropagation(NexusToNexus):
-  _slots = [("origin", str), ("target", str), ("names", [str])]
+  _slots = [("origin", str), ("target", str), ("nametree", list)]
   def execute(self, nexus):
     nexus.nexi[self.target] = nexus.nexi[self.origin]
-    nexus.names = self.names
+    nexus.nametree.tree = self.nametree
 class TaskPropagation(NexusToNexus):
   _slots = [("task", int)]
   def execute(self, nexus):
@@ -123,11 +124,11 @@ class TaskPropagation(NexusToNexus):
 class FetchNames(Relayed):
   _slots = [("moniid", str), ("names", [str])]
   def relay(self, nexus):
-    self.names = nexus.names
+    self.names = nexus.nametree.flat
     nexus.monis[self.moniid].send(self)
 class FetchElsewhere(FetchNames):
   def relay(self, nexus):
-    self.names = [n for n in nexus.names if n != nexus.name]
+    self.names = [n for n in nexus.nametre.flat if n != nexus.name]
     nexus.monis[self.moniid].send(self)
 class TriggerOpen(FetchNames):
   def execute(self, moni):
@@ -154,7 +155,7 @@ class PushFile(MoniToNexi):
     nexus.push_file(self.file, self.data)
 class TriggerTerminate(MoniToAgent):
   def execute(self, core):
-    core.terminate()
+    exit()
 class TerminateAgent(NexusToAgent):
   def execute(self, core):
     exit()
@@ -167,8 +168,12 @@ class TerminatedAgent(AgentToNexi):
     if self.agent in nexus.agentlist:
       nexus.agentlist.remove(self.agent)
       nexus.agentschanged = True
-    if self.agent in nexus.pings:
-      del nexus.pings[self.agent]
+    if self.agent in nexus.agents:
+      del nexus.agents[self.agent]
+class TerminatedMoni(AgentToNexi):
+  _slots = [("moni", str)]
+  def execute(self, nexus):
+    nexus.monis[self.moni].send = lambda o: None
 class TerminatedTotal(AgentToNexi):
   def execute(self, nexus):
     for agent in nexus.agents:
@@ -182,22 +187,26 @@ class TerminatedProcess(Relayed):
   def execute(self, process):
     exit()
 class TerminationCleanup(AgentToNexi):
-  _slots = [("name", str), ("agents", {str})]
+  _slots = [("nametree", list), ("names", {str}), ("agents", {str}), ("monis", {str})]
   def execute(self, nexus):
-    del nexus.nexi[self.name]
+    nexus.nametree.tree = self.nametree
+    for name in self.names:
+      del nexus.nexi[name]
     for agent in self.agents:
-      del nexus.agents[agent]
-      nexus.agentlist.remove(agent)
+      if agent in nexus.agents:
+        del nexus.agents[agent]
+      if agent in nexus.agentlist:  
+        nexus.agentlist.remove(agent)
     if self.agents:
       nexus.agentschanged = True
+    for moni in self.monis:
+      nexus.monis[moni].send = lambda o: None
 class TerminatedLocal(Relayed):
   def relay(self, nexus):
     for moni in nexus.monis:
       nexus.monis[moni].send(TerminatedProcess())
     for agent in nexus.agents:
       nexus.agents[agent].send(TerminatedProcess())
-    for nex in nexus.nexi:
-      nexus.nexi[nex].send(TerminationCleanup(nex, nexus.name, {a for a in nexus.agents if a.endswith("@"+nexus.name)}))
     sleep(0.1)  
     exit()
 class GiveAgentList(NexusToMoni):
@@ -238,10 +247,6 @@ class Print(AgentToMonis):
   _slots = [("message", str)]
   def execute(self, moni):
     moni.console.print(self.agent, self.message)
-class Ping(AgentToNexi):
-  _slots = [("agent", str), ("timeout", int)]
-  def execute(self, nexus):
-    nexus.ping(self.agent, self.timeout)
 class Listener(Concept):
   _slots = [("agent", str), ("type", str), ("topic", str), ("oldtopic", str)]
 class RegisterListeners(AgentToNexi):

@@ -38,7 +38,6 @@ parser.add_argument("-x", "--nexus", help="master nexus to connect to")
 parser.add_argument("-D", "--DOMAIN", help="open all started agents in domain")
 parser.add_argument("-d", "--delay", type=int, help="set core delay in milliseconds")
 parser.add_argument("-p", "--poll", type=int, help="set idle poll resolution in milliseconds")
-parser.add_argument("-t", "--timeout", type=int, help="set agent timeout in seconds")
 parser.add_argument("-e", "--edit", action="store_true", help="do not start agents in edit mode" if edit else "start agents in edit mode")
 parser.add_argument("-H", "--HALT", action="store_true", help="do not start agents halted" if halt else "start agents halted")
 parser.add_argument("-s", "--secret", action="store_true", help="do not start agents in secret mode" if secret else "start agents in secret mode")
@@ -106,7 +105,7 @@ def after():
   for agent,arg in zip_longest(agents, arguments, fillvalue=""):
     if agent:
       sleep(0.4)  
-      subprocess.Popen(["python", "agent"] + (["-P", str(args.PORT)] if args.PORT is not None else []) + (["-d", str(args.delay)] if args.delay is not None else []) + (["-p", str(args.poll)] if args.poll is not None else []) + (["-t", str(args.timeout)] if args.timeout is not None else []) + (["-e"] if args.edit else []) + (["-H"] if args.HALT else []) + (["-s"] if args.secret else []) + (["-M"] if args.MUTE else []) + (["-E"] if args.ERRORS else []) + [agent] + [a for a in arg.split(" ") if a])
+      subprocess.Popen(["python", "agent"] + (["-P", str(args.PORT)] if args.PORT is not None else []) + (["-d", str(args.delay)] if args.delay is not None else []) + (["-p", str(args.poll)] if args.poll is not None else []) + (["-e"] if args.edit else []) + (["-H"] if args.HALT else []) + (["-s"] if args.secret else []) + (["-M"] if args.MUTE else []) + (["-E"] if args.ERRORS else []) + [agent] + [a for a in arg.split(" ") if a])
 
 nexus = Nexus(args.name, "localhost", port, master, config, after)
 

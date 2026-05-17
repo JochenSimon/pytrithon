@@ -6,6 +6,7 @@ from threading import Thread
 from .nexusmediator import *
 from .server import *
 from .pytriontology import *
+from .tree import Tree
 
 class After(Thread):
   def __init__(self, after):
@@ -18,14 +19,12 @@ class Nexus:
   def __init__(self, name, host, port, master, config, after):
     self.config = config
     self.name = "#" if name is None else name
-    self.names = []
+    self.nametree = Tree()
 
     self.nexi = {}
 
     self.agents = {}
     self.agentlist = []
-    self.pingcounter = 0
-    self.pings = {}
     self.agentnumbers = defaultdict(int)
     self.nextmoni = 0
     self.agentschanged = False
@@ -45,7 +44,7 @@ class Nexus:
       self.master = NexusMediator(master[0], master[1], nexus=self)
     else:
       self.name = "main" if self.name == "#" else self.name
-      self.names.append(self.name)
+      self.nametree.add(self.name)
 
   def run(self):
     self.server.start()
@@ -60,21 +59,10 @@ class Nexus:
           communication.execute(self)
           continue
         if self.agentschanged or self.newmoni:
-          if self.agents:
-            for moniid, moni in self.monis.items():
-              moni.send(GiveAgentList(moniid, self.agentlist))
-            self.agentschanged = False
-            self.newmoni = False
-            continue
-        self.pingcounter += 1    
-        if self.pingcounter >= 1000:
-          self.pingcounter = 0
-          for agt,(ts,to) in dict(self.pings).items():
-            if monotonic() > ts + to:
-              if agt in self.agentlist:
-                self.agentlist.remove(agt)
-                self.agentschanged = True
-              del self.pings[agt]  
+          for moniid, moni in self.monis.items():
+            moni.send(GiveAgentList(moniid, self.agentlist))
+          self.agentschanged = False
+          self.newmoni = False
           continue
         sleep(0.001)
     except KeyboardInterrupt:
@@ -82,12 +70,6 @@ class Nexus:
       self.server.running = False
       for handler in self.server.handlers:
         handler.running = False
-
-  def ping(self, agent, timeout):
-    self.pings[agent] = monotonic(), timeout
-    if agent not in self.agentlist:
-      self.agentlist.append(agent)
-      self.agentschanged = True
 
   def register_listener(self, agent, type, topic, oldtopic):
     if topic:

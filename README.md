@@ -50,7 +50,6 @@ The command line arguments for the `agent` script are:
 - `PORT`: The port on which the local Nexus to connect to is running
 - `delay`: The delay in milliseconds between each simulation step, firing of a Transition
 - `poll`: The idle polling resolution in milliseconds
-- `timeout`: The time of inaction in seconds which deems an Agent ended
 - `edit`: Starts this Agent in edit mode
 - `HALT`: Starts this Agent halted
 - `secret`: Disable displaying the contents of an Agent's Places in the Monipulator
@@ -222,7 +221,6 @@ This element allows you to customize certain properties of the current agent. Th
 - `errors`: Whether errors are reported
 - `delay`: The simulation delay of a single step in milliseconds
 - `poll`: The idle polling resolution of the Agent in milliseconds
-- `timeout`: The timeout used to determine whether an agent is still alive in seconds
 - `domain`: Domain identifier to prepend to all communication topics
 #### module
 This element can be inscribed with an arbitrary block of code that is executed on agent start. All objects created in this element are accessible by all transitions. This is used to define the Environment used in all Transitions of an Agent.

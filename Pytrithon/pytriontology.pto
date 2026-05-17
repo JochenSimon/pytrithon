@@ -67,7 +67,7 @@ concept AgentToMoni(Relayed):
   slot agent: str
   slot monis: {str}
   def relay(self, nexus):
-    for moniid in {m for m in self.monis}:
+    for moniid in tuple(self.monis):
       self.monis = {moniid}
       nexus.monis[moniid].send(self)
 concept AgentToMonis(Relayed):
@@ -78,7 +78,7 @@ concept AgentToMonis(Relayed):
       for moniid in self.monis:
         nexus.monis[moniid].send(self)
         break
-    else:  
+    else:
       for moniid in nexus.monis:
         self.monis = {moniid}
         nexus.monis[moniid].send(self)
@@ -86,7 +86,8 @@ concept MoniToAgent(Relayed):
   slot agent: str
   slot moniid: str
   def relay(self, nexus):
-    nexus.agents[self.agent].send(self)
+    if self.agent in nexus.agents:
+      nexus.agents[self.agent].send(self)
 
 concept AgentStarted(Initializer):
   slot agent: str
@@ -102,7 +103,7 @@ concept ConnectNexus(Initializer):
 concept NexusConnected(Initializer):
   slot origin: str
   slot name: str
-  slot names: [str]
+  slot nametree: list
   slot agentlist: [str]
   slot agents: [str]
   slot monis: {str}
@@ -125,10 +126,10 @@ concept AgentPropagation(NexusToNexus):
 concept NexusPropagation(NexusToNexus):
   slot origin: str
   slot target: str
-  slot names: [str]
+  slot nametree: list
   def execute(self, nexus):
     nexus.nexi[self.target] = nexus.nexi[self.origin]
-    nexus.names = self.names
+    nexus.nametree.tree = self.nametree
 concept TaskPropagation(NexusToNexus):
   slot task: int
   def execute(self, nexus):
@@ -138,11 +139,11 @@ concept FetchNames(Relayed):
   slot moniid: str
   slot names: [str]
   def relay(self, nexus):
-    self.names = nexus.names
+    self.names = nexus.nametree.flat
     nexus.monis[self.moniid].send(self)
 concept FetchElsewhere(FetchNames):
   def relay(self, nexus):
-    self.names = [n for n in nexus.names if n != nexus.name]
+    self.names = [n for n in nexus.nametre.flat if n != nexus.name]
     nexus.monis[self.moniid].send(self)
 concept TriggerOpen(FetchNames):
   def execute(self, moni):
@@ -180,7 +181,7 @@ concept PushFile(MoniToNexi):
 
 concept TriggerTerminate(MoniToAgent):
   def execute(self, core):
-    core.terminate()
+    exit()
 concept TerminateAgent(NexusToAgent):
   def execute(self, core):
     exit()
@@ -193,8 +194,12 @@ concept TerminatedAgent(AgentToNexi):
     if self.agent in nexus.agentlist:
       nexus.agentlist.remove(self.agent)
       nexus.agentschanged = True
-    if self.agent in nexus.pings:
-      del nexus.pings[self.agent]
+    if self.agent in nexus.agents:
+      del nexus.agents[self.agent]
+concept TerminatedMoni(AgentToNexi):
+  slot moni: str
+  def execute(self, nexus):
+    nexus.monis[self.moni].send = lambda o: None
 concept TerminatedTotal(AgentToNexi):
   def execute(self, nexus):
     for agent in nexus.agents:
@@ -208,23 +213,29 @@ concept TerminatedProcess(Relayed):
   def execute(self, process):
     exit()
 concept TerminationCleanup(AgentToNexi):
-  slot name: str
+  slot nametree: list
+  slot names: {str}
   slot agents: {str}
+  slot monis: {str}
   def execute(self, nexus):
-    del nexus.nexi[self.name]
+    nexus.nametree.tree = self.nametree
+    for name in self.names:
+      del nexus.nexi[name]
     for agent in self.agents:
-      del nexus.agents[agent]
-      nexus.agentlist.remove(agent)
+      if agent in nexus.agents:
+        del nexus.agents[agent]
+      if agent in nexus.agentlist:  
+        nexus.agentlist.remove(agent)
     if self.agents:
       nexus.agentschanged = True
+    for moni in self.monis:
+      nexus.monis[moni].send = lambda o: None
 concept TerminatedLocal(Relayed):
   def relay(self, nexus):
     for moni in nexus.monis:
       nexus.monis[moni].send(TerminatedProcess())
     for agent in nexus.agents:
       nexus.agents[agent].send(TerminatedProcess())
-    for nex in nexus.nexi:
-      nexus.nexi[nex].send(TerminationCleanup(nex, nexus.name, {a for a in nexus.agents if a.endswith("@"+nexus.name)}))
     sleep(0.1)  
     exit()
 
@@ -274,12 +285,6 @@ concept Print(AgentToMonis):
   slot message: str
   def execute(self, moni):
     moni.console.print(self.agent, self.message)
-
-concept Ping(AgentToNexi):
-  slot agent: str
-  slot timeout: int
-  def execute(self, nexus):
-    nexus.ping(self.agent, self.timeout)
 
 concept Listener:
   slot agent: str

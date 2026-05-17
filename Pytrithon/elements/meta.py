@@ -34,8 +34,6 @@ class Self(Meta):
         self.parent.core.delay = config["delay"]
       if config and "poll" in config:
         self.parent.core.poll = config["poll"]
-      if config and "timeout" in config:
-        self.parent.core.timeout = config["timeout"]
       if config and "domain" in config:
         self.parent.core.domain = config["domain"]
     except Exception:

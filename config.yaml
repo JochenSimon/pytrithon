@@ -12,7 +12,6 @@ zoom: 100
 
 delay: 0
 poll: 10
-timeout: 60
 edit: False
 halt: False
 secret: False

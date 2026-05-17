@@ -33,7 +33,6 @@ parser.add_argument("-v", "--version", action="version", version="Pytrithon Agen
 parser.add_argument("-P", "--PORT", type=int, help="port to run on")
 parser.add_argument("-d", "--delay", type=int, help="set core delay in milliseconds")
 parser.add_argument("-p", "--poll", type=int, help="set idle poll resolution in milliseconds")
-parser.add_argument("-t", "--timeout", type=int, help="set agent timeout in seconds")
 parser.add_argument("-e", "--edit", action="store_true", help="do not start agent in edit mode" if edit else "start agent in edit mode")
 parser.add_argument("-H", "--HALT", action="store_true", help="do not start agent halted" if halt else "start agent halted")
 parser.add_argument("-s", "--secret", action="store_true", help="do not start agent in secret mode" if secret else "start agent in secret mode")
@@ -62,13 +61,6 @@ elif config and "poll" in config:
 else:
   poll = 10
 
-if args.timeout is not None:
-  timeout = args.timeout
-elif config and "timeout" in config:
-  timeout = config["timeout"]
-else:
-  timeout = 60
-
 edit = not args.edit if edit else args.edit
 halt = not args.HALT if halt else args.HALT
 secret = not args.secret if secret else args.secret
@@ -96,7 +88,7 @@ with open("../dark.css") as ss:
   app.setStyleSheet(ss.read())
 app.setQuitOnLastWindowClosed(False)
 
-core = Core(agent, "localhost", port, delay, poll, timeout, edit, halt, secret, mute, errors, app, workbench)
+core = Core(agent, "localhost", port, delay, poll, edit, halt, secret, mute, errors, app, workbench)
 
 core.init()
 

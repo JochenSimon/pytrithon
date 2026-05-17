@@ -4,7 +4,8 @@ from threading import Thread
 import socket
 import pickle
 from .pytriontology import *
-   
+from .tree import Tree
+
 class NexusMediator(Thread):
   daemon = True
   def __init__(self, host, port, core=None, moni=None, nexus=None):
@@ -36,8 +37,8 @@ class NexusMediator(Thread):
           self.moni.connected = True
         elif isinstance(primal, NexusConnected):
           self.nexus.name = primal.name
-          self.nexus.names = primal.names
-          for name in primal.names:
+          self.nexus.nametree.tree = primal.nametree
+          for name in Tree(primal.nametree).flat:
             if name != primal.name:
               self.nexus.nexi[name] = self
           for agent in primal.agentlist:    
@@ -85,5 +86,18 @@ class NexusMediator(Thread):
       try:
         self.nexus.server.queue.put(pickle.load(self.rfile))
       except (EOFError, ConnectionResetError, ConnectionAbortedError):
-        self.send = lambda o: None
+        nexus = self.nexus
+        kept, pruned = nexus.nametree.prune(nexus.nametree.parent(nexus.name), nexus.name)
+        agents = {a for a in nexus.agents if any(a.endswith("@"+p) for p in pruned)}
+        for agent in agents:
+          if agent in nexus.agentlist:
+            nexus.agentlist.remove(agent)
+            nexus.agentschanged = True
+          del nexus.agents[agent]
+        monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
+        for moni in monis:
+          nexus.monis[moni].send = lambda o: None
+        for nex in kept:
+          if nex != nexus.name:
+            nexus.nexi[nex].send(TerminationCleanup(nex, nexus.nametree.tree, pruned, agents, monis))
         return

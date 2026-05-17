@@ -11,7 +11,7 @@ class Terminate(Transition):
     if sanitize(self.inscr) == "unseen" and self.parent.core.watchers:
       return
     if sanitize(self.inscr) == "agent" or not sanitize(self.inscr):
-      self.parent.core.nexus.send(TerminatedAgent("", self.parent.name))
+      pass
     elif sanitize(self.inscr) in {"local", "unseen"}:
       self.parent.core.nexus.send(TerminatedLocal())
     elif sanitize(self.inscr) == "total":

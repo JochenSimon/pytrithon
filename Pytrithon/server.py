@@ -57,8 +57,12 @@ class Server(Thread):
 
   def run(self):  
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    self.sock.bind((self.host, self.port))
+    try:
+      self.sock.bind((self.host, self.port))
+    except OSError:
+      print("A Nexus is already running on host '{}' and port '{}'. Only starting Monipulator and Agents if requested.".format(self.host, self.port))
+      self.nexus.running = False
+      exit(1)
     while self.running:
       self.sock.listen(1)
       conn, addr = self.sock.accept()
@@ -110,15 +114,15 @@ class Handler(Thread):
           pickle.dump(MonipulatorConnected(self.moniid), self.wfile, protocol=2)
           self.moni = True
         if isinstance(primal, ConnectNexus):
-          if primal.name != "#" and primal.name not in nexus.names:
+          if primal.name != "#" and primal.name not in nexus.nametree.nodes:
             self.nexus = primal.name
           else:  
-            dignames = {name for name in nexus.names if name.isdigit()}
+            dignames = {name for name in nexus.nametree.flat if name.isdigit()}
             self.nexus = str((max(int(name) for name in dignames) if dignames else -1) + 1)
-          nexus.names.append(self.nexus)
+          nexus.nametree.add(self.nexus, nexus.name)
           for nex in nexus.nexi:
-            nexus.nexi[nex].send(NexusPropagation(nex, nexus.name, self.nexus, nexus.names))
-          pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.names, nexus.agentlist, [a for a in nexus.agents], {m for m in nexus.monis}, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners)), self.wfile, protocol=2)
+            nexus.nexi[nex].send(NexusPropagation(nex, nexus.name, self.nexus, nexus.nametree.tree))
+          pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.nametree.tree, nexus.agentlist, [a for a in nexus.agents], {m for m in nexus.monis}, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners)), self.wfile, protocol=2)
         break  
       except EOFError:
         return
@@ -129,22 +133,42 @@ class Handler(Thread):
         try:
           self.server.queue.put(pickle.load(self.rfile))
         except (EOFError, ConnectionResetError, ConnectionAbortedError):
-          self.server.nexus.agents[self.agent].send = lambda o: None
+          nexus = self.server.nexus
+          if self.agent in nexus.agentlist:
+            nexus.agentlist.remove(self.agent)
+            nexus.agentschanged = True
+          if self.agent in nexus.agents:  
+            del nexus.agents[self.agent]
+          for nex in nexus.nexi:
+            nexus.nexi[nex].send(TerminatedAgent(nex, self.agent))
           return
     elif self.moni:
       while self.running:
         try:
           self.server.queue.put(pickle.load(self.rfile))
         except (EOFError, ConnectionResetError, ConnectionAbortedError):
-          self.server.nexus.monis[self.moniid].send = lambda o: None
+          nexus = self.server.nexus
+          nexus.monis[self.moniid].send = lambda o: None
+          for nex in nexus.nexi:
+            nexus.nexi[nex].send(TerminatedMoni(nex, self.moniid))
           return
     elif self.nexus:
       while self.running:
         try:
           self.server.queue.put(pickle.load(self.rfile))
         except (EOFError, ConnectionResetError, ConnectionAbortedError):
-          try:
-            self.server.nexus.nexi[self.nexus].send = lambda o: None
-          except KeyError:
-            pass
+          nexus = self.server.nexus
+          kept, pruned = nexus.nametree.prune(self.nexus, nexus.name)
+          agents = {a for a in nexus.agents if any(a.endswith("@"+p) for p in pruned)}
+          for agent in agents:
+            if agent in nexus.agentlist:
+              nexus.agentlist.remove(agent)
+              nexus.agentschanged = True
+            del nexus.agents[agent]
+          monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
+          for moni in monis:
+            nexus.monis[moni].send = lambda o: None
+          for nex in kept:
+            if nex != nexus.name:
+              nexus.nexi[nex].send(TerminationCleanup(nex, nexus.nametree.tree, pruned, agents, monis))
           return
