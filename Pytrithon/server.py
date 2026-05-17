@@ -139,6 +139,7 @@ class Handler(Thread):
             nexus.agentschanged = True
           if self.agent in nexus.agents:  
             del nexus.agents[self.agent]
+          nexus.unregister_agents({self.agent})
           for nex in nexus.nexi:
             nexus.nexi[nex].send(TerminatedAgent(nex, self.agent))
           return
@@ -165,6 +166,7 @@ class Handler(Thread):
               nexus.agentlist.remove(agent)
               nexus.agentschanged = True
             del nexus.agents[agent]
+          nexus.unregister_agents(agents)
           monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
           for moni in monis:
             nexus.monis[moni].send = lambda o: None

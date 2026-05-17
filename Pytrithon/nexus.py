@@ -86,6 +86,12 @@ class Nexus:
           self.communicationlisteners[oldtopic].remove(agent)
         self.communicationlisteners[topic].add(agent)
 
+  def unregister_agents(self, agents):
+    for registry in (v for r in (self.tasklisteners, self.invocationlisteners, self.communicationlisteners) for v in r.values()):
+      for agent in agents:
+        if agent in registry:
+          registry.remove(agent)
+
   def listeners(self, type, topic):
     if type == "task":
       return self.tasklisteners[topic]

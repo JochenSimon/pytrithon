@@ -199,6 +199,7 @@ class TerminationCleanup(AgentToNexi):
         nexus.agentlist.remove(agent)
     if self.agents:
       nexus.agentschanged = True
+    nexus.unregister_agents(self.agents)
     for moni in self.monis:
       nexus.monis[moni].send = lambda o: None
 class TerminatedLocal(Relayed):

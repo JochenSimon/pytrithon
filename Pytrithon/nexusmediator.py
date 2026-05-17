@@ -95,6 +95,7 @@ class NexusMediator(Thread):
             nexus.agentlist.remove(agent)
             nexus.agentschanged = True
           del nexus.agents[agent]
+        nexus.unregister_agents(agents)
         monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
         for moni in monis:
           nexus.monis[moni].send = lambda o: None
