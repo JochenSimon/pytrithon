@@ -74,7 +74,7 @@ class Task(Transition):
     super().create_links(inscr)
     Task.tasks[self.topic(oldinscr)].discard(self)
     Task.tasks[self.topic()].add(self)
-    self.parent.core.nexus.send(RegisterListeners("", {Listener(self.parent.agentname, "task", self.topic(), "")}))
+    self.parent.core.nexus.send(RegisterListeners("", {Listener(self.parent.agentname, "task", self.topic(), self.topic(oldinscr))}))
 
 class Invocation(Transition):
   type = "invoke"
@@ -113,7 +113,7 @@ class Invocation(Transition):
     super().create_links(inscr)
     del Invocation.invocations[self.topic(oldinscr)]
     Invocation.invocations[self.topic()] = self
-    self.parent.core.nexus.send(RegisterListeners("", {Listener(self.parent.agentname, "invocation", self.topic(), "")}))
+    self.parent.core.nexus.send(RegisterListeners("", {Listener(self.parent.agentname, "invocation", self.topic(), self.topic(oldinscr))}))
 
 class Result(Transition):
   type = "result"

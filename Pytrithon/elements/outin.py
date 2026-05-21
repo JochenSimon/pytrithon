@@ -48,4 +48,4 @@ class In(Transition):
     super().create_links(inscr)
     In.sensors[self.topic(oldinscr)].discard(self)
     In.sensors[self.topic()].add(self)
-    self.parent.core.nexus.send(RegisterListeners("", {Listener(self.parent.agentname, "communication", self.topic())}))
+    self.parent.core.nexus.send(RegisterListeners("", {Listener(self.parent.agentname, "communication", self.topic(), self.topic(oldinscr))}))
