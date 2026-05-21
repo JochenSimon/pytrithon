@@ -72,18 +72,20 @@ class Nexus:
         handler.running = False
 
   def register_listener(self, agent, type, topic, oldtopic):
-    if topic:
-      if type == "task":
-        if oldtopic:
-          self.tasklisteners[oldtopic].remove(agent)
+    if type == "task":
+      if oldtopic:
+        self.tasklisteners[oldtopic].remove(agent)
+      if topic:
         self.tasklisteners[topic].add(agent)
-      elif type == "invocation":
-        if oldtopic:
-          self.invocationlisteners[oldtopic].remove(agent)
+    elif type == "invocation":
+      if oldtopic:
+        self.invocationlisteners[oldtopic].remove(agent)
+      if topic:
         self.invocationlisteners[topic].add(agent)
-      elif type == "communication":
-        if oldtopic:
-          self.communicationlisteners[oldtopic].remove(agent)
+    elif type == "communication":
+      if oldtopic:
+        self.communicationlisteners[oldtopic].remove(agent)
+      if topic:
         self.communicationlisteners[topic].add(agent)
 
   def unregister_agents(self, agents):
