@@ -73,8 +73,14 @@ class AgentToMoni(Relayed):
   _slots = [("agent", str), ("monis", {str})]
   def relay(self, nexus):
     for moniid in tuple(self.monis):
-      self.monis = {moniid}
-      nexus.monis[moniid].send(self)
+      if moniid in nexus.monis:
+        self.monis = {moniid}
+        nexus.monis[moniid].send(self)
+      elif moniid not in nexus.deadmonis:
+        nexus.deadmonis.add(moniid)
+        nexus.agents[self.agent].send(MoniDied(self.agent, moniid))
+        for nex in nexus.nexi:
+          nexus.nexi[nex].send(DeadMonis(nex, nexus.deadmonis))
 class AgentToMonis(Relayed):
   _slots = [("agent", str), ("monis", {str})]
   def relay(self, nexus):
@@ -102,7 +108,7 @@ class MonipulatorConnected(Initializer):
 class ConnectNexus(Initializer):
   _slots = [("name", str)]
 class NexusConnected(Initializer):
-  _slots = [("origin", str), ("name", str), ("nametree", list), ("agentlist", [str]), ("agents", [str]), ("monis", {str}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict)]
+  _slots = [("origin", str), ("name", str), ("nametree", list), ("agentlist", [str]), ("agents", [str]), ("monis", {str}), ("deadmonis", {str}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict)]
 class MonipulatorPropagation(NexusToNexus):
   _slots = [("origin", str), ("moniid", str)]
   def execute(self, nexus):
@@ -173,7 +179,7 @@ class TerminatedAgent(AgentToNexi):
 class TerminatedMoni(AgentToNexi):
   _slots = [("moni", str)]
   def execute(self, nexus):
-    nexus.monis[self.moni].send = lambda o: None
+    del nexus.monis[self.moni]
 class TerminatedTotal(AgentToNexi):
   def execute(self, nexus):
     for agent in nexus.agents:
@@ -195,7 +201,7 @@ class TerminationCleanup(AgentToNexi):
     nexus.remove_agents(self.agents)  
     nexus.unregister_agents(self.agents)
     for moni in self.monis:
-      nexus.monis[moni].send = lambda o: None
+      del nexus.monis[moni]
 class TerminatedLocal(Relayed):
   def relay(self, nexus):
     for moni in nexus.monis:
@@ -204,6 +210,13 @@ class TerminatedLocal(Relayed):
       nexus.agents[agent].send(TerminatedProcess())
     sleep(0.1)  
     exit()
+class MoniDied(MoniToAgent):
+  def execute(self, core):
+    core.watchers.remove(self.moniid)
+class DeadMonis(NexusToNexus):
+  _slots = [("deadmonis", {str})]
+  def execute(self, nexus):
+    nexus.deadmonis = self.deadmonis
 class GiveAgentList(NexusToMoni):
   _slots = [("agents", [str])]
   def execute(self, moni):

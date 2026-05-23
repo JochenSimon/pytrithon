@@ -68,8 +68,14 @@ concept AgentToMoni(Relayed):
   slot monis: {str}
   def relay(self, nexus):
     for moniid in tuple(self.monis):
-      self.monis = {moniid}
-      nexus.monis[moniid].send(self)
+      if moniid in nexus.monis:
+        self.monis = {moniid}
+        nexus.monis[moniid].send(self)
+      elif moniid not in nexus.deadmonis:
+        nexus.deadmonis.add(moniid)
+        nexus.agents[self.agent].send(MoniDied(self.agent, moniid))
+        for nex in nexus.nexi:
+          nexus.nexi[nex].send(DeadMonis(nex, nexus.deadmonis))
 concept AgentToMonis(Relayed):
   slot agent: str
   slot monis: {str}
@@ -108,6 +114,7 @@ concept NexusConnected(Initializer):
   slot agentlist: [str]
   slot agents: [str]
   slot monis: {str}
+  slot deadmonis: {str}
   slot task: int
   slot tasklist: dict
   slot involist: dict
@@ -200,7 +207,7 @@ concept TerminatedAgent(AgentToNexi):
 concept TerminatedMoni(AgentToNexi):
   slot moni: str
   def execute(self, nexus):
-    nexus.monis[self.moni].send = lambda o: None
+    del nexus.monis[self.moni]
 concept TerminatedTotal(AgentToNexi):
   def execute(self, nexus):
     for agent in nexus.agents:
@@ -225,7 +232,7 @@ concept TerminationCleanup(AgentToNexi):
     nexus.remove_agents(self.agents)  
     nexus.unregister_agents(self.agents)
     for moni in self.monis:
-      nexus.monis[moni].send = lambda o: None
+      del nexus.monis[moni]
 concept TerminatedLocal(Relayed):
   def relay(self, nexus):
     for moni in nexus.monis:
@@ -234,6 +241,14 @@ concept TerminatedLocal(Relayed):
       nexus.agents[agent].send(TerminatedProcess())
     sleep(0.1)  
     exit()
+concept MoniDied(MoniToAgent):
+  def execute(self, core):
+    core.watchers.remove(self.moniid)
+concept DeadMonis(NexusToNexus):
+  slot deadmonis: {str}
+  def execute(self, nexus):
+    nexus.deadmonis = self.deadmonis
+
 
 concept GiveAgentList(NexusToMoni):
   slot agents: [str]

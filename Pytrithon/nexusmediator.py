@@ -48,6 +48,7 @@ class NexusMediator(Thread):
             self.nexus.agents[agent] = self
           for moni in primal.monis:
             self.nexus.monis[moni] = self
+          self.nexus.deadmonis = primal.deadmonis
           self.nexus.task = primal.task
           self.nexus.tasklisteners.update(primal.tasklist)
           self.nexus.invocationlisteners.update(primal.involist)

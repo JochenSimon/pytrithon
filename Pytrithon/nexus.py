@@ -27,6 +27,7 @@ class Nexus:
     self.agentlist = []
     self.agentnumbers = defaultdict(int)
     self.nextmoni = 0
+    self.deadmonis = set()
     self.agentschanged = False
     self.running = True
     self.server = Server(self, host, port, master)

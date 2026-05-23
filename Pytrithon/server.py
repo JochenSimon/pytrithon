@@ -109,6 +109,9 @@ class Handler(Thread):
         if isinstance(primal, MonipulatorAvailable):
           nexus.nextmoni += 1
           self.moniid = str(nexus.nextmoni) + "@" + nexus.name
+          while self.moniid in nexus.deadmonis:
+            nexus.nextmoni += 1
+            self.moniid = str(nexus.nextmoni) + "@" + nexus.name
           for nex in nexus.nexi:
             nexus.nexi[nex].send(MonipulatorPropagation(nex, nexus.name, self.moniid))
           pickle.dump(MonipulatorConnected(nexus.name, self.moniid), self.wfile, protocol=2)
@@ -122,7 +125,7 @@ class Handler(Thread):
           nexus.nametree.add(self.nexus, nexus.name)
           for nex in nexus.nexi:
             nexus.nexi[nex].send(NexusPropagation(nex, nexus.name, self.nexus, nexus.nametree.tree))
-          pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.nametree.tree, nexus.agentlist, [a for a in nexus.agents], {m for m in nexus.monis}, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners)), self.wfile, protocol=2)
+          pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.nametree.tree, nexus.agentlist, [a for a in nexus.agents], {m for m in nexus.monis}, nexus.deadmonis, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners)), self.wfile, protocol=2)
         break  
       except EOFError:
         return
@@ -145,7 +148,7 @@ class Handler(Thread):
           self.server.queue.put(pickle.load(self.rfile))
         except (EOFError, ConnectionResetError, ConnectionAbortedError):
           nexus = self.server.nexus
-          nexus.monis[self.moniid].send = lambda o: None
+          del nexus.monis[self.moniid]
           for nex in nexus.nexi:
             nexus.nexi[nex].send(TerminatedMoni(nex, self.moniid))
           return

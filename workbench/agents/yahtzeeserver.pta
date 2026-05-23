@@ -84,7 +84,7 @@ out (16,6):
   takes: winner:2
 var aids (2,-2);
 frag (12,0):
-  reads: aids
+  reads: :aids
   chatserver
   domain: yahtzee
 in (0,6): yahtzee.newgame
