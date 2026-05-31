@@ -120,11 +120,20 @@ class Handler(Thread):
           pickle.dump(MonipulatorConnected(nexus.name, self.moniid), self.wfile, protocol=2)
           self.moni = True
         if isinstance(primal, ConnectNexus):
-          if primal.name != "#" and primal.name not in nexus.nametree.nodes:
-            self.nexus = primal.name
-          else:  
-            dignames = {name for name in nexus.nametree.flat if name.isdigit()}
-            self.nexus = str((max(int(name) for name in dignames) if dignames else -1) + 1)
+          number = 0
+          if primal.name != "#":
+            if primal.name not in nexus.nametree.nodes:
+              self.nexus = primal.name
+            else:
+              self.nexus = primal.name + str(number)
+              while self.nexus in nexus.nametree.nodes:
+                number += 1
+                self.nexus = primal.name + str(number)
+          else:
+            self.nexus = "sub" + str(number)
+            while self.nexus in nexus.nametree.nodes:
+              number += 1
+              self.nexus = "sub" + str(number)
           nexus.nametree.add(self.nexus, nexus.name)
           for nex in nexus.nexi:
             nexus.nexi[nex].send(NexusPropagation(nex, nexus.name, self.nexus, nexus.nametree.tree))
