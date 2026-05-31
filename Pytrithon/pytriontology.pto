@@ -75,7 +75,7 @@ concept AgentToMoni(Relayed):
         nexus.deadmonis.add(moniid)
         nexus.agents[self.agent].send(MoniDied(self.agent, moniid))
         for nex in nexus.nexi:
-          nexus.nexi[nex].send(DeadMonis(nex, nexus.deadmonis))
+          nexus.nexi[nex].send(DeadMoni(nex, moniid))
 concept AgentToMonis(Relayed):
   slot agent: str
   slot monis: {str}
@@ -241,10 +241,10 @@ concept TerminatedLocal(Relayed):
 concept MoniDied(MoniToAgent):
   def execute(self, core):
     core.watchers.remove(self.moniid)
-concept DeadMonis(NexusToNexus):
-  slot deadmonis: {str}
+concept DeadMoni(NexusToNexus):
+  slot moni: str
   def execute(self, nexus):
-    nexus.deadmonis = self.deadmonis
+    nexus.deadmonis.add(self.moni)
 
 concept GiveAgentList(NexusToMoni):
   slot agents: [str]
