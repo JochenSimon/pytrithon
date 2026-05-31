@@ -113,6 +113,7 @@ concept NexusConnected(Initializer):
   slot nametree: list
   slot agentlist: [str]
   slot agents: [str]
+  slot deadagents: {str}
   slot monis: {str}
   slot deadmonis: {str}
   slot task: int
@@ -199,11 +200,7 @@ concept TerminateMoni(NexusToMoni):
 concept TerminatedAgent(AgentToNexi):
   slot agent: str
   def execute(self, nexus):
-    if self.agent in nexus.agentlist:
-      nexus.agentlist.remove(self.agent)
-      nexus.agentschanged = True
-    if self.agent in nexus.agents:
-      del nexus.agents[self.agent]
+    nexus.remove_agents({self.agent})
 concept TerminatedMoni(AgentToNexi):
   slot moni: str
   def execute(self, nexus):
@@ -248,7 +245,6 @@ concept DeadMonis(NexusToNexus):
   slot deadmonis: {str}
   def execute(self, nexus):
     nexus.deadmonis = self.deadmonis
-
 
 concept GiveAgentList(NexusToMoni):
   slot agents: [str]

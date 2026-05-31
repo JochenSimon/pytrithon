@@ -103,6 +103,9 @@ class Handler(Thread):
           agent = primal.agent
           nexus.agentnumbers[agent] += 1
           self.agent = agent + "#" + str(nexus.agentnumbers[agent]) + "@" + nexus.name
+          while self.agent in nexus.deadagents:
+            nexus.agentnumbers[agent] += 1
+            self.agent = agent + "#" + str(nexus.agentnumbers[agent]) + "@" + nexus.name
           for nex in nexus.nexi:
             nexus.nexi[nex].send(AgentPropagation(nex, nexus.name, self.agent))
           pickle.dump(AgentNamed(self.agent), self.wfile, protocol=2)
@@ -125,7 +128,7 @@ class Handler(Thread):
           nexus.nametree.add(self.nexus, nexus.name)
           for nex in nexus.nexi:
             nexus.nexi[nex].send(NexusPropagation(nex, nexus.name, self.nexus, nexus.nametree.tree))
-          pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.nametree.tree, nexus.agentlist, [a for a in nexus.agents], {m for m in nexus.monis}, nexus.deadmonis, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners)), self.wfile, protocol=2)
+          pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.nametree.tree, nexus.agentlist, [a for a in nexus.agents], nexus.deadagents, {m for m in nexus.monis}, nexus.deadmonis, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners)), self.wfile, protocol=2)
         break  
       except EOFError:
         return
@@ -164,7 +167,7 @@ class Handler(Thread):
           nexus.unregister_agents(agents)
           monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
           for moni in monis:
-            nexus.monis[moni].send = lambda o: None
+            del nexus.monis[moni]
           for nex in kept:
             if nex != nexus.name:
               nexus.nexi[nex].send(TerminationCleanup(nex, nexus.nametree.tree, pruned, agents, monis))

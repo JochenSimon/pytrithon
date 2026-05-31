@@ -108,7 +108,7 @@ class MonipulatorConnected(Initializer):
 class ConnectNexus(Initializer):
   _slots = [("name", str)]
 class NexusConnected(Initializer):
-  _slots = [("origin", str), ("name", str), ("nametree", list), ("agentlist", [str]), ("agents", [str]), ("monis", {str}), ("deadmonis", {str}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict)]
+  _slots = [("origin", str), ("name", str), ("nametree", list), ("agentlist", [str]), ("agents", [str]), ("deadagents", {str}), ("monis", {str}), ("deadmonis", {str}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict)]
 class MonipulatorPropagation(NexusToNexus):
   _slots = [("origin", str), ("moniid", str)]
   def execute(self, nexus):
@@ -171,11 +171,7 @@ class TerminateMoni(NexusToMoni):
 class TerminatedAgent(AgentToNexi):
   _slots = [("agent", str)]
   def execute(self, nexus):
-    if self.agent in nexus.agentlist:
-      nexus.agentlist.remove(self.agent)
-      nexus.agentschanged = True
-    if self.agent in nexus.agents:
-      del nexus.agents[self.agent]
+    nexus.remove_agents({self.agent})
 class TerminatedMoni(AgentToNexi):
   _slots = [("moni", str)]
   def execute(self, nexus):

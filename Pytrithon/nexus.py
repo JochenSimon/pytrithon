@@ -26,6 +26,7 @@ class Nexus:
     self.agents = {}
     self.agentlist = []
     self.agentnumbers = defaultdict(int)
+    self.deadagents = set()
     self.nextmoni = 0
     self.deadmonis = set()
     self.agentschanged = False
@@ -105,6 +106,7 @@ class Nexus:
 
   def remove_agents(self, agents):
     for agent in agents:
+      self.deadagents.add(agent)
       if agent in self.agentlist:
         self.agentlist.remove(agent)
         self.agentschanged = True
