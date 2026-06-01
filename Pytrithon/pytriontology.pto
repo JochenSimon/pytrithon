@@ -201,6 +201,7 @@ concept TerminatedAgent(AgentToNexi):
   slot agent: str
   def execute(self, nexus):
     nexus.remove_agents({self.agent})
+    nexus.unregister_agents({self.agent})
 concept TerminatedMoni(AgentToNexi):
   slot moni: str
   def execute(self, nexus):

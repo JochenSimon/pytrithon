@@ -172,6 +172,7 @@ class TerminatedAgent(AgentToNexi):
   _slots = [("agent", str)]
   def execute(self, nexus):
     nexus.remove_agents({self.agent})
+    nexus.unregister_agents({self.agent})
 class TerminatedMoni(AgentToNexi):
   _slots = [("moni", str)]
   def execute(self, nexus):
