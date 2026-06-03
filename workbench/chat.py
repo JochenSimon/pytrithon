@@ -64,3 +64,6 @@ class JoinDialog(Gadget, QDialog):
     self.socket.put("password", self.password_lineedit.text())
     self.socket.put("server", self.servers[self.server_combobox.currentText()])
     self.hide()
+
+  def closeEvent(self, event):
+    self.socket.put("closed", ())

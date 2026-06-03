@@ -5,12 +5,13 @@ task (1,0): discover
 pool 3 (2,0);
 gadget (6,0): JoinDialog(window)
   takes: servers:11; reappear:37
-  gives: name:5; server:12; password:23
+  gives: name:5; server:12; password:23; closed:0
 var 5 (8,-1);
 module (0,-4):
   from PyQt5.QtCore import QSize
   from chat import JoinDialog, room
   
+  window.quit_on_close = True
   window.sizeHint = lambda: QSize(480, 480)
 flow 7 (0,-2): ()
 timer (1,-2): 2s
@@ -68,3 +69,6 @@ comment (3.7,-2.7):
   This agent encapsulates a chat participant.
   In order to join a chat, a "chatserver"
   agent needs to be running before this.
+flow 0 (6,2);
+terminate (6,4): 
+  takes: 0

@@ -19,9 +19,9 @@ python (4,2):
     if name.lower() not in passwords:
       with open("passwords.txt", "a", encoding="utf-8") as p:
         p.write(name.lower()+": "+bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")+"\n")
-      join = name + " registered and joined the chat"
+      join = name + " (" + sender.split("@")[1] + ") registered and joined the chat"
     else:
-      join = name + " joined the chat"
+      join = name + " (" + sender.split("@")[1] + ") joined the chat"
     history = ""
     if os.path.isfile(historyfile):
       with open(historyfile, encoding="utf-8") as h:
@@ -43,7 +43,7 @@ result (8,2): join
   takes: task,history:9
 var 12 (2,6);
 python (4,6):
-  line = names[sender] + "> " + message
+  line = names[sender] + " (" + sender.split("@")[1] + ")> " + message
   append(line + "\n")
   reads: names:22
   takes: sender,message:12
