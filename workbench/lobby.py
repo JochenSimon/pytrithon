@@ -113,5 +113,12 @@ class Lobby(Gadget, QDialog):
   def start(self, checked):
     self.socket.put("start", self.servers[self.server_combobox.currentText()][0])
 
+  def keyPressEvent(self, event):
+    match event.key():
+      case Qt.Key_Escape:
+        self.close()
+      case _:
+        super().keyPressEvent(event)
+
   def closeEvent(self, event):
     self.socket.put("closed", ())
