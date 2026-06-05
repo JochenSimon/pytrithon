@@ -15,6 +15,7 @@ class JoinDialog(Gadget, QDialog):
     self.servers = {}
 
     self.setWindowTitle("Join Server")
+    self.setWindowModality(Qt.ApplicationModal)
 
     self.name_lineedit = QLineEdit()
     self.password_lineedit = QLineEdit()
