@@ -112,3 +112,6 @@ class Lobby(Gadget, QDialog):
 
   def start(self, checked):
     self.socket.put("start", self.servers[self.server_combobox.currentText()][0])
+
+  def closeEvent(self, event):
+    self.socket.put("closed", ())

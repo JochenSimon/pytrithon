@@ -93,8 +93,9 @@ out (8,8):
   takes: items:1
 python (4,8):
   writes: names:22; connected:19
-  line = "\n".join(names[aid] + " left the chat" for aid in aids if aid in names)
-  append(line + "\n")
+  if any(aid in names for aid in aids):
+    line = "\n".join(names[aid] + " left the chat" for aid in aids if aid in names)
+    append(line + "\n")
   for aid,n in tuple(names.items()):
     if aid in aids:
       del names[aid]

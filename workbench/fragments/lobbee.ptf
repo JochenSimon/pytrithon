@@ -10,7 +10,7 @@ task (1,4): $domain.discover
 var 9 (2,4);
 gadget (2,2): Lobby(window, $min_players)
   takes: session:9; hide:26; taken:28; running:30
-  gives: name,agent:14; start:13
+  gives: name,agent:14; start:13; closed:1
   writes: name:37; server:76
 var 13 (6,4);
 var 14 (6,2);
@@ -39,3 +39,6 @@ python (6,6): joined = ()
 phantom 85 (6,7);
 phantom 86 (7,6);
 phantom 0 (7,7);
+flow 1 (1,2);
+terminate (0,2): 
+  takes: 1
