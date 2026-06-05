@@ -26,7 +26,7 @@ class Event(Transition):
       self.parent.core.ready(self)
 
   def fire(self):
-    self.bindings.update({a:o for a,o in self.parent.core.events[sanitize(self.inscr)].pop(0).items()})
+    self.bindings.update(self.parent.core.events[sanitize(self.inscr)].pop(0))
     if not self.parent.core.events[sanitize(self.inscr)]:
       self.parent.core.doze(self)
 
