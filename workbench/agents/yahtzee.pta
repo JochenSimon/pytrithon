@@ -43,7 +43,7 @@ frag (-2,0):
   domain: yahtzee
   reads: aid:server; :name
 flow 0 (0,6);
-out (0,8):
+out (0,7):
   reads: aid:server
   yahtzee.newgame
   takes: 0
@@ -52,3 +52,18 @@ comment (-7.5,-0.3):
   which needs to be running before this Agent is started.
   Upon start, you are greeted with the lobby where you can
   register your name and start a session of Yahtzee together.
+gadget (-8,8): window
+  takes: close:10
+  gives: closed:8
+flow 8 (-6,8);
+out (-4,8):
+  reads: aid:server
+  yahtzee.closed
+  takes: 8
+  gives: 9
+flow 9 (-2,8);
+terminate (0,8): 
+  takes: 9
+in (-6,6): yahtzee.left
+  gives: 10
+flow 10 (-8,6);

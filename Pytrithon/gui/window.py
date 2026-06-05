@@ -12,6 +12,8 @@ class Window(QDialog):
     self.core = core
     self.embed = False
     self.quit_on_close = False
+    self.confirm_quit = None
+    self.force_close = False
 
     self.widgets = []
     self.sub_windows = []
@@ -38,6 +40,11 @@ class Window(QDialog):
         gadget.row = max(rows) + 1 if rows else 0
       self.layout.addWidget(gadget, gadget.row, gadget.col, gadget.rows, gadget.cols)
     self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+
+  def update(self, alias, token):
+    if alias == "close":
+      self.force_close = True
+      self.close()
   
   def keyPressEvent(self, event):
     if event.key() == Qt.Key_Escape:
@@ -50,20 +57,31 @@ class Window(QDialog):
       QDialog.keyPressEvent(self, event)
 
   def closeEvent(self, event):
-    if hasattr(self, "socket"):
-      self.socket.put("closed", ())
-    if self.quit_on_close:
-      if self.quit_on_close == "unseen" and self.core.watchers:
-        return
-      if self.quit_on_close == "agent" or self.quit_on_close is True:
-        pass
-      elif self.quit_on_close in {"local", "unseen"}:
-        self.core.nexus.send(TerminatedLocal())
-      else:
-        print("Illegal value for window.quit_on_close", file=sys.stderr, hide=True)
-        return
-      sleep(0.1)
-      sys.exit(0)  
+    if not self.force_close and self.confirm_quit:
+      ret = QMessageBox.warning(self, self.confirm_quit[0], self.confirm_quit[1], QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+      match ret:
+        case QMessageBox.Yes:
+          do_quit = True
+        case QMessageBox.No:
+          do_quit = False
+          event.ignore()
+    else:
+      do_quit = True
+    if do_quit:      
+      if hasattr(self, "socket"):
+        self.socket.put("closed", ())
+      if self.quit_on_close:
+        if self.quit_on_close == "unseen" and self.core.watchers:
+          return
+        if self.quit_on_close == "agent" or self.quit_on_close is True:
+          pass
+        elif self.quit_on_close in {"local", "unseen"}:
+          self.core.nexus.send(TerminatedLocal())
+        else:
+          print("Illegal value for window.quit_on_close", file=sys.stderr, hide=True)
+          return
+        sleep(0.1)
+        sys.exit(0)  
   
   def __str__(self):
     return 'Window("{}")'.format(self.windowTitle())

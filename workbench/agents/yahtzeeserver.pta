@@ -100,3 +100,14 @@ comment (9.8,1.9):
   This Agent is a server to manage a session of multiple users
   playing a game of Yahtzee together. This needs to be running
   before 'yahtzee' Agents are started.
+in (0,7): yahtzee.closed
+  gives: 8
+flow 8 (2,7);
+out (4,7):
+  reads: :aids
+  yahtzee.left
+  takes: 8
+  gives: 9
+flow 9 (6,7);
+terminate (8,7): 
+  takes: 9

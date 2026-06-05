@@ -153,6 +153,7 @@ class Yahtzee(Gadget, QWidget):
       case "name":
         self.name = token
         self.window.setWindowTitle(f"Yahtzee: {self.name}")
+        self.window.confirm_quit = "End Session", "This terminates the current session. Are you sure?"
       case "prime":  
         self.prime(token)
       case "update":
