@@ -94,6 +94,13 @@ concept MoniToAgent(Relayed):
   def relay(self, nexus):
     if self.agent in nexus.agents:
       nexus.agents[self.agent].send(self)
+concept MoniToAgentProtected(Relayed):
+  slot agent: str
+  slot moniid: str
+  def relay(self, nexus):
+    if self.agent in nexus.agents:
+      if not nexus.isolate or not nexus.agents[self.agent].direct:
+        nexus.agents[self.agent].send(self)
 
 concept AgentStarted(Initializer):
   slot agent: str
@@ -189,7 +196,7 @@ concept PushFile(MoniToNexi):
   def execute(self, nexus):
     nexus.push_file(self.file, self.data)
 
-concept TriggerTerminate(MoniToAgent):
+concept TriggerTerminate(MoniToAgentProtected):
   def execute(self, core):
     exit()
 concept TerminateAgent(NexusToAgent):
@@ -335,18 +342,18 @@ concept EventTrigger(AgentToAgents):
     core.events[self.topic].append(self.bindings)
     core.eventpending(self.topic)
 
-concept SetDelay(MoniToAgent):
+concept SetDelay(MoniToAgentProtected):
   slot delay: int
   def execute(self, core):
     core.delay = self.delay
-concept MoveManipulation(MoniToAgent):
+concept MoveManipulation(MoniToAgentProtected):
   slot name: str
   slot x: float
   slot y: float
   def execute(self, core):
     core.agent.elements[self.name].pos = self.x, self.y
     core.give_structure(but=self.moniid)
-concept NameManipulation(MoniToAgent):
+concept NameManipulation(MoniToAgentProtected):
   slot oldname: str
   slot newname: str
   def execute(self, core):
@@ -363,7 +370,7 @@ concept NameManipulation(MoniToAgent):
       element.load()
       element.init()
     core.give_structure(but=self.moniid)
-concept InscriptionManipulation(MoniToAgent):
+concept InscriptionManipulation(MoniToAgentProtected):
   slot name: str
   slot inscr: str
   def execute(self, core):
@@ -372,13 +379,13 @@ concept InscriptionManipulation(MoniToAgent):
     else:  
       core.agent.elements[self.name].create_links(self.inscr)
     core.give_structure(but=self.moniid)
-concept TypeManipulation(MoniToAgent):
+concept TypeManipulation(MoniToAgentProtected):
   slot name: str
   slot type: str
   def execute(self, core):
     core.agent.elements[self.name].typing = self.type
     core.give_structure(but=self.moniid)
-concept PriorityManipulation(MoniToAgent):
+concept PriorityManipulation(MoniToAgentProtected):
   slot name: str
   slot priority: str
   def execute(self, core):
@@ -387,13 +394,13 @@ concept PriorityManipulation(MoniToAgent):
     elif "priority" in core.agent.elements[self.name].__dict__:
       del core.agent.elements[self.name].priority
     core.give_structure(but=self.moniid)
-concept AliasManipulation(MoniToAgent):
+concept AliasManipulation(MoniToAgentProtected):
   slot serial: int
   slot alias: str
   def execute(self, core):
     core.agent.globallinks[self.serial].alias = self.alias
     core.give_structure(but=self.moniid)
-concept DeleteLinkManipulation(MoniToAgent):
+concept DeleteLinkManipulation(MoniToAgentProtected):
   slot serial: int
   def execute(self, core):
     link = core.agent.globallinks[self.serial]
@@ -402,7 +409,7 @@ concept DeleteLinkManipulation(MoniToAgent):
     trans = core.agent.elements[link.trans]
     trans.delete_link(link)
     core.give_structure(but=self.moniid)
-concept CreateManipulation(MoniToAgent):
+concept CreateManipulation(MoniToAgentProtected):
   slot type: str
   slot name: str
   slot typing: str
@@ -410,18 +417,18 @@ concept CreateManipulation(MoniToAgent):
   def execute(self, core):
     core.agent.create_element(self.type, self.name, self.typing, self.pos)
     core.give_structure(but=self.moniid)
-concept DeleteElementManipulation(MoniToAgent):
+concept DeleteElementManipulation(MoniToAgentProtected):
   slot name: str
   def execute(self, core):
     core.agent.delete_element(self.name)
     core.give_structure(but=self.moniid)
-concept ChangeManipulation(MoniToAgent):
+concept ChangeManipulation(MoniToAgentProtected):
   slot place: str
   slot type: str
   def execute(self, core):
     core.agent.change_to(self.place, self.type)
     core.give_structure(but=self.moniid)
-concept CommentManipulation(MoniToAgent):
+concept CommentManipulation(MoniToAgentProtected):
   slot name: str
   slot color: str
   slot size: str
@@ -432,7 +439,7 @@ concept CommentManipulation(MoniToAgent):
     core.agent.elements[self.name].font_type = self.type
     core.give_structure(but=self.moniid)
 
-concept CoreEdit(MoniToAgent):    
+concept CoreEdit(MoniToAgentProtected):    
   def execute(self, core):
     core.edit = True
     core.window.hide()
@@ -443,7 +450,7 @@ concept CoreEdit(MoniToAgent):
     core.phase = 0
     core.init()
     core.give_structure()
-concept CoreInit(MoniToAgent):
+concept CoreInit(MoniToAgentProtected):
   def execute(self, core):
     core.edit = False
     if core.halted:
@@ -453,7 +460,7 @@ concept CoreInit(MoniToAgent):
     core.phase = 0
     core.init()
     core.give_structure()
-concept CoreReset(MoniToAgent):
+concept CoreReset(MoniToAgentProtected):
   def execute(self, core):
     core.phase = 0
     core.init()
@@ -466,15 +473,15 @@ concept StateChanged(AgentToMoni):
     if moni.central_widget.canvas == moni.agents[self.agent]:
       moni.agents[self.agent].enable_buttons()
 
-concept CoreRun(MoniToAgent):
+concept CoreRun(MoniToAgentProtected):
   def execute(self, core):
     core.state = 1
     core.halted = False
     core.state_changed(self.moniid)
-concept CoreStep(MoniToAgent):
+concept CoreStep(MoniToAgentProtected):
   def execute(self, core):
     core.state -= 3
-concept CoreHalt(MoniToAgent):
+concept CoreHalt(MoniToAgentProtected):
   def execute(self, core):
     core.state = -[0,2,1][core.phase]
     core.halted = True

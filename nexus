@@ -36,7 +36,7 @@ parser.add_argument("-l", "--list", action="store_true", help="list all availabl
 parser.add_argument("-n", "--name", help="name for nexus")
 parser.add_argument("-P", "--PORT", type=int, help="port to run on")
 parser.add_argument("-x", "--nexus", help="master nexus to connect to")
-parser.add_argument("-I", "--ISOLATE", action="store_true", help="do not isolate nexus from pushing" if isolate else "isolate nexus from pushing")
+parser.add_argument("-I", "--ISOLATE", action="store_true", help="do not isolate nexus from interactions" if isolate else "isolate nexus from interactions")
 parser.add_argument("-D", "--DOMAIN", help="open all started agents in domain")
 parser.add_argument("-d", "--delay", type=int, help="set core delay in milliseconds")
 parser.add_argument("-p", "--poll", type=int, help="set idle poll resolution in milliseconds")

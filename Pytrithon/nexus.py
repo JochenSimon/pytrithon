@@ -129,19 +129,20 @@ class Nexus:
           self.agents[target].send(EventTrigger("", (target,) , "agentsdied", {"aids": agents}))
 
   def open_agent(self, agent, args, delay, poll, edit, halt, secret, mute, errors):
-    edit = not edit if self.config and "edit" in self.config and self.config["edit"] else edit
-    halt = not halt if self.config and "halt" in self.config and self.config["halt"] else halt
-    secret = not secret if self.config and "secret" in self.config and self.config["secret"] else secret
-    mute = not mute if self.config and "mute" in self.config and self.config["mute"] else mute
-    errors = errors if self.config and "errors" in self.config and self.config["errors"] or not self.config or "errors" not in self.config else not errors
-    subprocess.Popen(["python", "agent", "-P", str(self.server.port)] + (["-d", str(delay)] if delay is not None else []) + (["-p", str(poll)] if poll is not None else []) + (["-e"] if edit else []) + (["-H"] if halt else []) + (["-s"] if secret else []) + (["-M"] if mute else []) + (["-E"] if not errors else []) + [agent] + args)
-
-  def push_agent(self, agent, structure):  
     if not self.isolate:
-      filename = "workbench/fragments/"+agent[1:].replace(".", "/")+".ptf" if agent.startswith("$") else "workbench/agents/"+agent.replace(".", "/")+".pta"
-      os.makedirs("/".join(filename.split("/")[:-1]), exist_ok=True)
-      with open(filename, "w", encoding="utf-8") as f:
-        f.write(structure)
+      edit = not edit if self.config and "edit" in self.config and self.config["edit"] else edit
+      halt = not halt if self.config and "halt" in self.config and self.config["halt"] else halt
+      secret = not secret if self.config and "secret" in self.config and self.config["secret"] else secret
+      mute = not mute if self.config and "mute" in self.config and self.config["mute"] else mute
+      errors = errors if self.config and "errors" in self.config and self.config["errors"] or not self.config or "errors" not in self.config else not errors
+      subprocess.Popen(["python", "agent", "-P", str(self.server.port)] + (["-d", str(delay)] if delay is not None else []) + (["-p", str(poll)] if poll is not None else []) + (["-e"] if edit else []) + (["-H"] if halt else []) + (["-s"] if secret else []) + (["-M"] if mute else []) + (["-E"] if not errors else []) + [agent] + args)
+
+    def push_agent(self, agent, structure):  
+      if not self.isolate:
+        filename = "workbench/fragments/"+agent[1:].replace(".", "/")+".ptf" if agent.startswith("$") else "workbench/agents/"+agent.replace(".", "/")+".pta"
+        os.makedirs("/".join(filename.split("/")[:-1]), exist_ok=True)
+        with open(filename, "w", encoding="utf-8") as f:
+          f.write(structure)
 
   def push_file(self, file, data):  
     if not self.isolate:

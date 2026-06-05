@@ -1,5 +1,5 @@
 port: 9001
-isolate: True
+isolate: False
 
 monipulator: False
 open: True

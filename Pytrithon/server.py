@@ -6,6 +6,7 @@ import pickle
 from .pytriontology import *
 
 class AgentMediator:
+  direct = True
   def __init__(self, handler, name):
     self.handler = handler
     self.name = name
@@ -17,6 +18,7 @@ class AgentMediator:
       self.send = lambda o: None
       
 class MonipulatorMediator:
+  direct = True
   def __init__(self, handler, moniid):
     self.handler = handler
     self.moniid = moniid
@@ -28,6 +30,7 @@ class MonipulatorMediator:
       self.send = lambda o: None
       
 class MasterMediator:
+  direct = False
   def __init__(self, handler, master):
     self.handler = handler
     self.master = master

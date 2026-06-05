@@ -97,6 +97,12 @@ class MoniToAgent(Relayed):
   def relay(self, nexus):
     if self.agent in nexus.agents:
       nexus.agents[self.agent].send(self)
+class MoniToAgentProtected(Relayed):
+  _slots = [("agent", str), ("moniid", str)]
+  def relay(self, nexus):
+    if self.agent in nexus.agents:
+      if not nexus.isolate or not nexus.agents[self.agent].direct:
+        nexus.agents[self.agent].send(self)
 class AgentStarted(Initializer):
   _slots = [("agent", str)]
 class AgentNamed(Initializer):
@@ -159,7 +165,7 @@ class PushFile(MoniToNexi):
   _slots = [("file", str), ("data", bytes)]
   def execute(self, nexus):
     nexus.push_file(self.file, self.data)
-class TriggerTerminate(MoniToAgent):
+class TriggerTerminate(MoniToAgentProtected):
   def execute(self, core):
     exit()
 class TerminateAgent(NexusToAgent):
@@ -283,16 +289,16 @@ class EventTrigger(AgentToAgents):
   def execute(self, core):
     core.events[self.topic].append(self.bindings)
     core.eventpending(self.topic)
-class SetDelay(MoniToAgent):
+class SetDelay(MoniToAgentProtected):
   _slots = [("delay", int)]
   def execute(self, core):
     core.delay = self.delay
-class MoveManipulation(MoniToAgent):
+class MoveManipulation(MoniToAgentProtected):
   _slots = [("name", str), ("x", float), ("y", float)]
   def execute(self, core):
     core.agent.elements[self.name].pos = self.x, self.y
     core.give_structure(but=self.moniid)
-class NameManipulation(MoniToAgent):
+class NameManipulation(MoniToAgentProtected):
   _slots = [("oldname", str), ("newname", str)]
   def execute(self, core):
     element = core.agent.elements[self.oldname]
@@ -308,7 +314,7 @@ class NameManipulation(MoniToAgent):
       element.load()
       element.init()
     core.give_structure(but=self.moniid)
-class InscriptionManipulation(MoniToAgent):
+class InscriptionManipulation(MoniToAgentProtected):
   _slots = [("name", str), ("inscr", str)]
   def execute(self, core):
     if core.agent.elements[self.name].isplace:
@@ -316,12 +322,12 @@ class InscriptionManipulation(MoniToAgent):
     else:  
       core.agent.elements[self.name].create_links(self.inscr)
     core.give_structure(but=self.moniid)
-class TypeManipulation(MoniToAgent):
+class TypeManipulation(MoniToAgentProtected):
   _slots = [("name", str), ("type", str)]
   def execute(self, core):
     core.agent.elements[self.name].typing = self.type
     core.give_structure(but=self.moniid)
-class PriorityManipulation(MoniToAgent):
+class PriorityManipulation(MoniToAgentProtected):
   _slots = [("name", str), ("priority", str)]
   def execute(self, core):
     if self.priority:
@@ -329,12 +335,12 @@ class PriorityManipulation(MoniToAgent):
     elif "priority" in core.agent.elements[self.name].__dict__:
       del core.agent.elements[self.name].priority
     core.give_structure(but=self.moniid)
-class AliasManipulation(MoniToAgent):
+class AliasManipulation(MoniToAgentProtected):
   _slots = [("serial", int), ("alias", str)]
   def execute(self, core):
     core.agent.globallinks[self.serial].alias = self.alias
     core.give_structure(but=self.moniid)
-class DeleteLinkManipulation(MoniToAgent):
+class DeleteLinkManipulation(MoniToAgentProtected):
   _slots = [("serial", int)]
   def execute(self, core):
     link = core.agent.globallinks[self.serial]
@@ -343,29 +349,29 @@ class DeleteLinkManipulation(MoniToAgent):
     trans = core.agent.elements[link.trans]
     trans.delete_link(link)
     core.give_structure(but=self.moniid)
-class CreateManipulation(MoniToAgent):
+class CreateManipulation(MoniToAgentProtected):
   _slots = [("type", str), ("name", str), ("typing", str), ("pos", tuple)]
   def execute(self, core):
     core.agent.create_element(self.type, self.name, self.typing, self.pos)
     core.give_structure(but=self.moniid)
-class DeleteElementManipulation(MoniToAgent):
+class DeleteElementManipulation(MoniToAgentProtected):
   _slots = [("name", str)]
   def execute(self, core):
     core.agent.delete_element(self.name)
     core.give_structure(but=self.moniid)
-class ChangeManipulation(MoniToAgent):
+class ChangeManipulation(MoniToAgentProtected):
   _slots = [("place", str), ("type", str)]
   def execute(self, core):
     core.agent.change_to(self.place, self.type)
     core.give_structure(but=self.moniid)
-class CommentManipulation(MoniToAgent):
+class CommentManipulation(MoniToAgentProtected):
   _slots = [("name", str), ("color", str), ("size", str), ("type", str)]
   def execute(self, core):
     core.agent.elements[self.name].font_color = self.color
     core.agent.elements[self.name].font_size = self.size
     core.agent.elements[self.name].font_type = self.type
     core.give_structure(but=self.moniid)
-class CoreEdit(MoniToAgent):
+class CoreEdit(MoniToAgentProtected):
   def execute(self, core):
     core.edit = True
     core.window.hide()
@@ -376,7 +382,7 @@ class CoreEdit(MoniToAgent):
     core.phase = 0
     core.init()
     core.give_structure()
-class CoreInit(MoniToAgent):
+class CoreInit(MoniToAgentProtected):
   def execute(self, core):
     core.edit = False
     if core.halted:
@@ -386,7 +392,7 @@ class CoreInit(MoniToAgent):
     core.phase = 0
     core.init()
     core.give_structure()
-class CoreReset(MoniToAgent):
+class CoreReset(MoniToAgentProtected):
   def execute(self, core):
     core.phase = 0
     core.init()
@@ -397,15 +403,15 @@ class StateChanged(AgentToMoni):
     moni.agents[self.agent].halted = self.halted
     if moni.central_widget.canvas == moni.agents[self.agent]:
       moni.agents[self.agent].enable_buttons()
-class CoreRun(MoniToAgent):
+class CoreRun(MoniToAgentProtected):
   def execute(self, core):
     core.state = 1
     core.halted = False
     core.state_changed(self.moniid)
-class CoreStep(MoniToAgent):
+class CoreStep(MoniToAgentProtected):
   def execute(self, core):
     core.state -= 3
-class CoreHalt(MoniToAgent):
+class CoreHalt(MoniToAgentProtected):
   def execute(self, core):
     core.state = -[0,2,1][core.phase]
     core.halted = True

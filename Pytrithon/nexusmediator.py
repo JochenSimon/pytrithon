@@ -8,6 +8,7 @@ from .tree import Tree
 
 class NexusMediator(Thread):
   daemon = True
+  direct = False
   def __init__(self, host, port, core=None, moni=None, nexus=None):
     super().__init__()
     self.core = core
