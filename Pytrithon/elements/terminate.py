@@ -14,8 +14,6 @@ class Terminate(Transition):
       pass
     elif sanitize(self.inscr) in {"local", "unseen"}:
       self.parent.core.nexus.send(TerminatedLocal())
-    elif sanitize(self.inscr) == "total":
-      self.parent.core.nexus.send(TerminatedTotal(""))
     else:
       print("Illegal inscription in terminate '{}'".format(self.name), file=sys.stderr, hide=True)
       return

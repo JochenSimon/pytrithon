@@ -59,8 +59,6 @@ class Window(QDialog):
         pass
       elif self.quit_on_close in {"local", "unseen"}:
         self.core.nexus.send(TerminatedLocal())
-      elif self.quit_on_close == "total":
-        self.core.nexus.send(TerminatedTotal(""))
       else:
         print("Illegal value for window.quit_on_close", file=sys.stderr, hide=True)
         return

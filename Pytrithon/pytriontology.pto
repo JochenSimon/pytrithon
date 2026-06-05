@@ -199,12 +199,6 @@ concept PushFile(MoniToNexi):
 concept TriggerTerminate(MoniToAgentProtected):
   def execute(self, core):
     exit()
-concept TerminateAgent(NexusToAgent):
-  def execute(self, core):
-    exit()
-concept TerminateMoni(NexusToMoni):
-  def execute(self, moni):
-    exit()
 concept TerminatedAgent(AgentToNexi):
   slot agent: str
   def execute(self, nexus):
@@ -214,13 +208,6 @@ concept TerminatedMoni(AgentToNexi):
   slot moni: str
   def execute(self, nexus):
     del nexus.monis[self.moni]
-concept TerminatedTotal(AgentToNexi):
-  def execute(self, nexus):
-    for agent in nexus.agents:
-      nexus.agents[agent].send(TerminateAgent(agent))
-    for moni in nexus.monis:
-      nexus.monis[moni].send(TerminateMoni(moni))
-    exit()
 concept TerminatedProcess(Relayed):
   def relay(self, nexus):
     pass
