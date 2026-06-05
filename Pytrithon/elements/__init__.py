@@ -17,6 +17,7 @@ from .nethod import Nethod, Call, Return, Raise
 from .signalslot import Signal, Slot
 from .task import Task, Invocation, Result, Fail
 from .outin import Out, In
+from .event import Event
 from .spawn import Spawn
 from .terminate import Terminate
 from .socket import Socket

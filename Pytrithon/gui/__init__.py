@@ -8,11 +8,12 @@ from .checkboxgroup import CheckBoxGroup
 from .spinbox import SpinBox
 from .lineedit import LineEdit
 from .textedit import TextEdit
+from .listwidget import ListWidget
 from .image import Image
 from .slider import Slider
 from .fileselect import FileSelect
 
 allgadgets = {}
 
-for gadget in [Label, PushButton, PushButtonGroup, CheckBox, CheckBoxGroup, LineEdit, SpinBox, TextEdit, Image, Slider, FileSelect]:
+for gadget in [Label, PushButton, PushButtonGroup, CheckBox, CheckBoxGroup, LineEdit, SpinBox, TextEdit, ListWidget, Image, Slider, FileSelect]:
   allgadgets[gadget.__name__] = gadget

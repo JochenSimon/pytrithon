@@ -108,7 +108,7 @@ class MonipulatorConnected(Initializer):
 class ConnectNexus(Initializer):
   _slots = [("name", str)]
 class NexusConnected(Initializer):
-  _slots = [("origin", str), ("name", str), ("nametree", list), ("agentlist", [str]), ("agents", [str]), ("deadagents", {str}), ("monis", {str}), ("deadmonis", {str}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict)]
+  _slots = [("origin", str), ("name", str), ("nametree", list), ("agentlist", [str]), ("agents", [str]), ("deadagents", {str}), ("monis", {str}), ("deadmonis", {str}), ("task", int), ("tasklist", dict), ("involist", dict), ("commlist", dict), ("eventlist", dict)]
 class MonipulatorPropagation(NexusToNexus):
   _slots = [("origin", str), ("moniid", str)]
   def execute(self, nexus):
@@ -277,6 +277,12 @@ class Communication(AgentToAgents):
   def execute(self, core):
     core.communications[self.topic].append(self.bindings)
     core.inpending(self.topic)
+class EventTrigger(AgentToAgents):
+  _slots = [("topic", str), ("bindings", dict)]
+  type = "event"
+  def execute(self, core):
+    core.events[self.topic].append(self.bindings)
+    core.eventpending(self.topic)
 class SetDelay(MoniToAgent):
   _slots = [("delay", int)]
   def execute(self, core):

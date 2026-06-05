@@ -137,7 +137,7 @@ class Handler(Thread):
           nexus.nametree.add(self.nexus, nexus.name)
           for nex in nexus.nexi:
             nexus.nexi[nex].send(NexusPropagation(nex, nexus.name, self.nexus, nexus.nametree.tree))
-          pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.nametree.tree, nexus.agentlist, [a for a in nexus.agents], nexus.deadagents, {m for m in nexus.monis}, nexus.deadmonis, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners)), self.wfile, protocol=2)
+          pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.nametree.tree, nexus.agentlist, [a for a in nexus.agents], nexus.deadagents, {m for m in nexus.monis}, nexus.deadmonis, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners), dict(nexus.eventlisteners)), self.wfile, protocol=2)
         break  
       except EOFError:
         return
@@ -151,6 +151,7 @@ class Handler(Thread):
           nexus = self.server.nexus
           nexus.remove_agents({self.agent})
           nexus.unregister_agents({self.agent})
+          nexus.trigger_agentsdied({self.agent})
           for nex in nexus.nexi:
             nexus.nexi[nex].send(TerminatedAgent(nex, self.agent))
           return
@@ -174,6 +175,7 @@ class Handler(Thread):
           agents = {a for a in nexus.agents if any(a.endswith("@"+p) for p in pruned)}
           nexus.remove_agents(agents)
           nexus.unregister_agents(agents)
+          nexus.trigger_agentsdied(agents)
           monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
           for moni in monis:
             del nexus.monis[moni]

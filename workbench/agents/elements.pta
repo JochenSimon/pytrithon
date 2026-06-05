@@ -28,7 +28,8 @@ task (2,5): task
 invoke (3,5): invoke
 result (4,5): result
 fail (5,5): fail
-spawn (0,6): spawn
-terminate (1,6): terminate
+event (0,6): event
+spawn (1,6): spawn
+terminate (2,6): terminate
 gadget (0,7): gadget
 frag (1,7): fragment

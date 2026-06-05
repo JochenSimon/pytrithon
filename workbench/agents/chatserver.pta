@@ -12,6 +12,7 @@ invoke (0,2): join
   gives: task,name,password,sender:7
 var 7 (2,2);
 python (4,2):
+  gives: items:1
   passwords = load_passwords()
   if name.lower() in passwords and not bcrypt.checkpw(password.encode("utf-8"), passwords[name.lower()]):
     wrong = ()
@@ -19,9 +20,9 @@ python (4,2):
     if name.lower() not in passwords:
       with open("passwords.txt", "a", encoding="utf-8") as p:
         p.write(name.lower()+": "+bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")+"\n")
-      join = name + " (" + sender.split("@")[1] + ") registered and joined the chat"
+      join = name + " registered and joined the chat"
     else:
-      join = name + " (" + sender.split("@")[1] + ") joined the chat"
+      join = name + " joined the chat"
     history = ""
     if os.path.isfile(historyfile):
       with open(historyfile, encoding="utf-8") as h:
@@ -35,6 +36,7 @@ python (4,2):
     history += join
     senders.append(sender)
     names[sender] = name
+    items = [f"{c[1]} ({c[0].split("@")[1]})" for c in names.items()]
   takes: task,name,password,sender:7
   gives: task,history:9; origin,line:20; task,wrong:23
   writes: senders:19; names:22
@@ -43,7 +45,7 @@ result (8,2): join
   takes: task,history:9
 var 12 (2,6);
 python (4,6):
-  line = names[sender] + " (" + sender.split("@")[1] + ")> " + message
+  line = names[sender] + "> " + message
   append(line + "\n")
   reads: names:22
   takes: sender,message:12
@@ -82,3 +84,22 @@ comment (-3.6,0.6):
   This Agent is the server running which connects
   multiple "chat" Agents, which have to be started
   after this Agent.
+event (0,8): agentsdied
+  gives: aids:0
+queue 0 (2,8);
+out (8,8):
+  reads: aids:19
+  list
+  takes: items:1
+python (4,8):
+  writes: names:22; connected:19
+  line = "\n".join(names[aid] + " left the chat" for aid in aids if aid in names)
+  append(line + "\n")
+  for aid,n in tuple(names.items()):
+    if aid in aids:
+      del names[aid]
+      connected.remove(aid)
+  items = [f"{c[1]} ({c[0].split("@")[1]})" for c in names.items()]
+  takes: aids:0
+  gives: items:1; line:14
+var 1 (6,8);

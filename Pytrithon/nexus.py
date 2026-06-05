@@ -42,6 +42,7 @@ class Nexus:
     self.tasklisteners = defaultdict(set)
     self.invocationlisteners = defaultdict(set)
     self.communicationlisteners = defaultdict(set)
+    self.eventlisteners = defaultdict(set)
 
     if master:
       self.master = NexusMediator(master[0], master[1], nexus=self)
@@ -90,9 +91,14 @@ class Nexus:
         self.communicationlisteners[oldtopic].remove(agent)
       if topic:
         self.communicationlisteners[topic].add(agent)
+    elif type == "event":
+      if oldtopic:
+        self.eventlisteners[oldtopic].remove(agent)
+      if topic:
+        self.eventlisteners[topic].add(agent)
 
   def unregister_agents(self, agents):
-    for registry in (v for r in (self.tasklisteners, self.invocationlisteners, self.communicationlisteners) for v in r.values()):
+    for registry in (v for r in (self.tasklisteners, self.invocationlisteners, self.communicationlisteners, self.eventlisteners) for v in r.values()):
       for agent in agents:
         if agent in registry:
           registry.remove(agent)
@@ -104,6 +110,8 @@ class Nexus:
       return self.invocationlisteners[topic]
     elif type == "communication":
       return self.communicationlisteners[topic]
+    elif type == "event":
+      return self.eventlisteners[topic]
 
   def remove_agents(self, agents):
     for agent in agents:
@@ -113,6 +121,12 @@ class Nexus:
         self.agentschanged = True
       if agent in self.agents:  
         del self.agents[agent]
+
+  def trigger_agentsdied(self, agents):
+    if agents:
+      for target in tuple(self.listeners("event", "agentsdied")):
+        if target in self.agents:
+          self.agents[target].send(EventTrigger("", (target,) , "agentsdied", {"aids": agents}))
 
   def open_agent(self, agent, args, delay, poll, edit, halt, secret, mute, errors):
     edit = not edit if self.config and "edit" in self.config and self.config["edit"] else edit

@@ -754,6 +754,10 @@ class FailFigure(TransFigure):
   type = "fail"
   size = 23,17
   
+class EventFigure(TransFigure):
+  type = "event"
+  size = 23,17
+  
 class SpawnFigure(TransFigure):
   type = "spawn"
   size = 23,23

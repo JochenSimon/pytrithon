@@ -6,10 +6,10 @@ linker = r"^(clears|reads|takes|gives|writes): *(.*)$"
 slotter = r"^slot *(.*): *(.*)$"
 sorter = ["clears", "reads", "takes", "gives", "writes"]
 
-linked_els = set("python if choice merge timer iterator signal slot nethod call return raise out in task invoke result fail spawn terminate gadget frag".split())
+linked_els = set("python if choice merge timer iterator signal slot nethod call return raise out in task invoke result fail event spawn terminate gadget frag".split())
 slotted_els = set("concept".split())
 noname_els = set("comment".split())
-optional_els = set("python if choice merge timer iterator signal slot nethod call return raise out in task invoke result fail spawn terminate gadget".split())
+optional_els = set("python if choice merge timer iterator signal slot nethod call return raise out in task invoke result fail event spawn terminate gadget".split())
 noarg_els = set("self module ontology frag".split())
 named_els = set("flow var know phantom pool queue stack heap set".split())
 

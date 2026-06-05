@@ -54,6 +54,7 @@ class NexusMediator(Thread):
           self.nexus.tasklisteners.update(primal.tasklist)
           self.nexus.invocationlisteners.update(primal.involist)
           self.nexus.communicationlisteners.update(primal.commlist)
+          self.nexus.eventlisteners.update(primal.eventlist)
         break  
       except EOFError:
         return
@@ -94,6 +95,7 @@ class NexusMediator(Thread):
         agents = {a for a in nexus.agents if any(a.endswith("@"+p) for p in pruned)}
         nexus.remove_agents(agents)
         nexus.unregister_agents(agents)
+        nexus.trigger_agentsdied(agents)
         monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
         for moni in monis:
           nexus.monis[moni].send = lambda o: None

@@ -12,7 +12,7 @@ module (0,-4):
   from chat import JoinDialog, room
   
   window.quit_on_close = True
-  window.sizeHint = lambda: QSize(480, 480)
+  window.sizeHint = lambda: QSize(800, 480)
 flow 7 (0,-2): ()
 timer (1,-2): 2s
   takes: 7
@@ -28,17 +28,15 @@ task (10,0): join
   takes: password:23
   gives: history:14; wrong:35
 var 14 (11,0);
-gadget (12,-2): Label()
-  takes: text:32
 gadget (15,0): TextEdit()
   takes: append:17; append:22
 python (12,0):
   reads: :window
   enable = True
-  window.setWindowTitle(room(server))
+  window.setWindowTitle(f"{name} in chatroom '{room(server)}'")
   reads: name:5; server:12
   takes: history:14
-  gives: history:17; enable:18; name:32
+  gives: history:17; enable:18
 var 17 (13,0);
 var 18 (12,2);
 gadget (14,2): LineEdit(clear=True, history=True, enabled=False, focus=True)
@@ -56,7 +54,6 @@ out (17,2): say
   takes: message:20
 in (18,0): hear
   gives: line:22
-var 32 (12,-1);
 flow 35 (10,-2);
 python (10,-3): 
   clears: 5; 12
@@ -72,3 +69,8 @@ comment (3.7,-2.7):
 flow 0 (6,2);
 terminate (6,4): 
   takes: 0
+in (12,4): list
+  gives: items:2
+var 2 (14,4);
+gadget (16,4): ListWidget(row=0, rows=2, col=1)
+  takes: items:2

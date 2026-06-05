@@ -120,6 +120,7 @@ concept NexusConnected(Initializer):
   slot tasklist: dict
   slot involist: dict
   slot commlist: dict
+  slot eventlist: dict
 
 concept MonipulatorPropagation(NexusToNexus):
   slot origin: str
@@ -326,6 +327,13 @@ concept Communication(AgentToAgents):
   def execute(self, core):
     core.communications[self.topic].append(self.bindings)
     core.inpending(self.topic)
+concept EventTrigger(AgentToAgents):
+  type = "event"
+  slot topic: str
+  slot bindings: dict
+  def execute(self, core):
+    core.events[self.topic].append(self.bindings)
+    core.eventpending(self.topic)
 
 concept SetDelay(MoniToAgent):
   slot delay: int

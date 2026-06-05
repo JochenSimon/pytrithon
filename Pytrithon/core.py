@@ -88,6 +88,7 @@ class Core:
     self.invocations = defaultdict(list)
     self.results = defaultdict(list)
     self.communications = defaultdict(list)
+    self.events = defaultdict(list)
     self.phase = 0
 
     init(wrap=False)
@@ -252,6 +253,8 @@ class Core:
       listeners.add(Listener(self.agent.name, "invocation", topic))
     for topic in In.sensors:
       listeners.add(Listener(self.agent.name, "communication", topic))
+    for topic in Event.sensors:
+      listeners.add(Listener(self.agent.name, "event", topic))
     self.nexus.send(RegisterListeners("", listeners))
 
   def taskpending(self, topic):
@@ -264,4 +267,8 @@ class Core:
 
   def inpending(self, topic):
     for sensor in In.sensors[topic]:
+      sensor.pending()
+
+  def eventpending(self, topic):
+    for sensor in Event.sensors[topic]:
       sensor.pending()

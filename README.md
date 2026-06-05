@@ -34,6 +34,7 @@ The command line arguments for the `nexus` script include all arguments for the 
 - `name`: Configure the name of the Nexus
 - `PORT`: Set the port the Nexus listens to
 - `nexus`: Instruct the Nexus to connect to another Nexus to create a linked system of Nexi, which allow cross system interactions between Agents, by supplying an address, and optionally a colon separated port
+-  ISOLATE : disable pushing Agents and files to this Nexus
 - `args`: Specify the Agent arguments for each started Agent. This argument should be the very last and be followed with the spaces-separated Agent arguments
 
 The defaults for all these arguments and those of the `agent` and `moni` script can be configured in the `config.yaml` configuration file. Each argument default that is configured here affects the direction of effect of explicit arguments. The actual arguments toggle between both states, either reenabling a disabled argument, or disabling an enabled argument.
@@ -309,6 +310,9 @@ Unlike with Nethods, the Token by the Alias `task` is used to carry over the inv
 This Transition is the inter-agent equivalent of the `return` Transition. It triggers the sending of a Tasks return Tokens, as specified through its Source Aliases, to the calling Agent and finalizes the Task.
 #### fail
 This Transition is the inter-agent equivalent of the `raise` Transition. It works just like the `result` Transition but visualizes that here an exceptional execution is meant.
+#### event
+This Transition captures Events from the Nexi. Current Events are:
+- agentsdied : This Event is triggered when Agents leave the network and supplies a set of Agent identifiers through the 'aids' binding.
 #### spawn
 This Transition spawns a new Agent at the current Nexus.
 #### terminate
