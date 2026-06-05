@@ -180,7 +180,10 @@ frag (6,3):
   lobbee
   min_players: 2
   domain: poker
-  gives: name:37; server:76
+  gives: name:37; server:76; closed:0
 comment (-1.2,3.4):
   This Agent encapsulates a single Poker player. It requires a "pokerserver" Agent
   to run. Each player can sign up for a game in the Lobby.
+flow 0 (8,3);
+terminate (10,3): 
+  takes: 0

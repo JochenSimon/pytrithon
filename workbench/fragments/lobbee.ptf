@@ -39,6 +39,4 @@ python (6,6): joined = ()
 phantom 85 (6,7);
 phantom 86 (7,6);
 phantom 0 (7,7);
-flow 1 (1,2);
-terminate (0,2): 
-  takes: 1
+phantom 1 (1,2);

@@ -2,7 +2,7 @@ frag (0,0):
   lobbee
   min_players: 1
   domain: yahtzee
-  gives: :server; :name
+  gives: :server; :name; closed:11
 var server (0,-2);
 var name (0,2);
 gadget (0,4): Yahtzee()
@@ -67,3 +67,6 @@ terminate (0,8):
 in (-6,6): yahtzee.left
   gives: 10
 flow 10 (-8,6);
+flow 11 (2,0);
+terminate (4,0): 
+  takes: 11
