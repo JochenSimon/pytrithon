@@ -168,12 +168,6 @@ class PushFile(MoniToNexi):
 class TriggerTerminate(MoniToAgentProtected):
   def execute(self, core):
     exit()
-class TerminateAgent(NexusToAgent):
-  def execute(self, core):
-    exit()
-class TerminateMoni(NexusToMoni):
-  def execute(self, moni):
-    exit()
 class TerminatedAgent(AgentToNexi):
   _slots = [("agent", str)]
   def execute(self, nexus):
@@ -183,13 +177,6 @@ class TerminatedMoni(AgentToNexi):
   _slots = [("moni", str)]
   def execute(self, nexus):
     del nexus.monis[self.moni]
-class TerminatedTotal(AgentToNexi):
-  def execute(self, nexus):
-    for agent in nexus.agents:
-      nexus.agents[agent].send(TerminateAgent(agent))
-    for moni in nexus.monis:
-      nexus.monis[moni].send(TerminateMoni(moni))
-    exit()
 class TerminatedProcess(Relayed):
   def relay(self, nexus):
     pass
