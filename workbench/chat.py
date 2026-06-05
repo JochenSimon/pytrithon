@@ -71,7 +71,7 @@ class JoinDialog(Gadget, QDialog):
       case Qt.Key_Escape:
         self.close()
       case _:
-        super().keyPressEvent(event)
+        QDialog.keyPressEvent(self, event)
 
   def closeEvent(self, event):
     self.socket.put("closed", ())
