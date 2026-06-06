@@ -15,6 +15,7 @@ try:
 except FileNotFoundError:
   config = None
 
+transfer = config and "transfer" in config and config["transfer"]
 isolate = config and "isolate" in config and config["isolate"]
 edit = config and "edit" in config and config["edit"]
 halt = config and "halt" in config and config["halt"]
@@ -36,6 +37,7 @@ parser.add_argument("-l", "--list", action="store_true", help="list all availabl
 parser.add_argument("-n", "--name", help="name for nexus")
 parser.add_argument("-P", "--PORT", type=int, help="port to run on")
 parser.add_argument("-x", "--nexus", help="master nexus to connect to")
+parser.add_argument("-t", "--transfer", action="store_true", help="do not allow pushing to this nexus" if isolate else "allow pushing to this nexus")
 parser.add_argument("-I", "--ISOLATE", action="store_true", help="do not isolate nexus from interactions" if isolate else "isolate nexus from interactions")
 parser.add_argument("-D", "--DOMAIN", help="open all started agents in domain")
 parser.add_argument("-d", "--delay", type=int, help="set core delay in milliseconds")
@@ -78,6 +80,7 @@ elif ":" in args.nexus:
 else:
   master = args.nexus, config["port"] if config and "port" in config else 9001
 
+transfer = not args.transfer if transfer else args.transfer
 isolate = not args.ISOLATE if isolate else args.ISOLATE
 moni = not args.moni if moni else args.moni
 
@@ -110,6 +113,6 @@ def after():
       sleep(0.4)  
       subprocess.Popen(["python", "agent"] + (["-P", str(args.PORT)] if args.PORT is not None else []) + (["-d", str(args.delay)] if args.delay is not None else []) + (["-p", str(args.poll)] if args.poll is not None else []) + (["-e"] if args.edit else []) + (["-H"] if args.HALT else []) + (["-s"] if args.secret else []) + (["-M"] if args.MUTE else []) + (["-E"] if args.ERRORS else []) + [agent] + [a for a in arg.split(" ") if a])
 
-nexus = Nexus(args.name, "localhost", port, master, isolate, config, after)
+nexus = Nexus(args.name, "localhost", port, master, transfer, isolate, config, after)
 
 nexus.run()

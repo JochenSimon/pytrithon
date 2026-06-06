@@ -34,7 +34,8 @@ The command line arguments for the `nexus` script include all arguments for the 
 - `name`: Configure the name of the Nexus
 - `PORT`: Set the port the Nexus listens to
 - `nexus`: Instruct the Nexus to connect to another Nexus to create a linked system of Nexi, which allow cross system interactions between Agents, by supplying an address, and optionally a colon separated port
--  ISOLATE : Isolate the Nexus from manipulations, interactions, and pushing
+-  transfer : Allow pushing to this Nexus
+-  ISOLATE : Isolate the Nexus from manipulations and interactions
 - `args`: Specify the Agent arguments for each started Agent. This argument should be the very last and be followed with the spaces-separated Agent arguments
 
 The defaults for all these arguments and those of the `agent` and `moni` script can be configured in the `config.yaml` configuration file. Each argument default that is configured here affects the direction of effect of explicit arguments. The actual arguments toggle between both states, either reenabling a disabled argument, or disabling an enabled argument.

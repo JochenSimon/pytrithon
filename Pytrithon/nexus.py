@@ -16,7 +16,8 @@ class After(Thread):
     self.after()
 
 class Nexus:
-  def __init__(self, name, host, port, master, isolate, config, after):
+  def __init__(self, name, host, port, master, transfer, isolate, config, after):
+    self.transfer = transfer
     self.isolate = isolate
     self.config = config
     self.name = "#" if name is None else name
@@ -137,15 +138,15 @@ class Nexus:
       errors = errors if self.config and "errors" in self.config and self.config["errors"] or not self.config or "errors" not in self.config else not errors
       subprocess.Popen(["python", "agent", "-P", str(self.server.port)] + (["-d", str(delay)] if delay is not None else []) + (["-p", str(poll)] if poll is not None else []) + (["-e"] if edit else []) + (["-H"] if halt else []) + (["-s"] if secret else []) + (["-M"] if mute else []) + (["-E"] if not errors else []) + [agent] + args)
 
-    def push_agent(self, agent, structure):  
-      if not self.isolate:
-        filename = "workbench/fragments/"+agent[1:].replace(".", "/")+".ptf" if agent.startswith("$") else "workbench/agents/"+agent.replace(".", "/")+".pta"
-        os.makedirs("/".join(filename.split("/")[:-1]), exist_ok=True)
-        with open(filename, "w", encoding="utf-8") as f:
-          f.write(structure)
+  def push_agent(self, agent, structure):  
+    if self.transfer:
+      filename = "workbench/fragments/"+agent[1:].replace(".", "/")+".ptf" if agent.startswith("$") else "workbench/agents/"+agent.replace(".", "/")+".pta"
+      os.makedirs("/".join(filename.split("/")[:-1]), exist_ok=True)
+      with open(filename, "w", encoding="utf-8") as f:
+        f.write(structure)
 
   def push_file(self, file, data):  
-    if not self.isolate:
+    if self.transfer:
       if os.path.abspath("workbench/"+file).replace("\\", "/").startswith(os.path.abspath("workbench").replace("\\", "/")):
         os.makedirs(os.path.dirname("workbench/"+file), exist_ok=True)
         if not data.strip():
