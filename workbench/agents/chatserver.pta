@@ -96,11 +96,11 @@ python (4,8):
   if any(aid in names for aid in aids):
     line = "\n".join(names[aid] + " left the chat" for aid in aids if aid in names)
     append(line + "\n")
-  for aid,n in tuple(names.items()):
-    if aid in aids:
-      del names[aid]
-      connected.remove(aid)
-  items = [f"{c[1]} ({c[0].split("@")[1]})" for c in names.items()]
+    for aid,n in tuple(names.items()):
+      if aid in aids:
+        del names[aid]
+        connected.remove(aid)
+    items = [f"{c[1]} ({c[0].split("@")[1]})" for c in names.items()]
   takes: aids:0
   gives: items:1; line:14
 var 1 (6,8);
