@@ -79,7 +79,7 @@ terminate =2 (12,0): local
   takes: 11
 flow 13 (5,1);
 flow 14 (7,1): ()
-queue 16 (8,-4);
+var 16 (8,-4);
 python (6,-4):
   writes: :draw_stack
   draw_stack.update(sprites)
@@ -90,7 +90,7 @@ python (6,-4):
 in (10,-4): draw
   gives: sprites:16
 var draw_stack (2,0): {}
-ontology (0,-4): 
+ontology (0,-4);
 var shapes (0,0);
 var sprites (1,0): {}
 python =1 (6,-3):

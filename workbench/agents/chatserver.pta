@@ -86,7 +86,7 @@ comment (-3.6,0.6):
   after this Agent.
 event (0,8): agentsdied
   gives: aids:0
-queue 0 (2,8);
+var 0 (2,8);
 out (8,8):
   reads: aids:19
   list
