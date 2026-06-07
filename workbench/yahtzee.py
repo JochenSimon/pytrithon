@@ -185,5 +185,6 @@ class Yahtzee(Gadget, QWidget):
     ret = QMessageBox.warning(self, "New Game", "This aborts the current game. Are you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
     match ret:
       case QMessageBox.Yes:
+        self.winner.setText("")
         self.socket.put("newgame", ())
         
