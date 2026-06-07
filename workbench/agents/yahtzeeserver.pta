@@ -7,7 +7,8 @@ python (4,0):
   aids = [aid for _,aid in players]
   players = [Player.new(aid, name) for name,aid in players]
   takes: players:0
-  gives: :players; players:3; 4; :aids
+  gives: :players; players:3; 4
+  writes: :aids
 var players (6,0);
 flow round (4,4);
 module (0,-2):
@@ -82,7 +83,7 @@ out (16,6):
   reads: :aids
   yahtzee.winner
   takes: winner:2
-var aids (2,-2);
+var aids (2,-2): []
 frag (12,0):
   reads: :aids
   chatserver
