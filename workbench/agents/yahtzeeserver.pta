@@ -74,15 +74,15 @@ python (12,6):
   else:
     players[turn].turn = False
     totals = [total(p) for p in players]
-    winner = players[totals.index(max(totals))].name
+    marquee = players[totals.index(max(totals))].name + " wins!"
     update = ()
   takes: choice:1
-  gives: winner:2
+  gives: marquee:2
 var 2 (14,6);
 out (16,6):
   reads: :aids
-  yahtzee.winner
-  takes: winner:2
+  yahtzee.marquee
+  takes: marquee:2
 var aids (2,-2): []
 frag (12,0):
   reads: :aids
@@ -111,11 +111,5 @@ python (4,8):
   takes: dead:8
   gives: terminate:9
 flow 9 (6,8);
-out (8,8):
-  reads: :aids
-  yahtzee.terminate
+terminate (8,8): 
   takes: 9
-  gives: 10
-flow 10 (10,8);
-terminate (12,8): 
-  takes: 10

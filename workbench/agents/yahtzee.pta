@@ -7,7 +7,7 @@ var server (0,-2);
 var name (0,2);
 gadget (0,4): Yahtzee()
   reads: :name
-  takes: prime:1; update:3; winner:7
+  takes: prime:1; update:3; marquee:7
   gives: checked:4; reroll:5; choice:6; newgame:0
 module (0,-4): from yahtzee import *
 var 1 (-2,4);
@@ -32,8 +32,8 @@ out (4,6):
   yahtzee.choose
   takes: choice:6
 var 7 (-2,6);
-in (-4,6): yahtzee.winner
-  gives: winner:7
+in (-4,6): yahtzee.marquee
+  gives: marquee:7
 timer (-4,4): 0.5s
   takes: players:2
   gives: players:1
@@ -55,8 +55,12 @@ comment (-7.5,-0.3):
 flow 11 (2,0);
 terminate (4,0): 
   takes: 11
-in (-8,8): yahtzee.terminate
-  gives: 8
-flow 8 (-6,8);
-terminate (-4,8): 
-  takes: 8
+event (-8,8): agentsdied
+  gives: aids:8
+var 8 (-6,8);
+python (-4,8):
+  reads: :server
+  if server in aids:
+    marquee = "Connection lost."
+  takes: aids:8
+  gives: marquee:7

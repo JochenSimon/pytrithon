@@ -130,9 +130,9 @@ class Yahtzee(Gadget, QWidget):
         self.reroll.setEnabled(False)
         self.reroll.clicked.connect(lambda c: self.rerolled(c))
         self.layout.addWidget(self.reroll, 3, j)
-        self.winner = QLabel("")
-        self.winner.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(self.winner, 4, 0, 1, len(players))
+        self.marquee = QLabel("")
+        self.marquee.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.marquee, 4, 0, 1, len(players))
       self.widgets.append([])
       for i,c in enumerate(categories):
         if i in {6, 14} or self.name != p.name:
@@ -172,8 +172,8 @@ class Yahtzee(Gadget, QWidget):
                   widget.setEnabled(False)
           widgets[6].setText("Bonus: 35" if sum(player.scores[:6]) >= 63 else "Bonus: 0")      
           widgets[14].setText(f"Total: {str(total(player))}")      
-      case "winner":
-        self.winner.setText(f"{token} wins!")
+      case "marquee":
+        self.marquee.setText(f"{token}")
 
   def clicked_(self, index, checked):
     self.socket.put("choice", categories[index])
@@ -185,6 +185,6 @@ class Yahtzee(Gadget, QWidget):
     ret = QMessageBox.warning(self, "New Game", "This aborts the current game. Are you sure?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
     match ret:
       case QMessageBox.Yes:
-        self.winner.setText("")
+        self.marquee.setText("")
         self.socket.put("newgame", ())
         
