@@ -173,7 +173,7 @@ class Yahtzee(Gadget, QWidget):
           widgets[6].setText("Bonus: 35" if sum(player.scores[:6]) >= 63 else "Bonus: 0")      
           widgets[14].setText(f"Total: {str(total(player))}")      
       case "marquee":
-        self.marquee.setText(f"{token}")
+        self.marquee.setText(token)
         if token == "Connection lost.":
           self.window.force_close = True
 
