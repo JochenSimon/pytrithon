@@ -174,6 +174,8 @@ class Yahtzee(Gadget, QWidget):
           widgets[14].setText(f"Total: {str(total(player))}")      
       case "marquee":
         self.marquee.setText(f"{token}")
+        if token == "Connection lost.":
+          self.window.force_close = True
 
   def clicked_(self, index, checked):
     self.socket.put("choice", categories[index])
