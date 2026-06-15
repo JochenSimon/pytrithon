@@ -5,8 +5,8 @@ task (1,0): discover
 pool 3 (2,0);
 gadget (6,0): JoinDialog(window)
   takes: servers:11; reappear:37
-  gives: name:5; server:12; password:23; closed:0
-var 5 (8,-1);
+  gives: :name; :server; password:23; closed:0
+var name (8,-1);
 module (0,-4):
   from PyQt5.QtCore import QSize
   from chat import JoinDialog, room
@@ -22,41 +22,40 @@ python (3,-1):
   takes: *servers:3; 9
   gives: servers:11
 var 11 (4,0);
-var 12 (8,1);
+var server (8,1);
 task (10,0): join
-  reads: aid:12; name:5
+  reads: aid:server; :name
   takes: password:23
   gives: history:14; wrong:35
 var 14 (11,0);
-gadget (15,0): TextEdit()
-  takes: append:17; append:22
-python (12,0):
+gadget (17,0): TextEdit()
+  takes: append:17
+python (13,0):
   reads: :window
   enable = True
   window.setWindowTitle(f"{name} in chatroom '{room(server)}'")
-  reads: name:5; server:12
+  reads: :name; :server
   takes: history:14
   gives: history:17; enable:18
-var 17 (13,0);
-var 18 (12,2);
-gadget (14,2): LineEdit(clear=True, history=True, enabled=False, focus=True)
+var 17 (15,0);
+var 18 (13,2);
+gadget (15,2): LineEdit(clear=True, history=True, enabled=False, focus=True)
   takes: enable:18
   gives: return:20
-var 20 (15,2);
-var 22 (17,0);
+var 20 (16,2);
 var 23 (8,0);
 timer (-1,0): 1s
   takes: 25
   gives: 1
 flow 25 (-2,0): ()
-out (17,2): say
-  reads: aid:12
+out (18,2): say
+  reads: aid:server
   takes: message:20
-in (18,0): hear
-  gives: line:22
+in (13,-2): hear
+  gives: line:17
 flow 35 (10,-2);
 python (10,-3): 
-  clears: 5; 12
+  clears: name; server
   takes: 35
   gives: 37
 flow 37 (8,-3);
@@ -74,3 +73,12 @@ in (12,4): list
 var 2 (14,4);
 gadget (16,4): ListWidget(row=0, rows=2, col=1)
   takes: items:2
+event (11,-3): agentsdied
+  gives: aids:4
+var 4 (13,-3);
+python (15,-3):
+  reads: :server
+  if server in aids:
+    line = "You have been disconnected"
+  takes: aids:4
+  gives: line:17
