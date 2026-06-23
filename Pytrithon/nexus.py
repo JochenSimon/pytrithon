@@ -30,6 +30,7 @@ class Nexus:
     self.agentnumbers = defaultdict(int)
     self.deadagents = set()
     self.nextmoni = 0
+    self.lostmonis = set()
     self.deadmonis = set()
     self.agentschanged = False
     self.running = True

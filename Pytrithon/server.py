@@ -165,6 +165,7 @@ class Handler(Thread):
         except (EOFError, ConnectionResetError, ConnectionAbortedError):
           nexus = self.server.nexus
           del nexus.monis[self.moniid]
+          nexus.deadmonis.add(self.moniid)
           for nex in nexus.nexi:
             nexus.nexi[nex].send(TerminatedMoni(nex, self.moniid))
           return
@@ -182,6 +183,7 @@ class Handler(Thread):
           monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
           for moni in monis:
             del nexus.monis[moni]
+          nexus.deadmonis.update(monis)
           for nex in kept:
             if nex != nexus.name:
               nexus.nexi[nex].send(TerminationCleanup(nex, nexus.nametree.tree, pruned, agents, monis))

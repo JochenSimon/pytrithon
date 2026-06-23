@@ -100,6 +100,7 @@ class NexusMediator(Thread):
         monis = {m for m in nexus.monis if any(m.endswith("@"+p) for p in pruned)}
         for moni in monis:
           nexus.monis[moni].send = lambda o: None
+        nexus.deadmonis.update(monis)
         for nex in kept:
           if nex != nexus.name:
             nexus.nexi[nex].send(TerminationCleanup(nex, nexus.nametree.tree, pruned, agents, monis))
