@@ -79,8 +79,6 @@ class AgentToMoni(Relayed):
       elif moniid not in nexus.lostmonis:
         nexus.lostmonis.add(moniid)
         nexus.agents[self.agent].send(MoniLost(self.agent, moniid))
-        for nex in nexus.nexi:
-          nexus.nexi[nex].send(LostMoni(nex, moniid))
 class AgentToMonis(Relayed):
   _slots = [("agent", str), ("monis", {str})]
   def relay(self, nexus):
@@ -205,10 +203,6 @@ class TerminatedLocal(Relayed):
 class MoniLost(MoniToAgent):
   def execute(self, core):
     core.watchers.remove(self.moniid)
-class LostMoni(NexusToNexus):
-  _slots = [("moni", str)]
-  def execute(self, nexus):
-    nexus.lostmonis.add(self.moni)
 class GiveAgentList(NexusToMoni):
   _slots = [("agents", [str])]
   def execute(self, moni):

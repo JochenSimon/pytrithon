@@ -74,8 +74,6 @@ concept AgentToMoni(Relayed):
       elif moniid not in nexus.lostmonis:
         nexus.lostmonis.add(moniid)
         nexus.agents[self.agent].send(MoniLost(self.agent, moniid))
-        for nex in nexus.nexi:
-          nexus.nexi[nex].send(LostMoni(nex, moniid))
 concept AgentToMonis(Relayed):
   slot agent: str
   slot monis: {str}
@@ -239,10 +237,6 @@ concept TerminatedLocal(Relayed):
 concept MoniLost(MoniToAgent):
   def execute(self, core):
     core.watchers.remove(self.moniid)
-concept LostMoni(NexusToNexus):
-  slot moni: str
-  def execute(self, nexus):
-    nexus.lostmonis.add(self.moni)
 
 concept GiveAgentList(NexusToMoni):
   slot agents: [str]
