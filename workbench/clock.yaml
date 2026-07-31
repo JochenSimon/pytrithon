@@ -1,5 +1,5 @@
 top: true
-border: false
+border: true
 position: 580,500
 size: 240
 sizes: 160,240,320,480,640,800,1024
