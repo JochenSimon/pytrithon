@@ -8,13 +8,12 @@ python (2,0):
     size = size+2, size+2
   else:
     size = size+2, size//4+2
-  move_window(window, config)
   if config["top"]:
     window.setWindowFlag(Qt.WindowStaysOnTopHint)
-    window.show()
   if not config["border"]:
     window.setWindowFlag(Qt.FramelessWindowHint)
-    window.show()
+  window.show()
+  window.move(*pos_from_str(config["position"]))
   reads: :window
   takes: 0
   gives: canvas:2; :config; size:7
@@ -33,7 +32,7 @@ python (6,2):
     if pos_to_str(pos) != config["position"]:
       config["position"] = pos_to_str(pos)
       write_config(config)
-    next = datetime.now() + timedelta(seconds=10)
+    next = datetime.now() + timedelta(seconds=1)
   reads: :config; pos:4
   takes: 5
   gives: image:3; 1
@@ -46,6 +45,7 @@ module (0,-2):
   from datetime import datetime, timedelta
   from clock import *
   
+  window.moveable = True
   window.quit_on_close = "unseen"
   window.setWindowTitle("Clock")
   window.layout.setSpacing(0)

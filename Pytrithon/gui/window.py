@@ -11,6 +11,7 @@ class Window(QDialog):
     super().__init__()
     self.core = core
     self.embed = False
+    self.moveable = False
     self.quit_on_close = False
     self.confirm_quit = None
     self.force_close = False
@@ -49,6 +50,18 @@ class Window(QDialog):
   def moveEvent(self, event):
     if hasattr(self, "socket") and self.socket.outputs("pos"):
       self.socket.put("pos", (event.pos().x(), event.pos().y()))
+
+  def mousePressEvent(self, event):
+    if self.moveable:
+      self.startPos = event.pos()
+    super().mousePressEvent(event)
+
+  def mouseMoveEvent(self, event):
+    if self.moveable and event.buttons() == Qt.LeftButton:
+      delta = event.pos() - self.startPos
+      self.move(self.pos() + delta)
+      event.accept()
+    super().mouseMoveEvent(event)
   
   def keyPressEvent(self, event):
     if event.key() == Qt.Key_Escape:

@@ -167,15 +167,6 @@ def pos_to_str(pos):
 def pos_from_str(pos):
   return tuple(int(c.strip()) for c in pos.split(","))
 
-def move_window(window, config):
-  x, y = pos_from_str(config["position"])
-  frame_geometry = window.frameGeometry()
-  client_geometry = window.geometry()
-  if config["border"]:
-    window.move(x - frame_geometry.width() + client_geometry.width() + 1, y - frame_geometry.height() + client_geometry.height() + 1)
-  else:
-    window.move(x + 7, y)
-
 def handle_input(key, mod, config, window):
   match key:
     case Qt.Key_T:
