@@ -49,7 +49,7 @@ class Window(QDialog):
   
   def moveEvent(self, event):
     if hasattr(self, "socket") and self.socket.outputs("pos"):
-      self.socket.put("pos", (event.pos().x(), event.pos().y()))
+      self.socket.put("pos", (self.frameGeometry().left(), self.frameGeometry().top()))
 
   def mousePressEvent(self, event):
     if self.moveable:
