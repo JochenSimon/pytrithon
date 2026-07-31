@@ -1,0 +1,80 @@
+flow 0 (0,0): ()
+python (2,0):
+  with open("clock.yaml") as y:
+    config = yaml.safe_load(y)
+  size = config["size"]
+  canvas = np.zeros((size+2, size+2), dtype=np.uint16)
+  if config["analog"]:
+    size = size+2, size+2
+  else:
+    size = size+2, size//4+2
+  move_window(window, config)
+  if config["top"]:
+    window.setWindowFlag(Qt.WindowStaysOnTopHint)
+    window.show()
+  if not config["border"]:
+    window.setWindowFlag(Qt.FramelessWindowHint)
+    window.show()
+  reads: :window
+  takes: 0
+  gives: canvas:2; :config; size:7
+var 2 (4,2);
+gadget (10,0): Image(640,640)
+  takes: image:3; size:7
+python (6,2):
+  draw_clock(canvas, config)
+  canvas = blur(canvas, config)
+  size = config["size"]
+  if config["analog"]:
+    image = colors[config["color"]][canvas[1:-1,1:-1]]
+  else:
+    image = colors[config["color"]][canvas[1+round(size*3/8):-(1+round(size*3/8)),1:-1]]
+  if next < datetime.now():
+    if pos_to_str(pos) != config["position"]:
+      config["position"] = pos_to_str(pos)
+      write_config(config)
+    next = datetime.now() + timedelta(seconds=10)
+  reads: :config; pos:4
+  takes: 5
+  gives: image:3; 1
+  writes: canvas:2; next:8
+var 3 (8,0);
+module (0,-2):
+  from PyQt5.QtCore import Qt
+  import yaml
+  import numpy as np
+  from datetime import datetime, timedelta
+  from clock import *
+  
+  window.quit_on_close = "unseen"
+  window.setWindowTitle("Clock")
+  window.layout.setSpacing(0)
+  window.layout.setContentsMargins(0, 0, 0, 0)
+flow 1 (5,-1): ()
+flow 5 (7,-1);
+timer (6,-2): 60hz
+  takes: 1
+  gives: 5
+gadget (0,5): window
+  gives: key, mod:6
+  writes: pos:4
+queue 6 (2,5);
+var config (4,0);
+var 7 (6,-3);
+python (4,5):
+  gives: size:7
+  writes: canvas:2; :config
+  size = handle_input(key, mod, config, window)
+  if size is None:
+    del size
+  else:
+    canvas = np.zeros((size+2, size+2), dtype=np.uint16)
+    if config["analog"]:
+      size = size+2, size+2
+    else:
+      size = size+2, size//4+2
+  reads: :window
+  takes: key, mod:6
+know window (2,3);
+var 4 (0,3);
+var 8 (6,4): datetime.now()

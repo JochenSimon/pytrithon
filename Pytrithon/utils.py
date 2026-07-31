@@ -32,6 +32,8 @@ def format_error(element, code, check, exc_type, exc, exc_tb):
     error += "\n".join(format_exception_only(exc_type, exc))
   return error
 
+def coalesce(alias):
+  return ",".join(a.strip() for a in alias.split(","))
 
 def sanitize(inscr):
   return "\n".join(line for line in inscr.split("\n") if not re.match(linker, line))

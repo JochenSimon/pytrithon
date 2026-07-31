@@ -4,7 +4,7 @@ from .link import Link
 from .transition import Transition
 from ..pytriontology import *
 from ..gui import allgadgets, Gadget
-from ..utils import format_error, sanitize
+from ..utils import format_error, sanitize, coalesce
 
 class Socket(Transition):
   type = "gadget"
@@ -70,10 +70,10 @@ class Socket(Transition):
         self.parent.core.doze(self)
 
   def outputs(self, alias):
-    return alias in {link.alias for link in self.gives + self.writes}
+    return coalesce(alias) in {coalesce(link.alias) for link in self.gives + self.writes}
 
   def put(self, alias, token):
-    links = [link for link in self.gives + self.writes if link.alias == alias]
+    links = [link for link in self.gives + self.writes if coalesce(link.alias) == coalesce(alias)]
     if links:
       link, = links
       place = self.parent[link.place]

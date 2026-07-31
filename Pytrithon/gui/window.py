@@ -46,14 +46,28 @@ class Window(QDialog):
       self.force_close = True
       self.close()
   
+  def moveEvent(self, event):
+    if hasattr(self, "socket") and self.socket.outputs("pos"):
+      self.socket.put("pos", (event.pos().x(), event.pos().y()))
+  
   def keyPressEvent(self, event):
     if event.key() == Qt.Key_Escape:
       self.close()
     elif event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+      if hasattr(self, "socket"):
+        if self.socket.outputs("key"):
+          self.socket.put("key", event.key())
+        if self.socket.outputs("key, mod"):
+          self.socket.put("key, mod", (event.key(), event.modifiers()))
       for widget in self.widgets:
         if hasattr(widget, "focus") and widget.focus() or hasattr(widget, "isdefault") and widget.isdefault:
           widget.keyPressEvent(event)
     else:
+      if hasattr(self, "socket"):
+        if self.socket.outputs("key"):
+          self.socket.put("key", event.key())
+        if self.socket.outputs("key, mod"):
+          self.socket.put("key, mod", (event.key(), event.modifiers()))
       QDialog.keyPressEvent(self, event)
 
   def closeEvent(self, event):
