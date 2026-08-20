@@ -1,6 +1,6 @@
 top: true
 border: false
-position: 611,582
+position: 500,500
 size: 240
 sizes: 160,240,320,480,640,800,1024
 color: 0
@@ -51,7 +51,7 @@ digital:
   seconds: true
   width: 1
 fade: 1
-wrap: true
+wrap: false
 kernel: 3
 kernels:
 - 0,0,0,0,1,0,0,0,0
