@@ -2,7 +2,7 @@ class Tree:
   def __init__(self, tree=None):
     if tree is None:
       self.tree = []
-    else:  
+    else:
       self.tree = tree
 
   def __repr__(self):
@@ -45,7 +45,7 @@ class Tree:
     if cursor:
       if node in {child for child,_ in cursor[1]}:
         yield cursor[0]
-      else:  
+      else:
         for child in cursor[1]:
           yield from self._parent(node, child)
     else:
@@ -56,7 +56,7 @@ class Tree:
 
   def add(self, node, parent=None):
     if node is None:
-      raise ValueError("Node can not be None".format(node))
+      raise ValueError("Node can not be None")
     if node in self.nodes:
       raise ValueError("Node '{}' already exists".format(node))
     if parent is None:

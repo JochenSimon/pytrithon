@@ -33,11 +33,9 @@ class Concept:
           continue
         if "_slots" in klass.__dict__:
           for slot in klass._slots:
-            assert slot[0] not in {sl[0] for sl in self.__class__._allslots}, \
-                "concept {} inherited duplicate slot".format(self.__class__.__name__)
+            assert slot[0] not in {sl[0] for sl in self.__class__._allslots}, "concept {} inherited duplicate slot".format(self.__class__.__name__)
             self.__class__._allslots.append(slot)
-    assert len(args) <= len(self.__class__._allslots), \
-        "too many arguments for concept {}".format(self.__class__.__name__)
+    assert len(args) <= len(self.__class__._allslots), "too many arguments for concept {}".format(self.__class__.__name__)
     args += tuple(None for _ in range(len(self.__class__._allslots) - len(args)))
     for i,arg in enumerate(args):
       if isinstance(self._allslots[i][1], list):
@@ -90,28 +88,24 @@ class Concept:
           "slot {} of {} not of type {}".format(name, self.__class__.__name__, slotdict[name])
       if one(slotdict[name]) == float:
         value = [float(v) if isinstance(v, int) else v for v in value]
-      assert all(isinstance(v, one(slotdict[name])) for v in value), \
-          "slot {} of {} anot of type {}".format(name, self.__class__.__name__, slotdict[name])
+      assert all(isinstance(v, one(slotdict[name])) for v in value), "slot {} of {} anot of type {}".format(name, self.__class__.__name__, slotdict[name])
     elif isinstance(slotdict[name], set):
-      assert isinstance(value, set), \
-          "slot {} of {} not of type {}".format(name, self.__class__.__name__, slotdict[name])
+      assert isinstance(value, set), "slot {} of {} not of type {}".format(name, self.__class__.__name__, slotdict[name])
       if one(slotdict[name]) == float:
         value = {float(v) if isinstance(v, int) else v for v in value}
-      assert all(isinstance(v, one(slotdict[name])) for v in value), \
-          "slot {} of {} not of type {}".format(name, self.__class__.__name__, slotdict[name])
+      assert all(isinstance(v, one(slotdict[name])) for v in value), "slot {} of {} not of type {}".format(name, self.__class__.__name__, slotdict[name])
     else:
       if slotdict[name] == float and isinstance(value, int):
         value = float(value)
-      assert isinstance(value, slotdict[name]) or value is None, \
-          "slot {} of {} not of type {}".format(name, self.__class__.__name__, slotdict[name])
+      assert isinstance(value, slotdict[name]) or value is None, "slot {} of {} not of type {}".format(name, self.__class__.__name__, slotdict[name])
     self.__dict__[name] = value
-  @classproperty  
+  @classproperty
   def __match_args__(cls):
     return tuple(name for name,type in cls._allslots)
   def __getstate__(self):
     if "_slots" in self.__class__.__dict__:
       return self.__dict__, self.__class__._slots, self.__class__._allslots
-    else:  
+    else:
       return self.__dict__, [], self.__class__._allslots
   def __setstate__(self, state):
     dict, slots, allslots = state
@@ -132,8 +126,8 @@ def ontologize(suite):
       ontology += "\n"
     ontology += "class {}{}:".format(node.name, node.args or "(Concept)") + (("\n  _slots = {}".format('[("' + '), ("'.join( slot[0] + '", ' + slot[1] for slot in node.slots) + ')]')) if node.slots else "")
     ontology += ("\n  " if node.suite else "") + "\n  ".join(node.suite.split("\n"))
-  ontology += "\n"  
-  return ontology  
+  ontology += "\n"
+  return ontology
 
 def contains_concept(obj):
   if isinstance(obj, Concept):

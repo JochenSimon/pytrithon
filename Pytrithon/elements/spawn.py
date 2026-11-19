@@ -11,6 +11,7 @@ class Spawn(Transition):
     dest = self.bindings["dest"] if "dest" in self.bindings else "(local)"
     args = self.bindings["args"] if "args" in self.bindings else ""
     delay = self.bindings["delay"] if "delay" in self.bindings else None
+    poll = self.bindings["poll"] if "poll" in self.bindings else None
     edit = self.bindings["edit"] if "edit" in self.bindings else False
     halt = self.bindings["halt"] if "halt" in self.bindings else False
     secret = self.bindings["secret"] if "secret" in self.bindings else False
@@ -29,4 +30,4 @@ class Spawn(Transition):
       if not isinstance(mode, bool):
         return print("Illegal {} in spawn '{}'".format(name, self.name), file=sys.stderr, hide=True)
 
-    self.parent.core.nexus.send(OpenAgent(dest, agent, args.split(" ") if args else [], delay, edit, halt, secret, mute, errors)) 
+    self.parent.core.nexus.send(OpenAgent(dest, agent, args.split(" ") if args else [], delay, poll, edit, halt, secret, mute, errors))

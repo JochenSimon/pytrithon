@@ -48,7 +48,7 @@ def today():
   return datetime(now.year, now.month, now.day)
 
 def lastrun():
-  with open("lastrun") as f:
+  with open("lastrun", encoding="utf-8") as f:
     return datetime.strptime(f.read(), "%Y-%m-%d\n")
 
 class CentralWidget(QWidget):
@@ -160,7 +160,7 @@ class Monipulator(QMainWindow):
     self.setWindowIcon(QIcon("moni.png"))
 
     if not os.path.isfile("lastrun") or today() > lastrun():
-      with open("lastrun", "w") as f:
+      with open("lastrun", "w", encoding="utf-8") as f:
         f.write(today().strftime("%Y-%m-%d\n"))
       self.do_about()
 
@@ -193,7 +193,7 @@ class Monipulator(QMainWindow):
   def show_push(self, agent, names):
     push_dialog = PushDialog(self, agent, names)
     push_dialog.show()
-  
+
   def show_pushfile(self, names):
     pushfile_dialog = PushFileDialog(self, names)
     pushfile_dialog.show()
@@ -203,13 +203,13 @@ class Monipulator(QMainWindow):
     agentname = self.central_widget.canvas.agent.split("#")[0]
     if "$" not in agentname:
       if "." in agentname:
-        os.makedirs("workbench/agents/" + "/".join(agentname.replace(".", "/").split("/")[:-1]), exist_ok=True) 
+        os.makedirs("workbench/agents/" + "/".join(agentname.replace(".", "/").split("/")[:-1]), exist_ok=True)
       with open("workbench/agents/" + agentname.replace(".", "/") + ".pta", "w", encoding="utf-8") as f:
         f.write(str(self.central_widget.canvas))
       print("Agent '{}' saved locally".format(agentname))
     else:
       if "." in agentname:
-        os.makedirs("workbench/fragments/" + "/".join(agentname[1:].replace(".", "/").split("/")[:-1]), exist_ok=True) 
+        os.makedirs("workbench/fragments/" + "/".join(agentname[1:].replace(".", "/").split("/")[:-1]), exist_ok=True)
       with open("workbench/fragments/" + agentname[1:].replace(".", "/") + ".ptf", "w", encoding="utf-8") as f:
         f.write(str(self.central_widget.canvas))
       print("Fragment '{}' saved locally".format(agentname[1:]))
@@ -293,6 +293,6 @@ class Monipulator(QMainWindow):
         communication.execute(self)
       else:
         break
-    if communication:    
+    if communication:
       return QTimer().singleShot(0, self.run)
     QTimer().singleShot(10, self.run)

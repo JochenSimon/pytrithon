@@ -47,7 +47,7 @@ class ErrorStream():
       if hide:
         self.core.nexus.send(Print(self.core.agent.name, set(), "<p class='error'>"+re.sub("\n", "<br/>", html.escape(message))+"</p>"))
         self.errstream.write(Fore.RED + message + Fore.RESET)
-      else:  
+      else:
         self.core.nexus.send(Print(self.core.agent.name, set(), "<p class='fatal'>"+re.sub("\n", "<br/>", html.escape(message))+"</p>"))
         self.errstream.write(Fore.MAGENTA + message + Fore.RESET)
       self.flush()
@@ -65,7 +65,7 @@ class Core:
     self.agent = agent
     self.delay = delay
     self.poll = poll
-    self.edit = edit  
+    self.edit = edit
     if halt:
       self.state = 0
       self.halted = True
@@ -110,7 +110,7 @@ class Core:
     if self.reinit:
       for sub_window in self.window.sub_windows:
         sub_window.close()
-      self.window.sub_windows = []  
+      self.window.sub_windows = []
       self.window.widgets = []
       for i in reversed(range(self.window.layout.count())):
         self.window.layout.itemAt(i).widget().setParent(None)
@@ -126,6 +126,7 @@ class Core:
       Invocation.invocations = {}
       Task.tasks = defaultdict(set)
       In.sensors = defaultdict(set)
+      Event.sensors = defaultdict(set)
 
     elements = self.agent.elements.values()
     for element in elements:
@@ -137,13 +138,13 @@ class Core:
       if element.type != "self":
         element.init()
 
-    self.register_listeners()  
+    self.register_listeners()
 
     if not self.edit:
       for element in elements:
         element.create()
       if self.hasgui:
-        self.window.show()  
+        self.window.show()
       for element in elements:
         element.prime()
 
@@ -173,8 +174,8 @@ class Core:
       self.firables.remove(trans)
 
   def start(self):
-    QTimer().singleShot(0, self.dispatch)  
-    QTimer().singleShot(0, self.run)  
+    QTimer().singleShot(0, self.dispatch)
+    QTimer().singleShot(0, self.run)
 
   def run(self):
     try:
@@ -192,7 +193,7 @@ class Core:
 
     if self.state == 2:
       return
-    QTimer().singleShot(self.poll, self.run)  
+    QTimer().singleShot(self.poll, self.run)
 
   def step(self):
     if self.phase == 0:
@@ -206,7 +207,7 @@ class Core:
         self.places_changed(self.tofire.collect())
         self.phase = 1
         break
-    elif self.phase == 1:  
+    elif self.phase == 1:
       self.tofire.fire()
       self.phase = 2
     elif self.phase == 2:
@@ -239,7 +240,7 @@ class Core:
       contents = {Content(p.name, p.tokens) for p in places if not p.parent.isfrag}
       if contents:
         self.nexus.send(PlacesChanged(self.agent.name, self.watchers, contents))
-  
+
   def state_changed(self, moniid):
     monis = {m for m in self.watchers if m != moniid}
     if monis:
