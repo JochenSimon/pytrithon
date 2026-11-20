@@ -796,9 +796,6 @@ class SocketFigure(RoundRectFigure):
   istrans = False
   isgadget = True
   size = 42,42
-  @property
-  def context(self):
-    return ([("edit name", self.edit_name)] if self.canvas.edit else []) + super().context
 
 class FragmentFigure(RoundRectFigure):
   type = "frag"
@@ -807,4 +804,4 @@ class FragmentFigure(RoundRectFigure):
   size = 42,42
   @property
   def context(self):
-    return ([("edit name", self.edit_name)] + super().context if self.canvas.edit else []) + [("edit fragment", lambda f=sanitize(self.inscr).split("\n")[0]: self.canvas.moni.open_fragment(f))]
+    return super().context + [("edit fragment", lambda f=sanitize(self.inscr).split("\n")[0]: self.canvas.moni.open_fragment(f))]
