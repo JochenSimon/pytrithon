@@ -67,7 +67,7 @@ secret = not args.secret if secret else args.secret
 mute = not args.MUTE if mute else args.MUTE
 errors = not args.ERRORS if errors else args.ERRORS
 
-name = args.agent  
+name = args.agent
 
 if re.sub(r"[\w.]", "", name) or name.startswith(".") or name.endswith(".") or ".." in name or not name:
   print("Illegal agent name: '"+name+"'")
@@ -77,9 +77,9 @@ try:
   with open("workbench/agents/" + name.replace(".", "/") + ".pta", encoding="utf-8") as f:
     agent = Agent(name, args.arguments, f.read())
 except FileNotFoundError:
-  agent = Agent(name, args.arguments, "")   
+  agent = Agent(name, args.arguments, "")
 
-os.chdir("workbench")          
+os.chdir("workbench")
 workbench = str(Path(".").absolute()).replace("\\", "/")
 sys.path.insert(0, workbench)
 

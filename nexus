@@ -15,6 +15,7 @@ try:
 except FileNotFoundError:
   config = None
 
+server = config and "server" in config and config["server"]
 transfer = config and "transfer" in config and config["transfer"]
 isolate = config and "isolate" in config and config["isolate"]
 edit = config and "edit" in config and config["edit"]
@@ -34,6 +35,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("agents", nargs="*", help="agents to start")
 parser.add_argument("-v", "--version", action="version", version="Pytrithon Nexus " + __version__, help="print the Pytrithon version and exit")
 parser.add_argument("-l", "--list", action="store_true", help="list all available agents")
+parser.add_argument("-S", "--server", action="store_true", help="run this nexus locally" if server else "run this nexus as a server")
 parser.add_argument("-n", "--name", help="name for nexus")
 parser.add_argument("-P", "--PORT", type=int, help="port to run on")
 parser.add_argument("-x", "--nexus", help="master nexus to connect to")
@@ -68,7 +70,7 @@ if args.list:
 
 if args.PORT is not None:
   port = args.PORT
-elif config and "port" in config:  
+elif config and "port" in config:
   port = config["port"]
 else:
   port = 9001
@@ -80,6 +82,7 @@ elif ":" in args.nexus:
 else:
   master = args.nexus, config["port"] if config and "port" in config else 9001
 
+server = not args.server if server else args.server
 transfer = not args.transfer if transfer else args.transfer
 isolate = not args.ISOLATE if isolate else args.ISOLATE
 moni = not args.moni if moni else args.moni
@@ -106,13 +109,13 @@ def after():
   agents = [agent for agent in args.agents if not agent.startswith("$")]
   if len(agents) == 1:
     arguments = [" ".join(args.args)] if args.args is not None else []
-  else:  
+  else:
     arguments = args.args if args.args is not None else []
   for agent,arg in zip_longest(agents, arguments, fillvalue=""):
     if agent:
-      sleep(0.4)  
+      sleep(0.4)
       subprocess.Popen(["python", "agent"] + (["-P", str(args.PORT)] if args.PORT is not None else []) + (["-d", str(args.delay)] if args.delay is not None else []) + (["-p", str(args.poll)] if args.poll is not None else []) + (["-e"] if args.edit else []) + (["-H"] if args.HALT else []) + (["-s"] if args.secret else []) + (["-M"] if args.MUTE else []) + (["-E"] if args.ERRORS else []) + [agent] + [a for a in arg.split(" ") if a])
 
-nexus = Nexus(args.name, "localhost", port, master, transfer, isolate, config, after)
+nexus = Nexus(args.name, "0.0.0.0" if server else "localhost", port, master, transfer, isolate, config, after)
 
 nexus.run()

@@ -19,7 +19,7 @@ class Inscription(QGraphicsTextItem):
     self.positor = positor
     self.setDefaultTextColor(color)
     Inscription.change(self, text)
-  def change(self, text):  
+  def change(self, text):
     self.setPlainText(text)
     self.setPos(*self.positor(self.boundingRect().width(), self.boundingRect().height()))
 
@@ -33,7 +33,7 @@ class NameInscription(Inscription):
   def change(self, text, new=False):
     if "#" in text:
       self.setPlainText("")
-    else:  
+    else:
       self.setPlainText(text)
     self.setPos(*self.positor(self.boundingRect().width(), self.boundingRect().height()))
     if new:
@@ -50,7 +50,7 @@ class NameInscription(Inscription):
         textcursor.select(QTextCursor.Document)
         self.setTextCursor(textcursor)
         self.setFocus()
-      else:  
+      else:
         if newtext == "":
           newtext = "#0"
         if not self.parent.canvas.frag:
@@ -68,7 +68,7 @@ class NameInscription(Inscription):
         newname = flood(self.parent.canvas.figures, self.parent.canvas.arcs, newtext)
         self.change(newname, True)
         self.setTextInteractionFlags(Qt.NoTextInteraction)
-    else:  
+    else:
       self.change(self.parent.name)
       self.setTextInteractionFlags(Qt.NoTextInteraction)
 
@@ -85,7 +85,7 @@ class InscrInscription(Inscription):
   def __init__(self, parent, text, positor, color, frag):
     super().__init__(parent, text, positor, color)
     self.frag = frag
-    
+
   def change(self, text):
     super().change(text)
     self.parent.inscr = text
@@ -100,7 +100,7 @@ class InscrInscription(Inscription):
           inscr = ["frag"]
         elif not re.sub(r"[^\w.]", "", inscr[0]):
           inscr[0] = "frag"
-        else:  
+        else:
           inscr[0] = re.sub(r"[^\w.]", "", inscr[0])
         while ".." in inscr[0]:
           inscr[0] = inscr[0].replace("..", ".")
@@ -121,10 +121,10 @@ class InscrInscription(Inscription):
           if place in self.parent.canvas.figures and self.parent.canvas.figures[place].isplace:
             if not hidden:
               self.parent.arcs.append(Arc(self.parent.canvas, self.parent, arcmap[kind], alias, place, self.parent.name))
-            else:  
+            else:
               self.parent.arcs.append(HiddenArc(self.parent.canvas, self.parent, arcmap[kind], alias, place, self.parent.name))
         self.parent.inscr = inscr
-        self.parent.update_hidden()    
+        self.parent.update_hidden()
       else:
         self.change(new_text)
     self.setTextInteractionFlags(Qt.NoTextInteraction)
@@ -195,11 +195,11 @@ class CommentText(QGraphicsTextItem):
     super().__init__("", parent)
     self.parent = parent
 
-  def edit_comment(self):  
+  def edit_comment(self):
     self.setTextInteractionFlags(Qt.TextEditorInteraction)
     self.setFocus()
 
-  def delete_comment(self):  
+  def delete_comment(self):
     if not self.parent.canvas.frag:
       self.parent.canvas.moni.nexus.send(DeleteElementManipulation(self.parent.canvas.agent, self.parent.canvas.moni.id, self.parent.name))
     self.parent.canvas.scene.removeItem(self.parent)
@@ -212,7 +212,7 @@ class CommentText(QGraphicsTextItem):
       if font_color == self.parent.canvas.colors.comment.name()[1:]:
         self.parent.font_color = None
         self.setDefaultTextColor(self.parent.canvas.colors.comment)
-      else:  
+      else:
         self.parent.font_color = font_color
         self.setDefaultTextColor(QColor(int(self.parent.font_color[:2], 16), int(self.parent.font_color[2:4], 16), int(self.parent.font_color[4:6], 16)))
       self.parent.canvas.moni.nexus.send(CommentManipulation(self.parent.canvas.agent, self.parent.canvas.moni.id, self.parent.name, self.parent.font_color, self.parent.font_size, self.parent.font_type))
@@ -251,10 +251,10 @@ class CommentText(QGraphicsTextItem):
       super().keyPressEvent(event)
 
   @property
-  def context(self):  
+  def context(self):
     return [("edit comment", self.edit_comment), ("delete comment", self.delete_comment), ("change color", self.change_color), ("change font", self.change_font)]
 
-class CommentFigure(QGraphicsItem):    
+class CommentFigure(QGraphicsItem):
   type = "comment"
   ismeta = False
   isplace = False
@@ -287,7 +287,7 @@ class CommentFigure(QGraphicsItem):
       self.font_color = args
       self.font_size = None
       self.font_type = None
-    else:  
+    else:
       self.font_color = None
       self.font_size = None
       self.font_type = None
@@ -308,10 +308,10 @@ class CommentFigure(QGraphicsItem):
     self.text.setFont(QFont(font_type, int(font_size)))
     if self.font_color:
       self.text.setDefaultTextColor(QColor(int(self.font_color[:2], 16), int(self.font_color[2:4], 16), int(self.font_color[4:6], 16)))
-    else:  
+    else:
       self.text.setDefaultTextColor(self.canvas.colors.comment)
     self.setZValue(2)
-    
+
     self.canvas.scene.clearSelection()
     self.canvas.scene.addItem(self)
 
@@ -328,7 +328,7 @@ class CommentFigure(QGraphicsItem):
         return QPointF(x, y)
       else:
         self.created = True
-    return QGraphicsItem.itemChange(self, change, value)  
+    return QGraphicsItem.itemChange(self, change, value)
 
   def boundingRect(self):
     return self.text.boundingRect()
@@ -379,7 +379,7 @@ class Figure(QGraphicsItem):
 
   @property
   def context(self):
-    return [("delete element", self.delete_element)] if self.canvas.edit else []
+    return [("edit name", self.edit_name), ("delete element", self.delete_element)] if self.canvas.edit else []
 
   def edit_name(self):
     self.header.setTextInteractionFlags(Qt.TextEditorInteraction)
@@ -409,7 +409,7 @@ class Figure(QGraphicsItem):
         if not arc.hidden:
           self.canvas.scene.removeItem(arc)
     self.canvas.scene.removeItem(self)
-    del self.canvas.figures[self.name]    
+    del self.canvas.figures[self.name]
     flood(self.canvas.figures, self.canvas.arcs)
 
   def paint(self, painter, option, widget):
@@ -419,7 +419,7 @@ class Figure(QGraphicsItem):
     is_firing = self.canvas.firing == self.name
     pen.setColor(self.canvas.colors.transborder[is_firing + self.errored * 2 + is_selected * 4])
     painter.setPen(pen)
-  
+
   def boundingRect(self):
     return self.rect.adjusted(-2, -2, 2, 2)
 
@@ -436,13 +436,13 @@ class Figure(QGraphicsItem):
         return QPointF(x, y)
       else:
         self.created = True
-    return QGraphicsItem.itemChange(self, change, value)  
+    return QGraphicsItem.itemChange(self, change, value)
 
 class MetaFigure(Figure):
   ismeta = True
   @property
   def context(self):
-    return ([("edit name", self.edit_name)] if self.canvas.edit else []) + super().context + ([("edit inscription", self.edit_inscription)] if self.canvas.edit else [])
+    return super().context + ([("edit inscription", self.edit_inscription)] if self.canvas.edit else [])
 
   def edit_inscription(self):
     self.footer.setTextInteractionFlags(Qt.TextEditorInteraction)
@@ -462,7 +462,7 @@ class MetaFigure(Figure):
                         QPoint(int((self.rect.left()+self.rect.right())//2), int(self.rect.top())),
                         QPoint(int(self.rect.right()), int(self.rect.bottom())),
                         QPoint(int(self.rect.left()), int(self.rect.bottom())))
-  
+
   def __str__(self):
     return stringify_meta(self)
 
@@ -488,10 +488,10 @@ class PlaceFigure(Figure):
     self.typing = args
     self.typeinscr = TypeInscription(self, self.typing, lambda x,y: (-x / 2, -y / 2), self.canvas.colors.typing)
     self.tokens = Inscription(self, "", lambda x,y: (-x / 2, -y / 2), self.canvas.colors.inscription)
-  
+
   @property
   def context(self):
-    return ([("edit name", self.edit_name)] if self.canvas.edit else []) + super().context + [("edit seed", self.edit_seed)] + ([("edit type", self.edit_type)] if not isinstance(self, FlowFigure) else []) + ([("change to.{}".format(t), lambda p=self,t=t: self.canvas.change_to(p,t)) for t in ("var", "know", "flow", "pool", "queue", "stack", "heap", "set", "phantom") if t != self.type] if self.canvas.edit else [])
+    return super().context + [("edit seed", self.edit_seed)] + ([("edit type", self.edit_type)] if not isinstance(self, FlowFigure) else []) + ([("change to.{}".format(t), lambda p=self,t=t: self.canvas.change_to(p,t)) for t in ("var", "know", "flow", "pool", "queue", "stack", "heap", "set", "phantom") if t != self.type] if self.canvas.edit else [])
 
   def edit_seed(self):
     self.footer.setTextInteractionFlags(Qt.TextEditorInteraction)
@@ -656,7 +656,7 @@ class TransFigure(Figure):
       inscr += "writes: " + "; ".join(":"+arc.place if arc.alias == arc.place else arc.alias+":"+arc.place if arc.alias else arc.place for arc in self.writes if arc.hidden) + "\n"
     inscr += "\n".join(line for line in self.inscr.split("\n") if not re.match(linker, line))
     self.footer.change(inscr)
-  
+
   def shape(self):
     path = QPainterPath()
     path.addRect(self.rect)
@@ -717,47 +717,47 @@ class SlotFigure(TransFigure):
 class NethodFigure(TransFigure):
   type = "nethod"
   size = 23,17
-  
+
 class CallFigure(TransFigure):
   type = "call"
   size = 23,17
-  
+
 class ReturnFigure(TransFigure):
   type = "return"
   size = 23,17
-  
+
 class RaiseFigure(TransFigure):
   type = "raise"
   size = 23,17
-  
+
 class OutFigure(TransFigure):
   type = "out"
   size = 23,17
-  
+
 class InFigure(TransFigure):
   type = "in"
   size = 23,17
-  
+
 class TaskFigure(TransFigure):
   type = "task"
   size = 23,17
-  
+
 class InvocationFigure(TransFigure):
   type = "invoke"
   size = 23,17
-  
+
 class ResultFigure(TransFigure):
   type = "result"
   size = 23,17
-  
+
 class FailFigure(TransFigure):
   type = "fail"
   size = 23,17
-  
+
 class EventFigure(TransFigure):
   type = "event"
   size = 23,17
-  
+
 class SpawnFigure(TransFigure):
   type = "spawn"
   size = 23,23

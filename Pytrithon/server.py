@@ -10,37 +10,37 @@ class AgentMediator:
   def __init__(self, handler, name):
     self.handler = handler
     self.name = name
-  
+
   def send(self, obj):
     try:
       pickle.dump(obj, self.handler.wfile, protocol=2)
-    except ConnectionResetError:
+    except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
       self.send = lambda o: None
-      
+
 class MonipulatorMediator:
   direct = True
   def __init__(self, handler, moniid):
     self.handler = handler
     self.moniid = moniid
-  
+
   def send(self, obj):
     try:
       pickle.dump(obj, self.handler.wfile, protocol=2)
-    except ConnectionResetError:
+    except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
       self.send = lambda o: None
-      
+
 class MasterMediator:
   direct = False
   def __init__(self, handler, master):
     self.handler = handler
     self.master = master
-  
+
   def send(self, obj):
     try:
       pickle.dump(obj, self.handler.wfile, protocol=2)
-    except ConnectionResetError:
+    except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
       self.send = lambda o: None
-      
+
 class Server(Thread):
   daemon = True
   def __init__(self, nexus, host, port, master):
@@ -58,7 +58,7 @@ class Server(Thread):
     except Empty:
       return None
 
-  def run(self):  
+  def run(self):
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
       self.sock.bind((self.host, self.port))
@@ -141,8 +141,8 @@ class Handler(Thread):
           for nex in nexus.nexi:
             nexus.nexi[nex].send(NexusPropagation(nex, nexus.name, self.nexus, nexus.nametree.tree))
           pickle.dump(NexusConnected(nexus.name, self.nexus, nexus.nametree.tree, nexus.agentlist, [a for a in nexus.agents], nexus.deadagents, {m for m in nexus.monis}, nexus.deadmonis, nexus.task, dict(nexus.tasklisteners), dict(nexus.invocationlisteners), dict(nexus.communicationlisteners), dict(nexus.eventlisteners)), self.wfile, protocol=2)
-        break  
-      except EOFError:
+        break
+      except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
         return
 
   def run(self):
@@ -150,7 +150,7 @@ class Handler(Thread):
       while self.running:
         try:
           self.server.queue.put(pickle.load(self.rfile))
-        except (EOFError, ConnectionResetError, ConnectionAbortedError):
+        except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
           nexus = self.server.nexus
           nexus.remove_agents({self.agent})
           nexus.unregister_agents({self.agent})
@@ -162,7 +162,7 @@ class Handler(Thread):
       while self.running:
         try:
           self.server.queue.put(pickle.load(self.rfile))
-        except (EOFError, ConnectionResetError, ConnectionAbortedError):
+        except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
           nexus = self.server.nexus
           del nexus.monis[self.moniid]
           nexus.deadmonis.add(self.moniid)
@@ -173,7 +173,7 @@ class Handler(Thread):
       while self.running:
         try:
           self.server.queue.put(pickle.load(self.rfile))
-        except (EOFError, ConnectionResetError, ConnectionAbortedError):
+        except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
           nexus = self.server.nexus
           kept, pruned = nexus.nametree.prune(self.nexus, nexus.name)
           agents = {a for a in nexus.agents if any(a.endswith("@"+p) for p in pruned)}

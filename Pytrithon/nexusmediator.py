@@ -20,16 +20,16 @@ class NexusMediator(Thread):
     self.rfile = self.sock.makefile("br")
     self.wfile = self.sock.makefile("bw", 0)
 
-    if core:
-      pickle.dump(AgentStarted(self.core.agent.name), self.wfile, protocol=2)
-    if moni:  
-      pickle.dump(MonipulatorAvailable(), self.wfile, protocol=2)
-    if nexus:
-      pickle.dump(ConnectNexus(self.nexus.name), self.wfile, protocol=2)
+    try:
+      if core:
+        pickle.dump(AgentStarted(self.core.agent.name), self.wfile, protocol=2)
+      if moni:
+        pickle.dump(MonipulatorAvailable(), self.wfile, protocol=2)
+      if nexus:
+        pickle.dump(ConnectNexus(self.nexus.name), self.wfile, protocol=2)
 
-    primal = False
-    while 1:
-      try:
+      primal = False
+      while 1:
         primal = pickle.load(self.rfile)
         if isinstance(primal, AgentNamed):
           self.core.agent.name = primal.agent
@@ -43,7 +43,7 @@ class NexusMediator(Thread):
           for name in Tree(primal.nametree).flat:
             if name != primal.name:
               self.nexus.nexi[name] = self
-          for agent in primal.agentlist:    
+          for agent in primal.agentlist:
             self.nexus.agentlist.append(agent)
           for agent in primal.agents:
             self.nexus.agents[agent] = self
@@ -56,10 +56,10 @@ class NexusMediator(Thread):
           self.nexus.invocationlisteners.update(primal.involist)
           self.nexus.communicationlisteners.update(primal.commlist)
           self.nexus.eventlisteners.update(primal.eventlist)
-        break  
-      except EOFError:
-        return
-      
+        break
+    except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
+      return
+
     if self.nexus:
       self.start()
     else:
@@ -69,7 +69,7 @@ class NexusMediator(Thread):
   def send(self, obj):
     try:
       pickle.dump(obj, self.wfile, protocol=2)
-    except ConnectionResetError:
+    except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
       self.send = lambda o: None
 
   def receive(self):
@@ -83,14 +83,14 @@ class NexusMediator(Thread):
       return pickle.load(self.rfile)
     except TypeError:
       return None
-    except ConnectionResetError:
+    except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
       return None
 
   def run(self):
     while 1:
       try:
         self.nexus.server.queue.put(pickle.load(self.rfile))
-      except (EOFError, ConnectionResetError, ConnectionAbortedError):
+      except (EOFError, ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
         nexus = self.nexus
         kept, pruned = nexus.nametree.prune(nexus.nametree.parent(nexus.name), nexus.name)
         agents = {a for a in nexus.agents if any(a.endswith("@"+p) for p in pruned)}
