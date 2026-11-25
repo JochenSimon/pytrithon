@@ -10,11 +10,6 @@ from Pytrithon import __version__
 import ctypes
 
 try:
-  ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("pytrithon.agent."+__version__)
-except Exception:
-  pass
-
-try:
   with open("config.yaml") as y:
     config = yaml.safe_load(y)
 except FileNotFoundError:
@@ -46,6 +41,11 @@ elif config and "port" in config:
   port = config["port"]
 else:
   port = 9001
+
+try:
+  ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("pytrithon.agent.v"+__version__+"@"+str(port))
+except Exception:
+  pass
 
 if args.delay is not None:
   delay = args.delay

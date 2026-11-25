@@ -9,11 +9,6 @@ from Pytrithon.version import __version__
 import ctypes
 
 try:
-  ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("pytrithon.monipulator."+__version__)
-except Exception:
-  pass
-
-try:
   with open("config.yaml") as y:
     config = yaml.safe_load(y)
 except FileNotFoundError:
@@ -47,6 +42,11 @@ elif config and "port" in config:
 else:
   port = 9001
 
+try:
+  ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("pytrithon.monipulator.v"+__version__+"@"+str(port))
+except Exception:
+  pass
+
 console = not args.console if console else args.console
 bundle = not args.bundle if bundle else args.bundle
 info = not args.info if info else args.info
@@ -76,7 +76,7 @@ if args.font:
     font = QFont(args.font.split(":")[0], int(args.font.split(":")[1]))
   else:
     font = QFont(args.font, 8)
-  app.setFont(font)  
+  app.setFont(font)
 elif config and "font" in config:
   if ":" in config["font"]:
     font = QFont(config["font"].split(":")[0], int(config["font"].split(":")[1]))
