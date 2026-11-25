@@ -20,7 +20,7 @@ class AgentToNexi(Relayed):
       for nex in nexus.nexi:
         self.dest = nex
         nexus.nexi[nex].send(self)
-      self.execute(nexus)  
+      self.execute(nexus)
     elif "," in self.dest:
       dests = [d.strip() for d in self.dest.split(",")]
       if nexus.name in dests:
@@ -68,7 +68,7 @@ class AgentToAgentsTask(AgentToAgents):
       nexus.task += 1
       for nex in nexus.nexi:
         nexus.nexi[nex].send(TaskPropagation(nex, nexus.task))
-    AgentToAgents.relay(self, nexus)  
+    AgentToAgents.relay(self, nexus)
 class AgentToMoni(Relayed):
   _slots = [("agent", str), ("monis", {str})]
   def relay(self, nexus):
@@ -135,6 +135,8 @@ class FetchNames(Relayed):
   _slots = [("moniid", str), ("names", [str])]
   def relay(self, nexus):
     self.names = nexus.nametree.flat
+    self.names.remove(nexus.name)
+    self.names = [nexus.name] + self.names
     nexus.monis[self.moniid].send(self)
 class FetchElsewhere(FetchNames):
   def relay(self, nexus):
@@ -187,7 +189,7 @@ class TerminationCleanup(AgentToNexi):
     nexus.nametree.tree = self.nametree
     for name in self.names:
       del nexus.nexi[name]
-    nexus.remove_agents(self.agents)  
+    nexus.remove_agents(self.agents)
     nexus.unregister_agents(self.agents)
     for moni in self.monis:
       del nexus.monis[moni]
@@ -198,7 +200,7 @@ class TerminatedLocal(Relayed):
       nexus.monis[moni].send(TerminatedProcess())
     for agent in nexus.agents:
       nexus.agents[agent].send(TerminatedProcess())
-    sleep(0.1)  
+    sleep(0.1)
     exit()
 class MoniLost(MoniToAgent):
   def execute(self, core):
@@ -292,7 +294,7 @@ class NameManipulation(MoniToAgentProtected):
         link.place = self.newname
       if link.trans == self.oldname:
         link.trans = self.newname
-    flood(core.agent.elements, core.agent.globallinks)    
+    flood(core.agent.elements, core.agent.globallinks)
     if element.isfrag:
       element.load()
       element.init()
@@ -302,7 +304,7 @@ class InscriptionManipulation(MoniToAgentProtected):
   def execute(self, core):
     if core.agent.elements[self.name].isplace:
       core.agent.elements[self.name].seed = self.inscr
-    else:  
+    else:
       core.agent.elements[self.name].create_links(self.inscr)
     core.give_structure(but=self.moniid)
 class TypeManipulation(MoniToAgentProtected):
