@@ -82,7 +82,7 @@ elif ":" in args.nexus:
 else:
   master = args.nexus, config["port"] if config and "port" in config else 9001
 
-server = not args.server if server else args.server
+server = not args.SERVER if server else args.SERVER
 transfer = not args.transfer if transfer else args.transfer
 isolate = not args.ISOLATE if isolate else args.ISOLATE
 moni = not args.moni if moni else args.moni
