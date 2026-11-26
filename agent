@@ -25,18 +25,18 @@ parser = argparse.ArgumentParser()
 parser.add_argument("agent", help="agent to start")
 parser.add_argument("arguments", nargs="*", help="arguments to the agent")
 parser.add_argument("-v", "--version", action="version", version="Pytrithon Agent " + __version__, help="print the Pytrithon version and exit")
-parser.add_argument("-P", "--PORT", type=int, help="port to run on")
+parser.add_argument("-P", "--port", type=int, help="port to run on")
 parser.add_argument("-d", "--delay", type=int, help="set core delay in milliseconds")
 parser.add_argument("-p", "--poll", type=int, help="set idle poll resolution in milliseconds")
 parser.add_argument("-e", "--edit", action="store_true", help="do not start agent in edit mode" if edit else "start agent in edit mode")
-parser.add_argument("-H", "--HALT", action="store_true", help="do not start agent halted" if halt else "start agent halted")
+parser.add_argument("-H", "--halt", action="store_true", help="do not start agent halted" if halt else "start agent halted")
 parser.add_argument("-s", "--secret", action="store_true", help="do not start agent in secret mode" if secret else "start agent in secret mode")
-parser.add_argument("-M", "--MUTE", action="store_true", help="do not start agent muted" if mute else "start agent muted")
-parser.add_argument("-E", "--ERRORS", action="store_true", help="hide agent errors" if errors else "show agent errors")
+parser.add_argument("-M", "--mute", action="store_true", help="do not start agent muted" if mute else "start agent muted")
+parser.add_argument("-E", "--errors", action="store_true", help="hide agent errors" if errors else "show agent errors")
 args = parser.parse_args()
 
-if args.PORT is not None:
-  port = args.PORT
+if args.port is not None:
+  port = args.port
 elif config and "port" in config:
   port = config["port"]
 else:
@@ -62,10 +62,10 @@ else:
   poll = 10
 
 edit = not args.edit if edit else args.edit
-halt = not args.HALT if halt else args.HALT
+halt = not args.halt if halt else args.halt
 secret = not args.secret if secret else args.secret
-mute = not args.MUTE if mute else args.MUTE
-errors = not args.ERRORS if errors else args.ERRORS
+mute = not args.mute if mute else args.mute
+errors = not args.errors if errors else args.errors
 
 name = args.agent
 

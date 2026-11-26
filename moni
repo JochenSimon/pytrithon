@@ -24,19 +24,19 @@ quit = config and "quit" in config and config["quit"]
 parser = argparse.ArgumentParser()
 parser.add_argument("fragments", nargs="*", help="fragments to open")
 parser.add_argument("-v", "--version", action="version", version="Pytrithon Monipulator " + __version__, help="print the Pytrithon version and exit")
-parser.add_argument("-P", "--PORT", type=int, help="port to run on")
+parser.add_argument("-P", "--port", type=int, help="port to run on")
 parser.add_argument("-c", "--console", action="store_true", help="do not open console" if console else "open console")
 parser.add_argument("-b", "--bundle", action="store_true", help="do not bundle all agents into one console" if bundle else "bundle all agents into one console")
 parser.add_argument("-i", "--info", action="store_true", help="do not log monipulator information to console" if info else "log monipulator information to console")
 parser.add_argument("-o", "--open", action="store_true", help="do not open first agent" if autoopen else "open first agent")
-parser.add_argument("-L", "--LIGHT", action="store_true", help="do not run in light mode" if light else "run in light mode")
+parser.add_argument("-L", "--light", action="store_true", help="do not run in light mode" if light else "run in light mode")
 parser.add_argument("-q", "--quit", action="store_true", help="do not terminate all processes when monipulator closed" if quit else "terminate all processes when monipulator closed")
 parser.add_argument("-z", "--zoom", type=int, help="set monipulator zoom")
 parser.add_argument("-f", "--font", help="set monipulator font:size")
 args = parser.parse_args()
 
-if args.PORT is not None:
-  port = args.PORT
+if args.port is not None:
+  port = args.port
 elif config and "port" in config:
   port = config["port"]
 else:
@@ -51,7 +51,7 @@ console = not args.console if console else args.console
 bundle = not args.bundle if bundle else args.bundle
 info = not args.info if info else args.info
 autoopen = not args.open if autoopen else args.open
-light = not args.LIGHT if light else args.LIGHT
+light = not args.light if light else args.light
 quit = not args.quit if quit else args.quit
 
 for frag in args.fragments:

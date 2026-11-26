@@ -35,26 +35,26 @@ parser = argparse.ArgumentParser()
 parser.add_argument("agents", nargs="*", help="agents to start")
 parser.add_argument("-v", "--version", action="version", version="Pytrithon Nexus " + __version__, help="print the Pytrithon version and exit")
 parser.add_argument("-l", "--list", action="store_true", help="list all available agents")
-parser.add_argument("-S", "--SERVER", action="store_true", help="run this nexus locally" if server else "run this nexus as a server")
+parser.add_argument("-S", "--server", action="store_true", help="run this nexus locally" if server else "run this nexus as a server")
 parser.add_argument("-n", "--name", help="name for nexus")
 parser.add_argument("-P", "--PORT", type=int, help="port to run on")
 parser.add_argument("-x", "--nexus", help="master nexus to connect to")
-parser.add_argument("-t", "--transfer", action="store_true", help="do not allow pushing to this nexus" if isolate else "allow pushing to this nexus")
-parser.add_argument("-I", "--ISOLATE", action="store_true", help="do not isolate nexus from interactions" if isolate else "isolate nexus from interactions")
-parser.add_argument("-D", "--DOMAIN", help="open all started agents in domain")
+parser.add_argument("-t", "--transfer", action="store_true", help="do not allow pushing to this nexus" if transfer else "allow pushing to this nexus")
+parser.add_argument("-I", "--isolate", action="store_true", help="do not isolate nexus from interactions" if isolate else "isolate nexus from interactions")
+parser.add_argument("-D", "--domain", help="open all started agents in domain")
 parser.add_argument("-d", "--delay", type=int, help="set core delay in milliseconds")
 parser.add_argument("-p", "--poll", type=int, help="set idle poll resolution in milliseconds")
 parser.add_argument("-e", "--edit", action="store_true", help="do not start agents in edit mode" if edit else "start agents in edit mode")
-parser.add_argument("-H", "--HALT", action="store_true", help="do not start agents halted" if halt else "start agents halted")
+parser.add_argument("-H", "--halt", action="store_true", help="do not start agents halted" if halt else "start agents halted")
 parser.add_argument("-s", "--secret", action="store_true", help="do not start agents in secret mode" if secret else "start agents in secret mode")
-parser.add_argument("-M", "--MUTE", action="store_true", help="do not start agents muted" if mute else "start agents muted")
-parser.add_argument("-E", "--ERRORS", action="store_true", help="hide agent errors" if errors else "show agent errors")
+parser.add_argument("-M", "--mute", action="store_true", help="do not start agents muted" if mute else "start agents muted")
+parser.add_argument("-E", "--errors", action="store_true", help="hide agent errors" if errors else "show agent errors")
 parser.add_argument("-m", "--moni", action="store_true", help="do not start the monipulator" if moni else "start the monipulator")
 parser.add_argument("-c", "--console", action="store_true", help="do not open console" if console else "open console")
 parser.add_argument("-b", "--bundle", action="store_true", help="do not bundle all agents into one console" if bundle else "bundle all agents into one console")
 parser.add_argument("-i", "--info", action="store_true", help="do not log monipulator information to console" if info else "log monipulator information to console")
 parser.add_argument("-o", "--open", action="store_true", help="do not open first agent" if autoopen else "open first agent")
-parser.add_argument("-L", "--LIGHT", action="store_true", help="do not run in light mode" if light else "run in light mode")
+parser.add_argument("-L", "--light", action="store_true", help="do not run in light mode" if light else "run in light mode")
 parser.add_argument("-q", "--quit", action="store_true", help="do not terminate all processes when monipulator closed" if quit else "terminate all processes when monipulator closed")
 parser.add_argument("-z", "--zoom", type=int, help="set monipulator zoom")
 parser.add_argument("-f", "--font", help="set monipulator font:size")
@@ -82,13 +82,13 @@ elif ":" in args.nexus:
 else:
   master = args.nexus, config["port"] if config and "port" in config else 9001
 
-server = not args.SERVER if server else args.SERVER
+server = not args.server if server else args.server
 transfer = not args.transfer if transfer else args.transfer
-isolate = not args.ISOLATE if isolate else args.ISOLATE
+isolate = not args.isolate if isolate else args.isolate
 moni = not args.moni if moni else args.moni
 
-if args.DOMAIN is not None:
-  args.agents = [args.DOMAIN + "." + agent if "." not in agent and not agent.startswith("$") else agent for agent in args.agents]
+if args.domain is not None:
+  args.agents = [args.domain + "." + agent if "." not in agent and not agent.startswith("$") else agent for agent in args.agents]
 
 for agent in args.agents:
   if not agent.startswith("$") and (re.sub(r"[\w.]", "", agent) or agent.startswith(".") or agent.endswith(".")) or agent.startswith("$") and (re.sub(r"[\w.]", "", agent[1:]) or agent[1:].startswith(".") or agent[1:].endswith(".")) or not agent or agent == "$" or ".." in agent:
@@ -104,7 +104,7 @@ sys.path.insert(0, "workbench")
 
 def after():
   if moni:
-    subprocess.Popen(["python", "moni"] + (["-P", str(args.PORT)] if args.PORT is not None else []) + (["-c"] if args.console else []) + (["-b"] if args.bundle else []) + (["-i"] if args.info else []) + (["-o"] if args.open else []) + (["-L"] if args.LIGHT else []) + (["-q"] if args.quit else []) + (["-z", str(args.zoom)] if args.zoom is not None else []) + (["-f", args.font] if args.font is not None else []) + [frag for frag in args.agents if frag.startswith("$")])
+    subprocess.Popen(["python", "moni"] + (["-P", str(args.PORT)] if args.PORT is not None else []) + (["-c"] if args.console else []) + (["-b"] if args.bundle else []) + (["-i"] if args.info else []) + (["-o"] if args.open else []) + (["-L"] if args.light else []) + (["-q"] if args.quit else []) + (["-z", str(args.zoom)] if args.zoom is not None else []) + (["-f", args.font] if args.font is not None else []) + [frag for frag in args.agents if frag.startswith("$")])
 
   agents = [agent for agent in args.agents if not agent.startswith("$")]
   if len(agents) == 1:
@@ -114,7 +114,7 @@ def after():
   for agent,arg in zip_longest(agents, arguments, fillvalue=""):
     if agent:
       sleep(0.4)
-      subprocess.Popen(["python", "agent"] + (["-P", str(args.PORT)] if args.PORT is not None else []) + (["-d", str(args.delay)] if args.delay is not None else []) + (["-p", str(args.poll)] if args.poll is not None else []) + (["-e"] if args.edit else []) + (["-H"] if args.HALT else []) + (["-s"] if args.secret else []) + (["-M"] if args.MUTE else []) + (["-E"] if args.ERRORS else []) + [agent] + [a for a in arg.split(" ") if a])
+      subprocess.Popen(["python", "agent"] + (["-P", str(args.PORT)] if args.PORT is not None else []) + (["-d", str(args.delay)] if args.delay is not None else []) + (["-p", str(args.poll)] if args.poll is not None else []) + (["-e"] if args.edit else []) + (["-H"] if args.halt else []) + (["-s"] if args.secret else []) + (["-M"] if args.mute else []) + (["-E"] if args.errors else []) + [agent] + [a for a in arg.split(" ") if a])
 
 nexus = Nexus(args.name, "0.0.0.0" if server else "localhost", port, master, transfer, isolate, config, after)
 
